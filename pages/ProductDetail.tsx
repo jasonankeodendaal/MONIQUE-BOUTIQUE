@@ -1,10 +1,9 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ExternalLink, ShieldCheck, ArrowLeft, Play, Package, Share2, Tag } from 'lucide-react';
 import { INITIAL_PRODUCTS } from '../constants';
 import { useSettings } from '../App';
-import { Product } from '../types';
+import { Product, DiscountRule } from '../types';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams();
@@ -99,7 +98,7 @@ const ProductDetail: React.FC = () => {
               </div>
 
               <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-                {media.map((_, i) => (
+                {media.map((_: any, i: number) => (
                   <button 
                     key={i} 
                     onClick={() => setActiveMediaIndex(i)}
@@ -161,7 +160,7 @@ const ProductDetail: React.FC = () => {
               <div className="mb-10 md:mb-16 p-6 md:p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Active Privileges</h4>
                 <div className="space-y-4">
-                  {product.discountRules.map((rule) => (
+                  {product.discountRules.map((rule: DiscountRule) => (
                     <div key={rule.id} className="flex items-center justify-between">
                       <div className="flex flex-col">
                         <span className="font-bold text-slate-900">{rule.description}</span>
