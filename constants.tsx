@@ -275,122 +275,127 @@ export interface GuideStep {
 export const GUIDE_STEPS: GuideStep[] = [
   {
     id: 'prep_env',
-    title: '1. Local Command Center',
-    description: 'Prepare your machine for professional development. These tools allow you to manage and push code to the cloud.',
+    title: '1. Machine Calibration',
+    description: 'Ensure your development environment is primed for high-performance React deployment.',
     subSteps: [
-      'Install Node.js (v18 or higher) - Essential for React.',
-      'Install Git - Essential for saving and pushing your work.',
-      'Install VS Code - The industry-standard code editor.'
+      'Install Node.js (v18.0+) - The engine for our frontend.',
+      'Install Git - Your version control and cloud gateway.',
+      'Install VS Code - The architect\'s choice for code editing.'
     ],
-    tips: 'This project is built with Vite, meaning it will run incredibly fast on your local machine.'
+    tips: 'This project utilizes Vite for near-instant compilation speeds.'
   },
   {
-    id: 'git_setup',
-    title: '2. Initializing Your Repository',
-    description: 'Turn this folder into a tracked project. Git will remember every change you make from now on.',
-    code: `# Open terminal in this folder and run:
+    id: 'git_init',
+    title: '2. Local Repository Initialization',
+    description: 'Transform this folder into a tracked digital asset. Git will monitor every stylistic evolution.',
+    code: `# Run these commands inside the project root:
 git init
 git add .
-git commit -m "Initial Launch: Kasi Couture Affiliate Portal"
+git commit -m "Launch: Kasi Couture Affiliate Infrastructure"
 git branch -M main`,
     codeLabel: 'Terminal Commands',
     subSteps: [
-      'git init: Creates the hidden .git tracking folder.',
-      'git add .: Stages all files for their first save.',
-      'git commit: Saves the current state of your project.',
-      'git branch: Ensures your main branch is correctly named.'
+      'Initialize: Creates a hidden .git directory.',
+      'Stage & Commit: Captures the current state of your code.',
+      'Main Branch: Sets the industry-standard primary branch name.'
     ]
   },
   {
-    id: 'github_push',
-    title: '3. Connecting to the Cloud (GitHub)',
-    description: 'Create a "Cloud Home" for your code. This is where Vercel will look when it builds your website.',
-    code: `# Create a NEW repo on GitHub.com first, then run:
-git remote add origin https://github.com/[YOUR_USERNAME]/[YOUR_REPO].git
+    id: 'github_sync',
+    title: '3. GitHub Cloud Linkage',
+    description: 'Establish a secure cloud repository on GitHub to act as your production source.',
+    code: `# Create a PRIVATE repo on GitHub.com, then link it:
+git remote add origin https://github.com/[USERNAME]/[REPO_NAME].git
 git push -u origin main`,
-    codeLabel: 'Terminal Commands',
-    tips: 'Replace [YOUR_USERNAME] and [YOUR_REPO] with your actual GitHub details. Do NOT include the brackets.'
+    codeLabel: 'Cloud Deployment Commands',
+    tips: 'Ensure you replace [USERNAME] and [REPO_NAME] with your actual GitHub credentials.'
   },
   {
-    id: 'supabase_setup',
-    title: '4. The Database Engine (Supabase)',
-    description: 'Supabase handles your user logins and stores your images/videos in the cloud.',
+    id: 'supabase_infra',
+    title: '4. Supabase Architecture (Backend)',
+    description: 'Supabase provides the enterprise-grade Authentication and Media Storage for your curation.',
     subSteps: [
-      'Sign up at supabase.com and create a NEW project.',
-      'Name it something professional (e.g., "KasiCouture-DB").',
-      'Wait for the project to provision (takes about 60 seconds).',
-      'Go to Project Settings -> API. You will need the "Project URL" and the "anon public" key later.'
+      'Create a Project at supabase.com.',
+      'Note your PROJECT_URL and ANON_KEY (Settings -> API).',
+      'This infrastructure handles your high-resolution media and admin access keys.'
     ]
   },
   {
     id: 'supabase_sql',
-    title: '5. Database & Storage Config (SQL Master)',
-    description: 'Run this magic script in the Supabase SQL Editor to enable public image hosting and security rules.',
-    code: `-- PASTE THIS INTO THE SUPABASE SQL EDITOR AND CLICK RUN:
-
--- 1. Create the 'media' bucket for your images and videos
+    title: '5. SQL & Media Security Master',
+    description: 'Run this precise SQL script in the Supabase Dashboard -> SQL Editor to enable public image hosting and RLS security.',
+    code: `-- 1. INITIALIZE STORAGE BUCKET
 insert into storage.buckets (id, name, public) 
 values ('media', 'media', true)
 on conflict (id) do nothing;
 
--- 2. ENABLE PUBLIC READ (Everyone can see your products)
-create policy "Allow Public Read" 
+-- 2. PUBLIC READ ACCESS (Allows visitors to view product images)
+create policy "Public Access" 
 on storage.objects for select 
 using ( bucket_id = 'media' );
 
--- 3. ENABLE AUTHENTICATED UPLOAD (Only you can add photos)
-create policy "Allow Admin Upload" 
+-- 3. SECURE ADMIN UPLOAD (Only authenticated admins can add media)
+create policy "Admin Upload" 
 on storage.objects for insert 
 with check ( 
   bucket_id = 'media' 
   and auth.role() = 'authenticated' 
 );
 
--- 4. ENABLE AUTHENTICATED DELETE (Only you can remove photos)
-create policy "Allow Admin Delete" 
+-- 4. SECURE ADMIN DELETION
+create policy "Admin Delete" 
 on storage.objects for delete 
 using ( 
   bucket_id = 'media' 
   and auth.role() = 'authenticated' 
 );`,
-    codeLabel: 'Supabase SQL Script',
-    tips: 'This script ensures your website can display images to the public while only allowing YOU to manage them.'
+    codeLabel: 'Supabase SQL Implementation',
+    tips: 'This ensures your assets are visible to the world while your control panel remains impregnable.'
   },
   {
-    id: 'vercel_deploy',
-    title: '6. Live Deployment (Vercel)',
-    description: 'Vercel is the easiest way to host a React app. It links to your GitHub and deploys automatically.',
+    id: 'google_auth',
+    title: '6. Google OAuth Setup (Auth Provider)',
+    description: 'Enable seamless one-tap login for your admin portal using Google Identity.',
     subSteps: [
-      'Log into vercel.com and click "Add New" -> "Project".',
-      'Import your GitHub repository from Step 3.',
-      'In "Project Settings", locate the "Environment Variables" section.',
-      'Add the two keys from Step 8 below BEFORE clicking Deploy.'
+      'Go to console.cloud.google.com and create a new project.',
+      'Configure the "OAuth consent screen" (External).',
+      'Create "OAuth 2.0 Client IDs" (Web application).',
+      'Add Redirect URI: https://[YOUR_SUPABASE_ID].supabase.co/auth/v1/callback',
+      'In Supabase -> Authentication -> Providers -> Google: Paste Client ID and Secret.'
     ],
-    tips: 'Vercel provides a free .vercel.app domain name instantly.'
+    tips: 'Redirect URIs are specific to your Supabase project instance.'
   },
   {
-    id: 'env_vars',
-    title: '7. Environment Variables (Secret Keys)',
-    description: 'These "Secrets" tell your website how to talk to your Supabase database. Add these in Vercel.',
-    code: `# Vercel Environment Variables:
-VITE_SUPABASE_URL=[PASTE_YOUR_PROJECT_URL_HERE]
-VITE_SUPABASE_ANON_KEY=[PASTE_YOUR_ANON_KEY_HERE]`,
-    codeLabel: 'Key-Value Configuration',
+    id: 'emailjs_config',
+    title: '7. EmailJS Concierge Setup',
+    description: 'Connect your contact form to a professional mailing service without a backend server.',
     subSteps: [
-      'Variable Name: VITE_SUPABASE_URL | Value: Your Project URL.',
-      'Variable Name: VITE_SUPABASE_ANON_KEY | Value: Your Anon Key.',
-      'Important: Both must start with "VITE_" for React to see them.'
+      'Sign up at emailjs.com.',
+      'Add an Email Service (e.g., Gmail, Outlook).',
+      'Create an Email Template for incoming enquiries.',
+      'Copy Public Key, Service ID, and Template ID to Portal -> Settings -> Integrations.'
     ]
   },
   {
-    id: 'final_step',
-    title: '8. Success & Post-Launch',
-    description: 'Once Vercel finishes the build, your site is LIVE! Here is how to finalize your portal.',
+    id: 'vercel_deployment',
+    title: '8. Vercel Production Launch',
+    description: 'Deploy your affiliate bridge to a global CDN for maximum speed and uptime.',
     subSteps: [
-      'Visit your new URL (e.g., https://your-site.vercel.app).',
-      'Go to /login and use your Supabase email to sign in.',
-      'In the Admin Dashboard, go to "Integrations" and add your EmailJS keys if you want a working contact form.'
+      'Import your GitHub repository into Vercel.',
+      'Environment Variables (CRITICAL): Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      'Click Deploy. Vercel will build and host your site on a .vercel.app domain.'
     ],
-    tips: 'Any time you push code to GitHub now, Vercel will automatically update your live website in seconds.'
+    tips: 'Vercel automatically triggers a new deployment every time you push code to GitHub.'
+  },
+  {
+    id: 'final_verification',
+    title: '9. Operational Success',
+    description: 'Finalize your portal and begin curating luxury affiliate picks.',
+    subSteps: [
+      'Visit your live URL.',
+      'Navigate to /login and use Google or your Supabase email to sign in.',
+      'Navigate to Portal -> System and perform a test Backup to verify database integrity.'
+    ],
+    tips: 'Your bridge page is now fully operational and ready for traffic.'
   }
 ];
