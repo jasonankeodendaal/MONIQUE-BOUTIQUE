@@ -46,7 +46,6 @@ export interface ProductStats {
   productId: string;
   views: number;
   clicks: number;
-  totalViewDuration: number; // in seconds
   lastUpdated: number;
 }
 
