@@ -25,7 +25,9 @@ const ProductDetail: React.FC = () => {
     window.scrollTo(0, 0);
     const timeout = setTimeout(() => setIsLoaded(true), 100);
     
-    // Track View
+    // Track View & Duration
+    const startTime = Date.now();
+    
     if (id) {
       const savedStats = JSON.parse(localStorage.getItem('admin_product_stats') || '[]');
       const index = savedStats.findIndex((s: ProductStats) => s.productId === id);
@@ -33,12 +35,32 @@ const ProductDetail: React.FC = () => {
         savedStats[index].views += 1;
         savedStats[index].lastUpdated = Date.now();
       } else {
-        savedStats.push({ productId: id, views: 1, clicks: 0, lastUpdated: Date.now() });
+        savedStats.push({ 
+          productId: id, 
+          views: 1, 
+          clicks: 0, 
+          totalViewDuration: 0, 
+          lastUpdated: Date.now() 
+        });
       }
       localStorage.setItem('admin_product_stats', JSON.stringify(savedStats));
     }
 
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      // Update duration on unmount
+      const endTime = Date.now();
+      const durationSeconds = Math.floor((endTime - startTime) / 1000);
+      
+      if (id && durationSeconds > 0) {
+        const savedStats = JSON.parse(localStorage.getItem('admin_product_stats') || '[]');
+        const index = savedStats.findIndex((s: ProductStats) => s.productId === id);
+        if (index > -1) {
+          savedStats[index].totalViewDuration = (savedStats[index].totalViewDuration || 0) + durationSeconds;
+          localStorage.setItem('admin_product_stats', JSON.stringify(savedStats));
+        }
+      }
+    };
   }, [id]);
 
   const handleTrackClick = () => {
