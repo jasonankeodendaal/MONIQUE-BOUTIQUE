@@ -22,16 +22,48 @@
       .font-serif {
         font-family: 'Playfair Display', serif;
       }
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
+
+      /* Luxury Scrollbar Styling */
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary-color) transparent;
       }
-      .custom-scrollbar::-webkit-scrollbar-track {
+
+      /* Global Scrollbar Reset */
+      ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+
+      ::-webkit-scrollbar-track {
         background: transparent;
       }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #E2E8F0;
-        border-radius: 10px;
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+        transition: background-color 0.4s ease;
       }
+
+      /* Scrollbar adaptation for dark themes (Admin/Hero) */
+      .bg-slate-950 ::-webkit-scrollbar-thumb,
+      .bg-slate-900 ::-webkit-scrollbar-thumb,
+      .bg-black ::-webkit-scrollbar-thumb,
+      [class*="bg-slate-"]::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Hover state - The "Luxury Gold" reveal */
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color) !important;
+        box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5);
+      }
+
+      /* Specialized thin scrollbar for long containers */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+
       @keyframes kenburns {
         0% { transform: scale(1); }
         100% { transform: scale(1.1); }
