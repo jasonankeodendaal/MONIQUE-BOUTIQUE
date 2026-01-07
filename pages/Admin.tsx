@@ -843,3 +843,397 @@ const Admin: React.FC = () => {
       )}
     </div>
   );
+
+  const renderHero = () => (
+     <div className="space-y-6 text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <AdminHelpBox title="Hero Carousel" steps={["Use high-res 16:9 images", "Videos auto-play muted", "Text overlays automatically adjust"]} />
+        {showHeroForm ? ( 
+           <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                 <SettingField label="Title" value={heroData.title || ''} onChange={v => setHeroData({...heroData, title: v})} />
+                 <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Type</label><select className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none" value={heroData.type} onChange={e => setHeroData({...heroData, type: e.target.value as any})}><option value="image">Image</option><option value="video">Video</option></select></div>
+              </div>
+              <SettingField label="Subtitle" value={heroData.subtitle || ''} onChange={v => setHeroData({...heroData, subtitle: v})} type="textarea" />
+              <SettingField label="Button Label" value={heroData.cta || ''} onChange={v => setHeroData({...heroData, cta: v})} />
+              <SingleImageUploader label="Media File" value={heroData.image || ''} onChange={v => setHeroData({...heroData, image: v})} />
+              <div className="flex gap-4"><button onClick={handleSaveHero} className="flex-1 py-5 bg-primary text-slate-900 font-black uppercase text-xs rounded-xl">Save Slide</button><button onClick={() => setShowHeroForm(false)} className="flex-1 py-5 bg-slate-800 text-slate-400 font-black uppercase text-xs rounded-xl">Cancel</button></div>
+           </div> 
+        ) : ( 
+           <div className="grid md:grid-cols-2 gap-6">
+              <button onClick={() => { setHeroData({ title: '', subtitle: '', cta: 'Explore', image: '', type: 'image' }); setShowHeroForm(true); setEditingId(null); }} className="w-full p-8 border-2 border-dashed border-slate-800 rounded-[3rem] flex flex-col items-center justify-center gap-4 text-slate-500 hover:text-primary"><Plus size={48} /><span className="font-black uppercase tracking-widest text-xs">New Slide</span></button>
+              {heroSlides.map(s => (
+                 <div key={s.id} className="relative aspect-video rounded-[3rem] overflow-hidden group border border-slate-800">
+                    {s.type === 'video' ? <video src={s.image} className="w-full h-full object-cover" muted /> : <img src={s.image} className="w-full h-full object-cover" />}
+                    <div className="absolute inset-0 bg-black/60 p-10 flex flex-col justify-end text-left">
+                       <h4 className="text-white text-xl font-serif">{s.title}</h4>
+                       <div className="flex gap-2 mt-4"><button onClick={() => { setHeroData(s); setEditingId(s.id); setShowHeroForm(true); }} className="p-3 bg-white/10 text-white rounded-xl hover:bg-white/20"><Edit2 size={16}/></button><button onClick={() => setHeroSlides(heroSlides.filter(x => x.id !== s.id))} className="p-3 bg-white/10 text-white rounded-xl hover:bg-red-500"><Trash2 size={16}/></button></div>
+                    </div>
+                 </div>
+              ))}
+           </div> 
+        )}
+     </div>
+  );
+
+  const renderCategories = () => (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
+       {showCategoryForm ? (
+          <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-8">
+             <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                   <h3 className="text-white font-bold text-xl mb-4">Department Details</h3>
+                   <SettingField label="Department Name" value={catData.name || ''} onChange={v => setCatData({...catData, name: v})} />
+                   <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={catData.icon || 'Package'} onSelect={icon => setCatData({...catData, icon})} /></div>
+                   <SettingField label="Description" value={catData.description || ''} onChange={v => setCatData({...catData, description: v})} type="textarea" />
+                </div>
+                <div className="space-y-6">
+                   <SingleImageUploader label="Cover Image" value={catData.image || ''} onChange={v => setCatData({...catData, image: v})} className="aspect-[4/3] w-full rounded-2xl" />
+                   
+                   {/* Subcategory Manager inside Category Edit */}
+                   <div className="bg-slate-800/30 p-6 rounded-2xl border border-slate-800">
+                      <h4 className="text-white font-bold text-sm mb-4">Subcategories</h4>
+                      <div className="flex gap-2 mb-4">
+                         <input type="text" placeholder="New Subcategory Name" value={tempSubCatName} onChange={e => setTempSubCatName(e.target.value)} className="flex-grow px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm outline-none" />
+                         <button onClick={() => editingId && handleAddSubCategory(editingId)} className="px-4 bg-slate-700 text-white rounded-xl hover:bg-primary hover:text-slate-900 transition-colors"><Plus size={18}/></button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                         {editingId && subCategories.filter(s => s.categoryId === editingId).map(s => (
+                            <div key={s.id} className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 rounded-lg border border-slate-800">
+                               <span className="text-xs text-slate-300">{s.name}</span>
+                               <button onClick={() => handleDeleteSubCategory(s.id)} className="text-slate-500 hover:text-red-500"><X size={12}/></button>
+                            </div>
+                         ))}
+                         {editingId && subCategories.filter(s => s.categoryId === editingId).length === 0 && <span className="text-slate-500 text-xs italic">No subcategories defined.</span>}
+                      </div>
+                   </div>
+                </div>
+             </div>
+             <div className="flex gap-4 pt-4 border-t border-slate-800"><button onClick={handleSaveCategory} className="flex-1 py-5 bg-primary text-slate-900 font-black uppercase text-xs rounded-xl">Save Dept</button><button onClick={() => setShowCategoryForm(false)} className="flex-1 py-5 bg-slate-800 text-slate-400 font-black uppercase text-xs rounded-xl">Cancel</button></div>
+          </div>
+       ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+             <button onClick={() => { setCatData({ name: '', icon: 'Package', description: '', image: '' }); setShowCategoryForm(true); setEditingId(null); }} className="w-full h-40 border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-primary"><Plus size={32} /><span className="font-black text-[10px] uppercase tracking-widest">New Dept</span></button>
+             {categories.map(c => (
+                <div key={c.id} className="bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-800 flex flex-col relative group">
+                   <div className="h-32 overflow-hidden relative"><img src={c.image} className="w-full h-full object-cover opacity-50" /><div className="absolute inset-0 flex items-center px-8 gap-4"><div className="w-12 h-12 bg-slate-800 text-primary rounded-xl flex items-center justify-center shadow-xl">{React.createElement((LucideIcons as any)[c.icon] || LucideIcons.Package, { size: 20 })}</div><h4 className="font-bold text-white text-lg">{c.name}</h4></div></div>
+                   <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => { setCatData(c); setEditingId(c.id); setShowCategoryForm(true); }} className="p-2 bg-black/50 text-white rounded-lg backdrop-blur-md"><Edit2 size={14}/></button><button onClick={() => setCategories(categories.filter(x => x.id !== c.id))} className="p-2 bg-black/50 text-white rounded-lg backdrop-blur-md hover:bg-red-500"><Trash2 size={14}/></button></div>
+                </div>
+             ))}
+          </div>
+       )}
+    </div>
+  );
+
+  const renderTeam = () => (
+     <div className="space-y-8 max-w-5xl mx-auto text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex justify-between items-end mb-8"><div className="text-left"><h2 className="text-3xl font-serif text-white">Team Management</h2><p className="text-slate-400 text-sm mt-2">Sync with Supabase for secure multi-admin access.</p></div><button onClick={() => { setAdminData({ role: 'admin', permissions: [] }); setShowAdminForm(true); setEditingId(null); }} className="px-6 py-3 bg-primary text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest"><Plus size={16}/> New Member</button></div>
+        
+        {showAdminForm ? (
+           <div className="bg-slate-900 p-8 md:p-12 rounded-[3rem] border border-slate-800 space-y-12">
+              <div className="grid md:grid-cols-2 gap-12">
+                 <div className="space-y-6">
+                    <h3 className="text-white font-bold text-xl border-b border-slate-800 pb-4">Personal Details</h3>
+                    <SettingField label="Full Name" value={adminData.name || ''} onChange={v => setAdminData({...adminData, name: v})} />
+                    <SettingField label="Contact Number" value={adminData.phone || ''} onChange={v => setAdminData({...adminData, phone: v})} />
+                    <SettingField label="Primary Address" value={adminData.address || ''} onChange={v => setAdminData({...adminData, address: v})} type="textarea" />
+                    
+                    <h3 className="text-white font-bold text-xl border-b border-slate-800 pb-4 pt-6">Security Credentials</h3>
+                    <SettingField label="Email Identity" value={adminData.email || ''} onChange={v => setAdminData({...adminData, email: v})} />
+                    <SettingField label="Password" value={adminData.password || ''} onChange={v => setAdminData({...adminData, password: v})} type="password" />
+                 </div>
+                 <div className="space-y-6">
+                    <h3 className="text-white font-bold text-xl border-b border-slate-800 pb-4">Access Control</h3>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">System Role</label>
+                       <select 
+                        className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none" 
+                        value={adminData.role} 
+                        onChange={e => setAdminData({...adminData, role: e.target.value as any, permissions: e.target.value === 'owner' ? ['*'] : []})}
+                       >
+                          <option value="admin">Standard Administrator</option>
+                          <option value="owner">System Owner (Root)</option>
+                       </select>
+                    </div>
+                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest mt-6 block">Detailed Permissions</label>
+                    <PermissionSelector permissions={adminData.permissions || []} onChange={p => setAdminData({...adminData, permissions: p})} role={adminData.role || 'admin'} />
+                 </div>
+              </div>
+              <div className="flex justify-end gap-4 pt-8 border-t border-slate-800">
+                <button onClick={() => setShowAdminForm(false)} className="px-8 py-4 text-slate-400 font-bold uppercase text-xs tracking-widest">Cancel</button>
+                <button 
+                  onClick={handleSaveAdmin} 
+                  disabled={creatingAdmin}
+                  className="px-12 py-4 bg-primary text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20 flex items-center gap-2"
+                >
+                  {creatingAdmin ? <Loader2 size={16} className="animate-spin"/> : <ShieldCheck size={18}/>}
+                  {editingId ? 'Update Privileges' : 'Deploy Member'}
+                </button>
+              </div>
+           </div>
+        ) : (
+           <div className="grid gap-6">
+             {admins.map(a => (
+               <div key={a.id} className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-8 hover:border-primary/40 transition-all group">
+                 <div className="flex items-center gap-8 w-full">
+                    <div className="w-24 h-24 bg-slate-800 rounded-3xl flex items-center justify-center text-slate-400 text-3xl font-bold uppercase border border-slate-700 shadow-inner group-hover:text-primary transition-colors">
+                      {a.profileImage ? <img src={a.profileImage} className="w-full h-full object-cover rounded-3xl"/> : a.name?.charAt(0)}
+                    </div>
+                    <div className="space-y-2 flex-grow">
+                       <div className="flex items-center gap-3">
+                          <h4 className="text-white text-xl font-bold">{a.name}</h4>
+                          <span className={`px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${a.role === 'owner' ? 'bg-primary text-slate-900' : 'bg-slate-800 text-slate-400'}`}>
+                            {a.role}
+                          </span>
+                       </div>
+                       <div className="flex flex-wrap gap-x-6 gap-y-1 text-slate-500 text-sm">
+                          <span className="flex items-center gap-2"><Mail size={14} className="text-primary"/> {a.email}</span>
+                          {a.phone && <span className="flex items-center gap-2"><Phone size={14} className="text-primary"/> {a.phone}</span>}
+                       </div>
+                       <div className="pt-2 flex flex-wrap gap-2">
+                          <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Status:</span>
+                          <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest flex items-center gap-1"><div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"/> Verified</span>
+                          <span className="mx-2 text-slate-800">|</span>
+                          <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Access:</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{a.role === 'owner' ? 'Full System' : `${a.permissions.length} modules`}</span>
+                       </div>
+                    </div>
+                 </div>
+                 <div className="flex gap-3 w-full md:w-auto">
+                    <button onClick={() => { setAdminData(a); setEditingId(a.id); setShowAdminForm(true); }} className="flex-1 md:flex-none p-4 bg-slate-800 text-slate-400 rounded-2xl hover:bg-slate-700 hover:text-white transition-all"><Edit2 size={20}/></button>
+                    <button onClick={() => setAdmins(prev => prev.filter(x => x.id !== a.id))} className="flex-1 md:flex-none p-4 bg-slate-800 text-slate-400 hover:bg-red-500/20 hover:text-red-500 rounded-2xl transition-all"><Trash2 size={20}/></button>
+                 </div>
+               </div>
+             ))}
+           </div>
+        )}
+     </div>
+  );
+
+  const renderSystem = () => (
+     <div className="grid md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="bg-slate-900 p-8 rounded-[2rem] border border-slate-800 text-left space-y-4 flex flex-col justify-between">
+           <div><h3 className="text-white font-bold text-lg mb-2">Data Backup</h3><p className="text-slate-400 text-sm">Download a full JSON snapshot of your store.</p></div>
+           <button onClick={handleBackup} className="px-6 py-4 bg-slate-800 text-white rounded-xl text-xs uppercase font-black hover:bg-slate-700 transition-colors w-full flex items-center justify-center gap-2"><Download size={16}/> Export Data</button>
+        </div>
+        <div className="bg-red-950/20 p-8 rounded-[2rem] border border-red-500/20 text-left space-y-4 flex flex-col justify-between">
+           <div><h3 className="text-white font-bold text-lg mb-2">Danger Zone</h3><p className="text-red-400/70 text-sm">Irreversible actions.</p></div>
+           <button onClick={handleFactoryReset} className="px-6 py-4 bg-red-600 text-white rounded-xl text-xs uppercase font-black hover:bg-red-500 transition-colors w-full flex items-center justify-center gap-2"><Flame size={16}/> Factory Reset</button>
+        </div>
+     </div>
+  );
+
+  const renderGuide = () => (
+     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 max-w-5xl mx-auto text-left">
+        <div className="bg-gradient-to-br from-primary/20 to-transparent p-12 rounded-[3rem] border border-primary/20 relative overflow-hidden">
+          <Rocket className="absolute -bottom-10 -right-10 text-primary/10 w-64 h-64" />
+          <h2 className="text-4xl md:text-5xl font-serif text-white mb-4">Zero to <span className="text-primary italic font-light">Hero</span></h2>
+          <p className="text-slate-400 text-lg font-light max-w-2xl leading-relaxed">The comprehensive manual for taking your affiliate portal live.</p>
+        </div>
+        <div className="grid gap-16">
+          {GUIDE_STEPS.map((step, idx) => (
+            <div key={step.id} className="relative pl-10 md:pl-16 border-l-2 border-slate-800">
+              <div className="absolute -left-[21px] md:-left-[25px] top-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-900 border-4 border-slate-800 flex items-center justify-center text-primary font-bold shadow-lg text-lg">{idx + 1}</div>
+              <div className="mb-8"><h3 className="text-2xl md:text-3xl font-bold text-white mb-3">{step.title}</h3><p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-3xl">{step.description}</p></div>
+              {step.subSteps && (<div className="grid md:grid-cols-2 gap-4 mb-8">{step.subSteps.map((sub, i) => (<div key={i} className="flex items-start gap-4 p-4 bg-slate-800/30 rounded-2xl border border-slate-800"><CheckCircle size={20} className="text-primary mt-0.5 flex-shrink-0" /><span className="text-slate-300 text-sm">{sub}</span></div>))}</div>)}
+              {step.code && (<CodeBlock code={step.code} label={step.codeLabel} />)}
+              {step.tips && (<div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 flex items-start gap-4 text-primary/80 text-sm"><Info size={20} className="mt-0.5 flex-shrink-0" />{step.tips}</div>)}
+            </div>
+          ))}
+        </div>
+      </div>
+  );
+
+  const renderSiteEditor = () => (
+     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {[
+          {id: 'brand', label: 'Identity', icon: Globe, desc: 'Logo, Colors, Slogan'}, 
+          {id: 'nav', label: 'Navigation', icon: MapPin, desc: 'Menu Labels, Footer'}, 
+          {id: 'home', label: 'Home Page', icon: Layout, desc: 'Hero, About, Trust Strip'}, 
+          {id: 'collections', label: 'Collections', icon: ShoppingBag, desc: 'Shop Hero, Search Text'}, 
+          {id: 'about', label: 'About Page', icon: User, desc: 'Story, Values, Gallery'}, 
+          {id: 'contact', label: 'Contact Page', icon: Mail, desc: 'Info, Form, Socials'},
+          {id: 'legal', label: 'Legal Text', icon: Shield, desc: 'Privacy, Terms, Disclosure'},
+          {id: 'integrations', label: 'Integrations', icon: LinkIcon, desc: 'EmailJS, Analytics'}
+        ].map(s => ( 
+          <button key={s.id} onClick={() => { setActiveEditorSection(s.id as any); setEditorDrawerOpen(true); }} className="bg-slate-900 p-8 rounded-[2.5rem] text-left border border-slate-800 hover:border-primary/50 hover:bg-slate-800 transition-all group h-full flex flex-col justify-between">
+             <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-slate-900 transition-colors shadow-lg"><s.icon size={24}/></div>
+             <div><h3 className="text-white font-bold text-xl mb-1">{s.label}</h3><p className="text-slate-500 text-xs">{s.desc}</p></div>
+             <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary opacity-0 group-hover:opacity-100 transition-opacity">Edit Section <ArrowRight size={12}/></div>
+          </button> 
+        ))}
+     </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-950 pt-24 md:pt-32 pb-20">
+      {selectedAdProduct && <AdGeneratorModal product={selectedAdProduct} onClose={() => setSelectedAdProduct(null)} />}
+      {replyEnquiry && <EmailReplyModal enquiry={replyEnquiry} onClose={() => setReplyEnquiry(null)} />}
+
+      <header className="max-w-[1400px] mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 text-left">
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-4">
+            <h1 className="text-4xl md:text-6xl font-serif text-white tracking-tighter">Maison <span className="text-primary italic font-light">Portal</span></h1>
+            <div className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-[9px] font-black text-primary uppercase tracking-[0.2em]">{isLocalMode ? 'LOCAL MODE' : (user?.email?.split('@')[0] || 'ADMIN')}</div>
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-wrap gap-2 p-1.5 bg-slate-900 rounded-2xl border border-slate-800 overflow-x-auto no-scrollbar">
+            {[ 
+              { id: 'enquiries', label: 'Inbox', icon: Inbox }, 
+              { id: 'analytics', label: 'Insights', icon: BarChart3 },
+              { id: 'catalog', label: 'Items', icon: ShoppingBag }, 
+              { id: 'hero', label: 'Visuals', icon: LayoutPanelTop }, 
+              { id: 'categories', label: 'Depts', icon: Layout }, 
+              { id: 'site_editor', label: 'Canvas', icon: Palette }, 
+              { id: 'team', label: 'Maison', icon: Users }, 
+              { id: 'system', label: 'Core', icon: Database }, 
+              { id: 'guide', label: 'Pilot', icon: Rocket } 
+            ].map(tab => (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-primary text-slate-900' : 'text-slate-500 hover:text-slate-300'}`}><div className="flex items-center gap-2"><tab.icon size={12} />{tab.label}</div></button>
+            ))}
+          </div>
+          <button onClick={handleLogout} className="px-6 py-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-red-500 hover:text-white transition-all w-fit"><LogOut size={14} /> Exit</button>
+        </div>
+      </header>
+
+      <main className="max-w-[1400px] mx-auto px-6 pb-20">
+        {activeTab === 'enquiries' && renderEnquiries()}
+        {activeTab === 'analytics' && renderAnalytics()}
+        {activeTab === 'catalog' && renderCatalog()}
+        {activeTab === 'hero' && renderHero()}
+        {activeTab === 'categories' && renderCategories()}
+        {activeTab === 'site_editor' && renderSiteEditor()}
+        {activeTab === 'team' && renderTeam()}
+        {activeTab === 'system' && renderSystem()}
+        {activeTab === 'guide' && renderGuide()}
+      </main>
+
+      {/* Full Screen Editor Drawer */}
+      {editorDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-2xl bg-slate-950 h-full overflow-y-auto border-l border-slate-800 p-8 md:p-12 text-left shadow-2xl slide-in-from-right duration-300">
+            <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-800">
+               <div><h3 className="text-3xl font-serif text-white uppercase">{activeEditorSection}</h3><p className="text-slate-500 text-xs mt-1">Global Site Configuration</p></div>
+               <button onClick={() => setEditorDrawerOpen(false)} className="p-3 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><X size={24}/></button>
+            </div>
+            
+            <div className="space-y-10 pb-20">
+               {activeEditorSection === 'brand' && (
+                  <>
+                     <div className="space-y-6"><h4 className="text-white font-bold flex items-center gap-2"><Globe size={18} className="text-primary"/> Basic Info</h4><SettingField label="Company Name" value={settings.companyName} onChange={v => updateSettings({companyName: v})} /><SettingField label="Slogan" value={settings.slogan || ''} onChange={v => updateSettings({slogan: v})} /><SettingField label="Logo Text" value={settings.companyLogo} onChange={v => updateSettings({companyLogo: v})} /><SingleImageUploader label="Logo Image (PNG)" value={settings.companyLogoUrl || ''} onChange={v => updateSettings({companyLogoUrl: v})} className="h-32 w-full object-contain bg-slate-800/50" /></div>
+                     <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold flex items-center gap-2"><Palette size={18} className="text-primary"/> Brand Colors</h4><div className="grid grid-cols-3 gap-4"><SettingField label="Primary" value={settings.primaryColor} onChange={v => updateSettings({primaryColor: v})} type="color" /><SettingField label="Secondary" value={settings.secondaryColor || '#1E293B'} onChange={v => updateSettings({secondaryColor: v})} type="color" /><SettingField label="Accent" value={settings.accentColor || '#F59E0B'} onChange={v => updateSettings({accentColor: v})} type="color" /></div></div>
+                  </>
+               )}
+               
+               {activeEditorSection === 'nav' && (
+                  <div className="space-y-8">
+                     <div className="space-y-6"><h4 className="text-white font-bold">Menu Labels</h4><div className="grid grid-cols-2 gap-4"><SettingField label="Home" value={settings.navHomeLabel} onChange={v => updateSettings({navHomeLabel: v})} /><SettingField label="Products" value={settings.navProductsLabel} onChange={v => updateSettings({navProductsLabel: v})} /><SettingField label="About" value={settings.navAboutLabel} onChange={v => updateSettings({navAboutLabel: v})} /><SettingField label="Contact" value={settings.navContactLabel} onChange={v => updateSettings({navContactLabel: v})} /></div></div>
+                     <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Footer Content</h4><SettingField label="Description" value={settings.footerDescription} onChange={v => updateSettings({footerDescription: v})} type="textarea" /><SettingField label="Copyright" value={settings.footerCopyrightText} onChange={v => updateSettings({footerCopyrightText: v})} /></div>
+                  </div>
+               )}
+
+               {activeEditorSection === 'home' && (
+                  <>
+                     <div className="space-y-6"><h4 className="text-white font-bold">About Section</h4><SettingField label="Title" value={settings.homeAboutTitle} onChange={v => updateSettings({homeAboutTitle: v})} /><SettingField label="Body" value={settings.homeAboutDescription} onChange={v => updateSettings({homeAboutDescription: v})} type="textarea" /><SettingField label="Button Text" value={settings.homeAboutCta} onChange={v => updateSettings({homeAboutCta: v})} /><SingleImageUploader label="Featured Image" value={settings.homeAboutImage} onChange={v => updateSettings({homeAboutImage: v})} /></div>
+                     <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Trust Strip</h4><SettingField label="Section Title" value={settings.homeTrustSectionTitle} onChange={v => updateSettings({homeTrustSectionTitle: v})} /><div className="grid gap-6">{[1,2,3].map(i => (<div key={i} className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-3"><span className="text-[10px] font-black uppercase text-slate-500">Item {i}</span><SettingField label="Title" value={(settings as any)[`homeTrustItem${i}Title`]} onChange={v => updateSettings({[`homeTrustItem${i}Title`]: v})} /><SettingField label="Desc" value={(settings as any)[`homeTrustItem${i}Desc`]} onChange={v => updateSettings({[`homeTrustItem${i}Desc`]: v})} type="textarea" /><div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={(settings as any)[`homeTrustItem${i}Icon`] || 'ShieldCheck'} onSelect={icon => updateSettings({[`homeTrustItem${i}Icon`]: icon})} /></div></div>))}</div></div>
+                  </>
+               )}
+               
+               {activeEditorSection === 'collections' && (
+                  <div className="space-y-6">
+                     <h4 className="text-white font-bold">Page Hero</h4>
+                     <SettingField label="Hero Title" value={settings.productsHeroTitle} onChange={v => updateSettings({productsHeroTitle: v})} />
+                     <SettingField label="Subtitle" value={settings.productsHeroSubtitle} onChange={v => updateSettings({productsHeroSubtitle: v})} type="textarea" />
+                     <SettingField label="Search Placeholder" value={settings.productsSearchPlaceholder} onChange={v => updateSettings({productsSearchPlaceholder: v})} />
+                     <div className="space-y-4 pt-4 border-t border-slate-800">
+                        <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Hero Carousel Images</label>
+                        <FileUploader files={(settings.productsHeroImages || []).map(url => ({id: url, url, name: 'hero', type: 'image/jpeg', size: 0}))} onFilesChange={files => updateSettings({productsHeroImages: files.map(f => f.url)})} />
+                     </div>
+                  </div>
+               )}
+
+               {activeEditorSection === 'about' && (
+                  <>
+                     <div className="space-y-6"><h4 className="text-white font-bold">Hero</h4><SettingField label="Title" value={settings.aboutHeroTitle} onChange={v => updateSettings({aboutHeroTitle: v})} /><SettingField label="Subtitle" value={settings.aboutHeroSubtitle} onChange={v => updateSettings({aboutHeroSubtitle: v})} type="textarea" /><SingleImageUploader label="Main Image" value={settings.aboutMainImage} onChange={v => updateSettings({aboutMainImage: v})} /></div>
+                     
+                     <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Key Facts</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                           <SettingField label="Established Year" value={settings.aboutEstablishedYear} onChange={v => updateSettings({aboutEstablishedYear: v})} />
+                           <SettingField label="Founder Name" value={settings.aboutFounderName} onChange={v => updateSettings({aboutFounderName: v})} />
+                           <div className="col-span-2"><SettingField label="Location" value={settings.aboutLocation} onChange={v => updateSettings({aboutLocation: v})} /></div>
+                        </div>
+                     </div>
+
+                     <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Content Blocks</h4>
+                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl"><h5 className="text-primary font-bold text-xs uppercase">History</h5><SettingField label="Title" value={settings.aboutHistoryTitle} onChange={v => updateSettings({aboutHistoryTitle: v})} /><SettingField label="Body" value={settings.aboutHistoryBody} onChange={v => updateSettings({aboutHistoryBody: v})} type="textarea" /></div>
+                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl"><h5 className="text-primary font-bold text-xs uppercase">Mission</h5><SettingField label="Title" value={settings.aboutMissionTitle} onChange={v => updateSettings({aboutMissionTitle: v})} /><SettingField label="Body" value={settings.aboutMissionBody} onChange={v => updateSettings({aboutMissionBody: v})} type="textarea" /><div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={settings.aboutMissionIcon || 'Target'} onSelect={icon => updateSettings({aboutMissionIcon: icon})} /></div></div>
+                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl"><h5 className="text-primary font-bold text-xs uppercase">Community</h5><SettingField label="Title" value={settings.aboutCommunityTitle} onChange={v => updateSettings({aboutCommunityTitle: v})} /><SettingField label="Body" value={settings.aboutCommunityBody} onChange={v => updateSettings({aboutCommunityBody: v})} type="textarea" /><div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={settings.aboutCommunityIcon || 'Users'} onSelect={icon => updateSettings({aboutCommunityIcon: icon})} /></div></div>
+                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl"><h5 className="text-primary font-bold text-xs uppercase">Integrity</h5><SettingField label="Title" value={settings.aboutIntegrityTitle} onChange={v => updateSettings({aboutIntegrityTitle: v})} /><SettingField label="Body" value={settings.aboutIntegrityBody} onChange={v => updateSettings({aboutIntegrityBody: v})} type="textarea" /><div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={settings.aboutIntegrityIcon || 'Award'} onSelect={icon => updateSettings({aboutIntegrityIcon: icon})} /></div></div>
+                     </div>
+                     <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Gallery</h4><FileUploader files={(settings.aboutGalleryImages || []).map(url => ({id: url, url, name: 'gallery', type: 'image/jpeg', size: 0}))} onFilesChange={files => updateSettings({aboutGalleryImages: files.map(f => f.url)})} /></div>
+                  </>
+               )}
+
+               {activeEditorSection === 'contact' && (
+                  <>
+                    <div className="space-y-6"><h4 className="text-white font-bold">Hero & Info</h4><SettingField label="Hero Title" value={settings.contactHeroTitle} onChange={v => updateSettings({contactHeroTitle: v})} /><SettingField label="Subtitle" value={settings.contactHeroSubtitle} onChange={v => updateSettings({contactHeroSubtitle: v})} /></div>
+                    
+                    <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Company Details</h4>
+                       <div className="grid md:grid-cols-2 gap-4">
+                          <SettingField label="Email Address" value={settings.contactEmail} onChange={v => updateSettings({contactEmail: v})} />
+                          <SettingField label="Phone Number" value={settings.contactPhone} onChange={v => updateSettings({contactPhone: v})} />
+                       </div>
+                       <SettingField label="Physical Address" value={settings.address} onChange={v => updateSettings({address: v})} />
+                       <div className="grid md:grid-cols-2 gap-4">
+                          <SettingField label="Hours (Weekdays)" value={settings.contactHoursWeekdays} onChange={v => updateSettings({contactHoursWeekdays: v})} />
+                          <SettingField label="Hours (Weekends)" value={settings.contactHoursWeekends} onChange={v => updateSettings({contactHoursWeekends: v})} />
+                       </div>
+                    </div>
+
+                    <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Social Links</h4>
+                       {settings.socialLinks?.map(link => (
+                          <div key={link.id} className="p-6 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col md:flex-row gap-6 items-start">
+                             <div className="w-full md:w-32 flex-shrink-0">
+                                <SingleImageUploader label="Icon" value={link.iconUrl} onChange={v => updateSocialLink(link.id, 'iconUrl', v)} className="aspect-square w-full rounded-xl bg-slate-800" />
+                             </div>
+                             <div className="flex-grow w-full space-y-4">
+                                <SettingField label="Platform Name" value={link.name} onChange={v => updateSocialLink(link.id, 'name', v)} />
+                                <SettingField label="Profile URL" value={link.url} onChange={v => updateSocialLink(link.id, 'url', v)} />
+                             </div>
+                             <button onClick={() => removeSocialLink(link.id)} className="self-end md:self-start p-3 text-slate-500 hover:text-red-500"><Trash2 size={18}/></button>
+                          </div>
+                       ))}
+                       <button onClick={addSocialLink} className="w-full py-4 border border-dashed border-slate-700 text-slate-400 rounded-xl hover:text-white hover:border-slate-500 uppercase font-black text-xs flex items-center justify-center gap-2"><Plus size={16}/> Add Social Link</button>
+                    </div>
+                  </>
+               )}
+
+               {activeEditorSection === 'legal' && (
+                  <div className="space-y-8">
+                     <div className="space-y-4"><h4 className="text-white font-bold">Disclosure</h4><SettingField label="Title" value={settings.disclosureTitle} onChange={v => updateSettings({disclosureTitle: v})} /><SettingField label="Markdown Content" value={settings.disclosureContent} onChange={v => updateSettings({disclosureContent: v})} type="textarea" /></div>
+                     <div className="space-y-4 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Privacy Policy</h4><SettingField label="Title" value={settings.privacyTitle} onChange={v => updateSettings({privacyTitle: v})} /><SettingField label="Markdown Content" value={settings.privacyContent} onChange={v => updateSettings({privacyContent: v})} type="textarea" /></div>
+                     <div className="space-y-4 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Terms of Service</h4><SettingField label="Title" value={settings.termsTitle} onChange={v => updateSettings({termsTitle: v})} /><SettingField label="Markdown Content" value={settings.termsContent} onChange={v => updateSettings({termsContent: v})} type="textarea" /></div>
+                  </div>
+               )}
+
+               {activeEditorSection === 'integrations' && (
+                  <div className="space-y-6">
+                     <AdminHelpBox title="EmailJS Config" steps={["Sign up at emailjs.com", "Create a service (Gmail, etc)", "Create a template", "Copy keys below"]} />
+                     <SettingField label="Service ID" value={settings.emailJsServiceId || ''} onChange={v => updateSettings({emailJsServiceId: v})} />
+                     <SettingField label="Template ID" value={settings.emailJsTemplateId || ''} onChange={v => updateSettings({emailJsTemplateId: v})} />
+                     <SettingField label="Public Key" value={settings.emailJsPublicKey || ''} onChange={v => updateSettings({emailJsPublicKey: v})} />
+                  </div>
+               )}
+            </div>
+
+            <div className="fixed bottom-0 right-0 w-full max-w-2xl p-6 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 flex justify-end gap-4">
+              <button onClick={() => setEditorDrawerOpen(false)} className="px-8 py-4 bg-primary text-slate-900 rounded-xl font-black uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20">Save Configuration</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Admin;
