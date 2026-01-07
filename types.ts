@@ -42,6 +42,13 @@ export interface Product {
   createdAt: number;
 }
 
+export interface ProductStats {
+  productId: string;
+  views: number;
+  clicks: number;
+  lastUpdated: number;
+}
+
 export interface CarouselSlide {
   id: string;
   image: string; // url (video or image)

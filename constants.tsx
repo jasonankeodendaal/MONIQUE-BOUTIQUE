@@ -39,6 +39,16 @@ export const PERMISSION_TREE: PermissionNode[] = [
     ]
   },
   {
+    id: 'analytics',
+    label: 'Business Intelligence',
+    description: 'View traffic and performance reports.',
+    children: [
+      { id: 'analytics.view', label: 'View Dashboard' },
+      { id: 'analytics.products', label: 'Product Performance' },
+      { id: 'analytics.export', label: 'Export Reports' }
+    ]
+  },
+  {
     id: 'system',
     label: 'System Administration',
     description: 'Advanced settings and team management.',

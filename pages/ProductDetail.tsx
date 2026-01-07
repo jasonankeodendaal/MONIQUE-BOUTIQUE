@@ -1,9 +1,10 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ExternalLink, ShieldCheck, ArrowLeft, Play, Package, Share2, Tag } from 'lucide-react';
 import { INITIAL_PRODUCTS } from '../constants';
 import { useSettings } from '../App';
-import { Product, DiscountRule } from '../types';
+import { Product, DiscountRule, ProductStats } from '../types';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams();
@@ -23,8 +24,34 @@ const ProductDetail: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     const timeout = setTimeout(() => setIsLoaded(true), 100);
+    
+    // Track View
+    if (id) {
+      const savedStats = JSON.parse(localStorage.getItem('admin_product_stats') || '[]');
+      const index = savedStats.findIndex((s: ProductStats) => s.productId === id);
+      if (index > -1) {
+        savedStats[index].views += 1;
+        savedStats[index].lastUpdated = Date.now();
+      } else {
+        savedStats.push({ productId: id, views: 1, clicks: 0, lastUpdated: Date.now() });
+      }
+      localStorage.setItem('admin_product_stats', JSON.stringify(savedStats));
+    }
+
     return () => clearTimeout(timeout);
   }, [id]);
+
+  const handleTrackClick = () => {
+    if (id) {
+      const savedStats = JSON.parse(localStorage.getItem('admin_product_stats') || '[]');
+      const index = savedStats.findIndex((s: ProductStats) => s.productId === id);
+      if (index > -1) {
+        savedStats[index].clicks += 1;
+        savedStats[index].lastUpdated = Date.now();
+        localStorage.setItem('admin_product_stats', JSON.stringify(savedStats));
+      }
+    }
+  };
 
   if (!product) {
     return (
@@ -179,6 +206,7 @@ const ProductDetail: React.FC = () => {
               href={product.affiliateLink} 
               target="_blank" 
               rel="noopener noreferrer"
+              onClick={handleTrackClick}
               className="group relative w-full py-5 md:py-8 bg-slate-900 text-white rounded-full overflow-hidden flex items-center justify-center gap-4 md:gap-6 shadow-[0_30px_60px_-15px_rgba(15,23,42,0.3)] hover:-translate-y-1 transition-all active:scale-95"
             >
               <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
