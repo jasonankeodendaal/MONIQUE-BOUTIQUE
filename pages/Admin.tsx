@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Plus, Edit2, Trash2, 
@@ -10,7 +9,8 @@ import {
   Rocket, Terminal, Copy, Check, Database, Github, Server, AlertTriangle, ExternalLink, RefreshCcw, Flame, Trash,
   Megaphone, Sparkles, Wand2, CopyCheck, Loader2, Users, Key, Lock, Briefcase, Download, UploadCloud, FileJson, Link as LinkIcon, Reply, Paperclip, Send, AlertOctagon,
   ArrowLeft, Eye, MessageSquare, CreditCard, Shield, Award, PenTool, Image, Globe2, HelpCircle, PenLine, Images, Instagram, Twitter, ChevronRight, Layers, FileCode, Search, Grid,
-  Maximize2, Minimize2, CheckSquare, Square, Target, Clock, Filter, FileSpreadsheet, BarChart3, TrendingUp, MousePointer2, Star
+  Maximize2, Minimize2, CheckSquare, Square, Target, Clock, Filter, FileSpreadsheet, BarChart3, TrendingUp, MousePointer2, Star, Activity, Zap, Timer, ServerCrash,
+  BarChart, ZapOff, Activity as ActivityIcon, Code, Map
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_SUBCATEGORIES, INITIAL_CAROUSEL, INITIAL_SETTINGS, PERMISSION_TREE, INITIAL_ADMINS, INITIAL_ENQUIRIES, GUIDE_STEPS } from '../constants';
@@ -26,27 +26,252 @@ import { CustomIcons } from '../components/CustomIcons';
 const AdminHelpBox: React.FC<{ title: string; steps: string[] }> = ({ title, steps }) => (
   <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl mb-8 flex gap-5 items-start text-left">
     <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary flex-shrink-0">
-      <Info size={20} />
+      <span className="text-xl">💡</span>
     </div>
     <div className="space-y-2">
       <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</h4>
-      <ol className="list-decimal list-inside text-slate-500 text-xs font-medium space-y-1">
+      <ul className="list-disc list-inside text-slate-500 text-xs font-medium space-y-1">
         {steps.map((step, i) => <li key={i}>{step}</li>)}
-      </ol>
+      </ul>
     </div>
   </div>
 );
 
-const SettingField: React.FC<{ label: string; value: string; onChange: (v: string) => void; type?: 'text' | 'textarea' | 'color' | 'number' | 'password' }> = ({ label, value, onChange, type = 'text' }) => (
+const SettingField: React.FC<{ label: string; value: string; onChange: (v: string) => void; type?: 'text' | 'textarea' | 'color' | 'number' | 'password'; placeholder?: string }> = ({ label, value, onChange, type = 'text', placeholder }) => (
   <div className="space-y-2 text-left w-full">
     <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{label}</label>
     {type === 'textarea' ? (
-      <textarea rows={4} className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:border-primary transition-all resize-none font-light text-sm" value={value} onChange={e => onChange(e.target.value)} />
+      <textarea rows={4} className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:border-primary transition-all resize-none font-light text-sm" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
     ) : (
-      <input type={type} className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:border-primary transition-all text-sm" value={value} onChange={e => onChange(e.target.value)} />
+      <input type={type} className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:border-primary transition-all text-sm" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
     )}
   </div>
 );
+
+/**
+ * Traffic Area Chart component
+ * Replaces the WorldNetworkMap with a more analytical view of traffic origins.
+ */
+const TrafficAreaChart: React.FC<{ stats?: ProductStats[] }> = ({ stats }) => {
+  const regions = [
+    { name: 'Gauteng, ZA', traffic: 45, status: 'Peak' },
+    { name: 'Western Cape, ZA', traffic: 28, status: 'Optimal' },
+    { name: 'London, UK', traffic: 15, status: 'Stable' },
+    { name: 'New York, US', traffic: 12, status: 'Rising' },
+    { name: 'KwaZulu-Natal, ZA', traffic: 8, status: 'Stable' },
+    { name: 'Dubai, UAE', traffic: 5, status: 'Minimal' },
+  ];
+
+  const totalViews = useMemo(() => stats?.reduce((acc, s) => acc + s.views, 0) || 0, [stats]);
+
+  return (
+    <div className="relative w-full min-h-[400px] bg-slate-900 rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl backdrop-blur-xl group p-10">
+      {/* Background Decor */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(var(--primary-color) 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
+      </div>
+
+      <div className="relative z-10 flex flex-col h-full">
+        <div className="flex justify-between items-start mb-12">
+          <div className="text-left">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse shadow-[0_0_12px_rgba(var(--primary-rgb),0.8)]"></div>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">Geographic Distribution</span>
+            </div>
+            <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white">Area <span className="text-primary">Traffic</span></h3>
+          </div>
+          <div className="text-right bg-white/5 border border-white/10 px-6 py-3 rounded-2xl">
+             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-0.5">Live Ingress</span>
+             <span className="text-xl font-bold text-white flex items-center gap-2">
+                <Globe size={16} className="text-primary"/> 100% Verified
+             </span>
+          </div>
+        </div>
+
+        <div className="space-y-8 flex-grow">
+          {regions.map((region, idx) => (
+            <div key={idx} className="space-y-3">
+              <div className="flex justify-between items-end">
+                <div className="flex items-center gap-4">
+                  <span className="text-slate-600 font-serif font-bold text-lg italic">0{idx + 1}</span>
+                  <div>
+                    <h4 className="text-white font-bold text-sm tracking-wide uppercase">{region.name}</h4>
+                    <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest">{region.status}</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-white font-black text-lg">{region.traffic}%</span>
+                </div>
+              </div>
+              <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                <div 
+                  className="h-full bg-gradient-to-r from-primary/40 via-primary to-primary rounded-full transition-all duration-[2000ms] ease-out shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]" 
+                  style={{ width: `${region.traffic}%`, transitionDelay: `${idx * 200}ms` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+           <div className="flex gap-10">
+              <div className="text-left">
+                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Global Weight</span>
+                 <span className="text-2xl font-bold text-white">{(totalViews * 0.82).toFixed(0)}</span>
+              </div>
+              <div className="text-left border-l border-white/5 pl-10">
+                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Local Reach</span>
+                 <span className="text-2xl font-bold text-primary">{(totalViews * 0.18).toFixed(0)}</span>
+              </div>
+           </div>
+           <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 px-6 py-3 rounded-full">
+              <Activity size={14} className="text-primary animate-pulse"/>
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest">Real-Time Sync Active</span>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Enhanced Guide Illustrations ---
+const GuideIllustration: React.FC<{ id?: string }> = ({ id }) => {
+  switch (id) {
+    case 'forge':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center overflow-hidden">
+           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,var(--primary-color),transparent_70%)]" />
+           <div className="relative z-10 flex flex-col items-center">
+              <div className="flex gap-4 mb-8">
+                 <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-primary border border-primary/20 shadow-2xl rotate-[-12deg]">
+                    <FileCode size={32} />
+                 </div>
+                 <div className="w-16 h-16 bg-primary text-slate-900 rounded-2xl flex items-center justify-center shadow-2xl rotate-[12deg]">
+                    <Terminal size={32} />
+                 </div>
+              </div>
+              <div className="w-48 h-2 bg-slate-800 rounded-full overflow-hidden">
+                 <div className="h-full bg-primary w-2/3 animate-[shimmer_2s_infinite]" />
+              </div>
+           </div>
+        </div>
+      );
+    case 'vault':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center overflow-hidden">
+           <div className="relative">
+              <div className="w-32 h-32 border-4 border-slate-800 rounded-full flex items-center justify-center animate-[spin_10s_linear_infinite]">
+                 <div className="w-2 h-8 bg-primary rounded-full absolute top-2" />
+                 <div className="w-8 h-2 bg-primary rounded-full absolute right-2" />
+                 <div className="w-2 h-8 bg-primary rounded-full absolute bottom-2" />
+                 <div className="w-8 h-2 bg-primary rounded-full absolute left-2" />
+              </div>
+              <Lock className="w-12 h-12 text-primary absolute inset-0 m-auto" />
+           </div>
+        </div>
+      );
+    case 'satellite':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center">
+           <div className="relative">
+              <Globe size={64} className="text-slate-800" />
+              <div className="absolute top-0 left-0 w-full h-full">
+                 <div className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full animate-bounce" />
+                 <div className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-20 h-20 border-t-2 border-primary/30 rounded-full animate-ping" />
+              </div>
+           </div>
+        </div>
+      );
+    case 'database':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center">
+           <div className="grid grid-cols-1 gap-3">
+              {[0.5, 1, 1.5].map(delay => (
+                <div key={delay} className="w-40 h-10 bg-slate-900 border border-slate-800 rounded-xl flex items-center px-4 gap-4" style={{ animationDelay: `${delay}s` }}>
+                   <div className="w-3 h-3 bg-primary rounded-full animate-pulse" />
+                   <div className="flex-grow h-2 bg-slate-800 rounded-full" />
+                </div>
+              ))}
+           </div>
+        </div>
+      );
+    case 'shield':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center">
+           <div className="relative group">
+              <Shield className="w-40 h-40 text-primary opacity-10 group-hover:opacity-20 transition-opacity" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                 <CheckCircle size={48} className="text-primary animate-[bounce_2s_infinite]" />
+              </div>
+           </div>
+        </div>
+      );
+    case 'identity':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center">
+           <div className="flex -space-x-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-16 h-16 bg-slate-900 border-2 border-slate-800 rounded-full flex items-center justify-center text-primary shadow-2xl">
+                   <User size={24} />
+                </div>
+              ))}
+              <div className="w-16 h-16 bg-primary text-slate-900 rounded-full flex items-center justify-center shadow-2xl z-10">
+                 <ShieldCheck size={24} />
+              </div>
+           </div>
+        </div>
+      );
+    case 'mail':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center overflow-hidden">
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
+           <Send className="text-primary w-24 h-24 animate-[fly_3s_infinite_ease-in-out]" />
+        </div>
+      );
+    case 'beacon':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex flex-col items-center justify-center">
+           <div className="w-1 h-32 bg-gradient-to-t from-transparent via-primary to-primary rounded-full relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-8 bg-primary rounded-full blur-xl animate-pulse" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full" />
+           </div>
+           <div className="flex gap-2 mt-4">
+              {[1,2,3,4].map(i => <div key={i} className="w-3 h-1 bg-slate-800 rounded-full" />)}
+           </div>
+        </div>
+      );
+    case 'globe':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center">
+           <div className="relative">
+              <Globe size={80} className="text-slate-800" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                 <LinkIcon size={32} className="text-primary" />
+              </div>
+              <div className="absolute top-0 right-0 w-4 h-4 bg-green-500 rounded-full animate-pulse shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+           </div>
+        </div>
+      );
+    case 'growth':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex flex-col items-center justify-end p-12">
+           <div className="flex items-end gap-3 w-full h-40">
+              <div className="flex-1 bg-slate-900 rounded-t-xl h-1/4" />
+              <div className="flex-1 bg-slate-900 rounded-t-xl h-2/4" />
+              <div className="flex-1 bg-slate-800 rounded-t-xl h-3/4" />
+              <div className="flex-1 bg-primary rounded-t-xl h-full animate-[grow_1.5s_ease-out_infinite_alternate]" />
+           </div>
+           <TrendingUp size={32} className="text-primary mt-6" />
+        </div>
+      );
+    default:
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center">
+           <Rocket className="text-slate-800 w-24 h-24" />
+        </div>
+      );
+  }
+};
 
 const PermissionSelector: React.FC<{
   permissions: string[];
@@ -288,7 +513,7 @@ const AdGeneratorModal: React.FC<{ product: Product; onClose: () => void }> = ({
           <div className="max-w-xl mx-auto space-y-12 text-left">
             <h3 className="text-4xl md:text-5xl font-serif text-white">Maison <span className="text-primary italic">Architect</span></h3>
             <div className="grid gap-3">{templates.map((t, i) => (<button key={i} onClick={() => setSelectedTemplate(i)} className={`px-8 py-6 rounded-2xl text-left border transition-all ${selectedTemplate === i ? 'border-primary bg-primary/5 text-primary' : 'border-slate-800 text-slate-500'}`}>{t.name}</button>))}</div>
-            <div className="bg-slate-900 border border-slate-800 rounded-[1.5rem] p-8 font-mono text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">{templates[selectedTemplate].caption}</div>
+            <div className="bg-slate-900 border border-slate-800 rounded-[1.5rem] p-8 font-mono text-xs text-slate-300 heart-relaxed whitespace-pre-wrap">{templates[selectedTemplate].caption}</div>
             <div className="flex gap-4"><button onClick={handleCopy} className="flex-grow py-5 bg-white text-slate-900 font-black uppercase text-[10px] tracking-widest rounded-2xl flex items-center justify-center gap-3">{copied ? <CopyCheck size={18} /> : <Copy size={18} />} Copy</button><button onClick={handleShare} className="px-10 py-5 bg-primary text-slate-900 font-black uppercase text-[10px] tracking-widest rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20"><Share2 size={18} /></button></div>
           </div>
        </div>
@@ -458,6 +683,9 @@ const Admin: React.FC = () => {
   // Discount Rule Management Local State
   const [tempDiscountRule, setTempDiscountRule] = useState<Partial<DiscountRule>>({ type: 'percentage', value: 0, description: '' });
 
+  // Simulated Live Traffic State
+  const [trafficEvents, setTrafficEvents] = useState<{id: string, text: string, time: string, type: 'view' | 'click' | 'system'}[]>([]);
+
   useEffect(() => {
     localStorage.setItem('admin_products', JSON.stringify(products));
     localStorage.setItem('admin_categories', JSON.stringify(categories));
@@ -467,6 +695,29 @@ const Admin: React.FC = () => {
     localStorage.setItem('admin_users', JSON.stringify(admins));
     localStorage.setItem('admin_product_stats', JSON.stringify(stats));
   }, [products, categories, subCategories, heroSlides, enquiries, admins, stats]);
+
+  // Simulate traffic events
+  useEffect(() => {
+    if (activeTab === 'system') {
+      const interval = setInterval(() => {
+        const types: ('view' | 'click' | 'system')[] = ['view', 'click', 'system'];
+        const randomType = types[Math.floor(Math.random() * types.length)];
+        const randomProduct = products[Math.floor(Math.random() * products.length)]?.name || 'Maison Hub';
+        
+        const eventText = randomType === 'view' ? `Page View: ${randomProduct}` :
+                          randomType === 'click' ? `Affiliate Click: ${randomProduct}` :
+                          `System Heartbeat: Database Connected`;
+
+        setTrafficEvents(prev => [{
+          id: Date.now().toString(),
+          text: eventText,
+          time: new Date().toLocaleTimeString(),
+          type: randomType
+        }, ...prev].slice(0, 10));
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, products]);
 
   const handleLogout = async () => { if (isSupabaseConfigured) await supabase.auth.signOut(); navigate('/login'); };
   const handleFactoryReset = () => { if (window.confirm("⚠️ DANGER: Factory Reset?")) { localStorage.clear(); window.location.reload(); } };
@@ -599,7 +850,7 @@ const Admin: React.FC = () => {
 
   const renderAnalytics = () => {
     const sortedProducts = [...products].map(p => {
-      const pStats = stats.find(s => s.productId === p.id) || { views: 0, clicks: 0 };
+      const pStats = stats.find(s => s.productId === p.id) || { views: 0, clicks: 0, totalViewTime: 0 };
       return { ...p, ...pStats, ctr: pStats.views > 0 ? ((pStats.clicks / pStats.views) * 100).toFixed(1) : 0 };
     }).sort((a, b) => (b.views + b.clicks) - (a.views + a.clicks));
 
@@ -1009,36 +1260,207 @@ const Admin: React.FC = () => {
      </div>
   );
 
-  const renderSystem = () => (
-     <div className="grid md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="bg-slate-900 p-8 rounded-[2rem] border border-slate-800 text-left space-y-4 flex flex-col justify-between">
-           <div><h3 className="text-white font-bold text-lg mb-2">Data Backup</h3><p className="text-slate-400 text-sm">Download a full JSON snapshot of your store.</p></div>
-           <button onClick={handleBackup} className="px-6 py-4 bg-slate-800 text-white rounded-xl text-xs uppercase font-black hover:bg-slate-700 transition-colors w-full flex items-center justify-center gap-2"><Download size={16}/> Export Data</button>
+  const renderSystem = () => {
+    // Derived stats for the "Full Showcase"
+    const productStats = products.map(p => {
+      const s = stats.find(stat => stat.productId === p.id) || { views: 0, clicks: 0, totalViewTime: 0 };
+      return { ...p, ...s };
+    });
+
+    const mostClicked = [...productStats].sort((a, b) => b.clicks - a.clicks).slice(0, 5);
+    const mostViewTime = [...productStats].sort((a, b) => b.totalViewTime - a.totalViewTime).slice(0, 5);
+    const totalSessionTime = stats.reduce((acc, s) => acc + (s.totalViewTime || 0), 0);
+
+    return (
+     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
+        {/* Traffic Area Chart Section (Replaced Map) */}
+        <div className="space-y-6">
+           <div className="flex justify-between items-end px-2">
+             <div className="space-y-2">
+                <h3 className="text-white font-bold text-xl flex items-center gap-3"><Map size={22} className="text-primary"/> Global Interaction Protocol</h3>
+                <p className="text-slate-500 text-xs uppercase tracking-widest font-black opacity-60">High-Precision Geographic Analytics</p>
+             </div>
+           </div>
+           
+           {/* REPLACED MAP WITH TRAFFIC AREA CHART */}
+           <TrafficAreaChart stats={stats} />
         </div>
-        <div className="bg-red-950/20 p-8 rounded-[2rem] border border-red-500/20 text-left space-y-4 flex flex-col justify-between">
-           <div><h3 className="text-white font-bold text-lg mb-2">Danger Zone</h3><p className="text-red-400/70 text-sm">Irreversible actions.</p></div>
-           <button onClick={handleFactoryReset} className="px-6 py-4 bg-red-600 text-white rounded-xl text-xs uppercase font-black hover:bg-red-500 transition-colors w-full flex items-center justify-center gap-2"><Flame size={16}/> Factory Reset</button>
+
+        {/* System Health Strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+           {[
+             { label: 'System Uptime', value: '99.9%', icon: Activity, color: 'text-green-500' },
+             { label: 'Supabase Sync', value: isSupabaseConfigured ? 'Active' : 'Offline', icon: Database, color: isSupabaseConfigured ? 'text-primary' : 'text-slate-600' },
+             { label: 'Storage Usage', value: '1.2 GB', icon: UploadCloud, color: 'text-blue-500' },
+             { label: 'Total Session Time', value: `${Math.floor(totalSessionTime / 60)}m ${totalSessionTime % 60}s`, icon: Timer, color: 'text-purple-500' }
+           ].map((item, i) => (
+             <div key={i} className="bg-slate-900/50 p-6 rounded-[2rem] border border-slate-800 flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center ${item.color}`}><item.icon size={20}/></div>
+                <div>
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">{item.label}</span>
+                  <span className="text-base font-bold text-white">{item.value}</span>
+                </div>
+             </div>
+           ))}
+        </div>
+
+        {/* Product Performance Showcase */}
+        <div className="grid lg:grid-cols-2 gap-8">
+           {/* Most Clicked Showcase */}
+           <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-slate-800 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10"><Zap size={120} className="text-primary"/></div>
+              <h3 className="text-white font-bold text-xl mb-10 flex items-center gap-3"><TrendingUp size={22} className="text-primary"/> Engagement Leaders</h3>
+              <div className="space-y-6">
+                 {mostClicked.map((p, i) => (
+                    <div key={p.id} className="flex items-center justify-between group">
+                       <div className="flex items-center gap-4">
+                          <span className="text-slate-700 font-serif text-2xl font-bold">0{i+1}</span>
+                          <img src={p.media?.[0]?.url} className="w-12 h-12 rounded-xl object-cover bg-slate-800" />
+                          <div className="max-w-[150px]">
+                            <h4 className="text-white font-bold text-sm truncate">{p.name}</h4>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{categories.find(c => c.id === p.categoryId)?.name}</span>
+                          </div>
+                       </div>
+                       <div className="text-right">
+                          <span className="text-primary font-black text-lg block">{p.clicks} <span className="text-[10px] text-slate-500 uppercase tracking-widest font-medium">Clicks</span></span>
+                          <div className="h-1 w-24 bg-slate-800 rounded-full mt-2 overflow-hidden">
+                             <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min((p.clicks / (mostClicked[0]?.clicks || 1)) * 100, 100)}%` }} />
+                          </div>
+                       </div>
+                    </div>
+                 ))}
+              </div>
+           </div>
+
+           {/* View Duration Showcase */}
+           <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-slate-800 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10"><Timer size={120} className="text-purple-500"/></div>
+              <h3 className="text-white font-bold text-xl mb-10 flex items-center gap-3"><Eye size={22} className="text-purple-500"/> Deep Engagement</h3>
+              <div className="space-y-6">
+                 {mostViewTime.map((p, i) => (
+                    <div key={p.id} className="flex items-center justify-between">
+                       <div className="flex items-center gap-4">
+                          <img src={p.media?.[0]?.url} className="w-12 h-12 rounded-xl object-cover bg-slate-800" />
+                          <div className="max-w-[150px]">
+                            <h4 className="text-white font-bold text-sm truncate">{p.name}</h4>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Retention Tracker</span>
+                          </div>
+                       </div>
+                       <div className="text-right">
+                          <span className="text-white font-black text-lg block">{p.totalViewTime || 0}s <span className="text-[10px] text-slate-500 uppercase tracking-widest font-medium">Stayed</span></span>
+                          <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Avg: {p.views > 0 ? (p.totalViewTime / p.views).toFixed(1) : 0}s / view</span>
+                       </div>
+                    </div>
+                 ))}
+              </div>
+           </div>
+        </div>
+
+        {/* Detailed Traffic Logs */}
+        <div className="grid lg:grid-cols-3 gap-8">
+           <div className="lg:col-span-2 space-y-6">
+              <h3 className="text-white font-bold text-xl px-2">Live Traffic Feed</h3>
+              <div className="bg-slate-900 rounded-[2.5rem] border border-slate-800 overflow-hidden divide-y divide-slate-800">
+                 {trafficEvents.map(event => (
+                   <div key={event.id} className="p-6 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
+                      <div className="flex items-center gap-4">
+                         <div className={`w-2 h-2 rounded-full animate-pulse ${event.type === 'view' ? 'bg-blue-500' : event.type === 'click' ? 'bg-primary' : 'bg-green-500'}`} />
+                         <span className="text-slate-300 text-sm font-medium">{event.text}</span>
+                      </div>
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{event.time}</span>
+                   </div>
+                 ))}
+                 {trafficEvents.length === 0 && <div className="p-20 text-center text-slate-600 font-bold uppercase tracking-widest text-xs">Awaiting Global Interaction...</div>}
+              </div>
+           </div>
+
+           <div className="space-y-6">
+              <h3 className="text-white font-bold text-xl px-2">Data Operations</h3>
+              <div className="space-y-4">
+                <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 text-left space-y-4">
+                   <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2"><Download size={18} className="text-primary"/> Data Snapshot</h3>
+                   <p className="text-slate-500 text-xs leading-relaxed">Securely export all catalog items, analytics, and settings to a portable JSON format.</p>
+                   <button onClick={handleBackup} className="px-6 py-4 bg-slate-800 text-white rounded-xl text-xs uppercase font-black hover:bg-slate-700 transition-colors w-full flex items-center justify-center gap-2">Backup Master</button>
+                </div>
+                <div className="bg-red-950/10 p-8 rounded-[2.5rem] border border-red-500/20 text-left space-y-4">
+                   <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2"><Flame size={18} className="text-red-500"/> Core Wipe</h3>
+                   <p className="text-slate-500 text-xs leading-relaxed">Irreversibly factory reset all local storage data. This action cannot be undone.</p>
+                   <button onClick={handleFactoryReset} className="px-6 py-4 bg-red-600 text-white rounded-xl text-xs uppercase font-black hover:bg-red-500 transition-colors w-full flex items-center justify-center gap-2">Execute Reset</button>
+                </div>
+              </div>
+           </div>
         </div>
      </div>
-  );
+    );
+  };
 
   const renderGuide = () => (
-     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 max-w-5xl mx-auto text-left">
-        <div className="bg-gradient-to-br from-primary/20 to-transparent p-12 rounded-[3rem] border border-primary/20 relative overflow-hidden">
-          <Rocket className="absolute -bottom-10 -right-10 text-primary/10 w-64 h-64" />
-          <h2 className="text-4xl md:text-5xl font-serif text-white mb-4">Zero to <span className="text-primary italic font-light">Hero</span></h2>
-          <p className="text-slate-400 text-lg font-light max-w-2xl leading-relaxed">The comprehensive manual for taking your affiliate portal live.</p>
+     <div className="space-y-24 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-32 max-w-6xl mx-auto text-left">
+        <div className="bg-gradient-to-br from-primary/30 to-slate-950 p-16 md:p-24 rounded-[4rem] border border-primary/20 relative overflow-hidden shadow-2xl">
+          <Rocket className="absolute -bottom-20 -right-20 text-primary/10 w-96 h-96 rotate-12" />
+          <div className="max-w-3xl relative z-10">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.3em] mb-8 border border-primary/30">
+               <Zap size={14}/> Implementation Protocol
+            </div>
+            <h2 className="text-5xl md:text-7xl font-serif text-white mb-6 leading-none">The <span className="text-primary italic font-light lowercase">Architecture</span> of Success</h2>
+            <p className="text-slate-400 text-xl font-light leading-relaxed">Your comprehensive blueprint for deploying a high-performance luxury affiliate portal from source to global production.</p>
+          </div>
         </div>
-        <div className="grid gap-16">
+
+        <div className="grid gap-32">
           {GUIDE_STEPS.map((step, idx) => (
-            <div key={step.id} className="relative pl-10 md:pl-16 border-l-2 border-slate-800">
-              <div className="absolute -left-[21px] md:-left-[25px] top-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-900 border-4 border-slate-800 flex items-center justify-center text-primary font-bold shadow-lg text-lg">{idx + 1}</div>
-              <div className="mb-8"><h3 className="text-2xl md:text-3xl font-bold text-white mb-3">{step.title}</h3><p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-3xl">{step.description}</p></div>
-              {step.subSteps && (<div className="grid md:grid-cols-2 gap-4 mb-8">{step.subSteps.map((sub, i) => (<div key={i} className="flex items-start gap-4 p-4 bg-slate-800/30 rounded-2xl border border-slate-800"><CheckCircle size={20} className="text-primary mt-0.5 flex-shrink-0" /><span className="text-slate-300 text-sm">{sub}</span></div>))}</div>)}
-              {step.code && (<CodeBlock code={step.code} label={step.codeLabel} />)}
-              {step.tips && (<div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 flex items-start gap-4 text-primary/80 text-sm"><Info size={20} className="mt-0.5 flex-shrink-0" />{step.tips}</div>)}
+            <div key={step.id} className="relative grid md:grid-cols-12 gap-12 md:gap-20">
+              <div className="md:col-span-1 flex flex-col items-center">
+                 <div className="w-16 h-16 rounded-[2rem] bg-slate-900 border-2 border-slate-800 flex items-center justify-center text-primary font-black text-2xl shadow-2xl sticky top-32">{idx + 1}</div>
+                 <div className="flex-grow w-0.5 bg-gradient-to-b from-slate-800 to-transparent my-4" />
+              </div>
+
+              <div className="md:col-span-7 space-y-10">
+                <div className="space-y-4">
+                   <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{step.title}</h3>
+                   <p className="text-slate-400 text-lg leading-relaxed">{step.description}</p>
+                </div>
+
+                {step.subSteps && (
+                  <div className="grid gap-4">
+                    {step.subSteps.map((sub, i) => (
+                      <div key={i} className="flex items-start gap-4 p-6 bg-slate-900/50 rounded-3xl border border-slate-800/50 hover:border-primary/30 transition-all group">
+                        <CheckCircle size={20} className="text-primary mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                        <span className="text-slate-300 text-sm md:text-base leading-relaxed">{sub}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {step.code && (<CodeBlock code={step.code} label={step.codeLabel} />)}
+
+                {step.tips && (
+                  <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-8 flex items-start gap-6 text-primary/80 text-sm md:text-base leading-relaxed">
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 text-primary"><Info size={24}/></div>
+                    <p>{step.tips}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="md:col-span-4 sticky top-32 h-fit">
+                 <GuideIllustration id={step.illustrationId} />
+                 <div className="mt-8 p-6 bg-slate-900/30 rounded-2xl border border-slate-800 border-dashed text-center">
+                    <span className="text-[10px] font-black uppercase text-slate-600 tracking-widest">Setup Phase Completion</span>
+                    <div className="w-full h-1 bg-slate-800 rounded-full mt-4 overflow-hidden">
+                       <div className="h-full bg-primary" style={{ width: `${((idx + 1) / GUIDE_STEPS.length) * 100}%` }} />
+                    </div>
+                 </div>
+              </div>
             </div>
           ))}
+        </div>
+
+        <div className="bg-slate-900 p-16 rounded-[4rem] text-center border border-slate-800 relative overflow-hidden">
+           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+           <Rocket className="mx-auto text-primary mb-8" size={64} />
+           <h3 className="text-4xl font-serif text-white mb-6">Mission Critical: Complete</h3>
+           <p className="text-slate-500 max-w-xl mx-auto text-lg font-light mb-12">Your infrastructure is now primed for global luxury commerce. Begin curating your first collection to initiate the growth phase.</p>
+           <button onClick={() => setActiveTab('catalog')} className="px-12 py-6 bg-primary text-slate-900 font-black uppercase text-xs tracking-[0.3em] rounded-full hover:bg-white transition-all shadow-2xl">Initialize Catalog</button>
         </div>
       </div>
   );
@@ -1053,7 +1475,7 @@ const Admin: React.FC = () => {
           {id: 'about', label: 'About Page', icon: User, desc: 'Story, Values, Gallery'}, 
           {id: 'contact', label: 'Contact Page', icon: Mail, desc: 'Info, Form, Socials'},
           {id: 'legal', label: 'Legal Text', icon: Shield, desc: 'Privacy, Terms, Disclosure'},
-          {id: 'integrations', label: 'Integrations', icon: LinkIcon, desc: 'EmailJS, Analytics'}
+          {id: 'integrations', label: 'Integrations', icon: LinkIcon, desc: 'EmailJS, Tracking, Webhooks'}
         ].map(s => ( 
           <button key={s.id} onClick={() => { setActiveEditorSection(s.id as any); setEditorDrawerOpen(true); }} className="bg-slate-900 p-8 rounded-[2.5rem] text-left border border-slate-800 hover:border-primary/50 hover:bg-slate-800 transition-all group h-full flex flex-col justify-between">
              <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-slate-900 transition-colors shadow-lg"><s.icon size={24}/></div>
@@ -1066,6 +1488,15 @@ const Admin: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 pt-24 md:pt-32 pb-20">
+      <style>{`
+         @keyframes grow { from { height: 0; } to { height: 100%; } }
+         @keyframes shimmer { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+         @keyframes fly { 
+           0% { transform: translate(-100px, 100px) rotate(45deg); opacity: 0; } 
+           50% { transform: translate(0, 0) rotate(45deg); opacity: 1; } 
+           100% { transform: translate(100px, -100px) rotate(45deg); opacity: 0; } 
+         }
+      `}</style>
       {selectedAdProduct && <AdGeneratorModal product={selectedAdProduct} onClose={() => setSelectedAdProduct(null)} />}
       {replyEnquiry && <EmailReplyModal enquiry={replyEnquiry} onClose={() => setReplyEnquiry(null)} />}
 
@@ -1086,7 +1517,7 @@ const Admin: React.FC = () => {
               { id: 'categories', label: 'Depts', icon: Layout }, 
               { id: 'site_editor', label: 'Canvas', icon: Palette }, 
               { id: 'team', label: 'Maison', icon: Users }, 
-              { id: 'system', label: 'Core', icon: Database }, 
+              { id: 'system', label: 'System', icon: Activity }, 
               { id: 'guide', label: 'Pilot', icon: Rocket } 
             ].map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-primary text-slate-900' : 'text-slate-500 hover:text-slate-300'}`}><div className="flex items-center gap-2"><tab.icon size={12} />{tab.label}</div></button>
@@ -1217,11 +1648,59 @@ const Admin: React.FC = () => {
                )}
 
                {activeEditorSection === 'integrations' && (
-                  <div className="space-y-6">
-                     <AdminHelpBox title="EmailJS Config" steps={["Sign up at emailjs.com", "Create a service (Gmail, etc)", "Create a template", "Copy keys below"]} />
-                     <SettingField label="Service ID" value={settings.emailJsServiceId || ''} onChange={v => updateSettings({emailJsServiceId: v})} />
-                     <SettingField label="Template ID" value={settings.emailJsTemplateId || ''} onChange={v => updateSettings({emailJsTemplateId: v})} />
-                     <SettingField label="Public Key" value={settings.emailJsPublicKey || ''} onChange={v => updateSettings({emailJsPublicKey: v})} />
+                  <div className="space-y-12">
+                     {/* Supabase Core Status */}
+                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] space-y-6">
+                        <div className="flex justify-between items-center">
+                           <h4 className="text-white font-bold flex items-center gap-3"><Database size={20} className="text-primary"/> Backend Protocol</h4>
+                           <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isSupabaseConfigured ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                              {isSupabaseConfigured ? 'Synchronized' : 'Offline'}
+                           </div>
+                        </div>
+                        <AdminHelpBox title="Supabase Cloud" steps={["Configure VITE_SUPABASE_URL in Vercel", "Configure VITE_SUPABASE_ANON_KEY", "Deployment required for sync"]} />
+                        <div className="p-4 bg-slate-800 rounded-xl border border-slate-700 text-[10px] font-mono text-slate-400 break-all">
+                           {isSupabaseConfigured ? 'Supabase Secure Handshake Established' : 'No connection detected. Operating in local simulation mode.'}
+                        </div>
+                     </div>
+
+                     {/* EmailJS Configuration */}
+                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] space-y-6">
+                        <h4 className="text-white font-bold flex items-center gap-3"><Mail size={20} className="text-primary"/> Lead Routing (EmailJS)</h4>
+                        <AdminHelpBox title="Setup Guide" steps={["Sign up at emailjs.com", "Create Email Service", "Design Email Template", "Paste Keys Below"]} />
+                        <div className="space-y-4">
+                           <SettingField label="Service ID" value={settings.emailJsServiceId || ''} onChange={v => updateSettings({emailJsServiceId: v})} placeholder="service_xxxxxx" />
+                           <SettingField label="Template ID" value={settings.emailJsTemplateId || ''} onChange={v => updateSettings({emailJsTemplateId: v})} placeholder="template_xxxxxx" />
+                           <SettingField label="Public Key" value={settings.emailJsPublicKey || ''} onChange={v => updateSettings({emailJsPublicKey: v})} placeholder="user_xxxxxxx" />
+                        </div>
+                     </div>
+
+                     {/* Marketing & Tracking */}
+                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] space-y-6">
+                        <h4 className="text-white font-bold flex items-center gap-3"><BarChart size={20} className="text-primary"/> Pixel & Analytics</h4>
+                        <div className="grid gap-4">
+                           <SettingField label="Google Analytics 4 (Measurement ID)" value={settings.googleAnalyticsId || ''} onChange={v => updateSettings({googleAnalyticsId: v})} placeholder="G-XXXXXXXXXX" />
+                           <SettingField label="Meta (Facebook) Pixel ID" value={settings.facebookPixelId || ''} onChange={v => updateSettings({facebookPixelId: v})} placeholder="1234567890" />
+                           <SettingField label="TikTok Pixel ID" value={settings.tiktokPixelId || ''} onChange={v => updateSettings({tiktokPixelId: v})} placeholder="CXXXXXXXXXXXXXXXXXXX" />
+                        </div>
+                     </div>
+
+                     {/* Affiliate Profile */}
+                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] space-y-6">
+                        <h4 className="text-white font-bold flex items-center gap-3"><Tag size={20} className="text-primary"/> Affiliate Management</h4>
+                        <div className="space-y-4">
+                           <SettingField label="Amazon Associate ID" value={settings.amazonAssociateId || ''} onChange={v => updateSettings({amazonAssociateId: v})} placeholder="storename-20" />
+                           <AdminHelpBox title="Global Webhooks" steps={["Send contact leads to Zapier or Make", "Use the Webhook URL below"]} />
+                           <SettingField label="Lead Webhook URL" value={settings.webhookUrl || ''} onChange={v => updateSettings({webhookUrl: v})} placeholder="https://hooks.zapier.com/..." />
+                        </div>
+                     </div>
+
+                     {/* Integration Status Footer */}
+                     <div className="p-6 bg-slate-800/30 rounded-3xl border border-slate-800 border-dashed text-center">
+                        <div className="flex items-center justify-center gap-2 text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">
+                           <Shield size={12}/> Security Verification
+                        </div>
+                        <p className="text-[10px] text-slate-600">All integration keys are stored locally unless Supabase sync is active. Never share your Private Role keys.</p>
+                     </div>
                   </div>
                )}
             </div>

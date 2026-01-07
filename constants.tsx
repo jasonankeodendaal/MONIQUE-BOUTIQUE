@@ -203,6 +203,7 @@ export const INITIAL_SETTINGS: SiteSettings = {
   contactFormMessageLabel: 'Your Message',
   contactFormButtonText: 'Transmit Inquiry',
   
+  // New Contact Editable Fields
   contactInfoTitle: 'Global HQ',
   contactAddressLabel: 'Address',
   contactHoursLabel: 'Operating Hours',
@@ -217,10 +218,15 @@ export const INITIAL_SETTINGS: SiteSettings = {
   termsTitle: 'Terms of Service',
   termsContent: `### Terms of Service\n\nKasi Couture is a bridge page. We do not process payments or ship goods directly. All sales are handled by third-party retailers.`,
 
-  // Email.js defaults (empty)
+  // Integrations
   emailJsServiceId: '',
   emailJsTemplateId: '',
-  emailJsPublicKey: ''
+  emailJsPublicKey: '',
+  googleAnalyticsId: '',
+  facebookPixelId: '',
+  tiktokPixelId: '',
+  amazonAssociateId: '',
+  webhookUrl: ''
 };
 
 export const INITIAL_CAROUSEL: CarouselSlide[] = [
@@ -287,132 +293,183 @@ export interface GuideStep {
   codeLabel?: string;
   subSteps?: string[];
   tips?: string;
+  illustrationId?: string;
 }
 
 export const GUIDE_STEPS: GuideStep[] = [
   {
     id: 'prep_env',
-    title: '1. Machine Calibration',
-    description: 'Ensure your development environment is primed for high-performance React deployment.',
+    title: '1. Machine Calibration & Engine Selection',
+    description: 'Your local development environment is the control center for your digital brand. Modern web applications require a high-performance runtime to handle complex state and media rendering.',
     subSteps: [
-      'Install Node.js (v18.0+) - The engine for our frontend.',
-      'Install Git - Your version control and cloud gateway.',
-      'Install VS Code - The architect\'s choice for code editing.'
+      'Engine: Install Node.js (LTS Version 18.0+) from nodejs.org to execute the JavaScript engine.',
+      'Control: Install Git for distributed version tracking and cloud synchronization.',
+      'Editor: Use VS Code with Prettier for consistent luxury code formatting.',
+      'Package Manager: Ensure NPM or PNPM is active for dependency resolution.'
     ],
-    tips: 'This project utilizes Vite for near-instant compilation speeds.'
+    tips: 'Industry Insight: Using NVM (Node Version Manager) prevents project-wide conflicts by allowing you to switch between Node environments instantly.',
+    illustrationId: 'forge'
   },
   {
     id: 'git_init',
-    title: '2. Local Repository Initialization',
-    description: 'Transform this folder into a tracked digital asset. Git will monitor every stylistic evolution.',
-    code: `# Run these commands inside the project root:
+    title: '2. Local Repository & Asset Encryption',
+    description: 'Version control is your business continuity insurance. It ensures that every aesthetic tweak and catalog update is documented, reversible, and secure.',
+    code: `# Execute within your project root folder:
 git init
 git add .
-git commit -m "Launch: Kasi Couture Affiliate Infrastructure"
+git commit -m "Infrastructure Build: Initial Curation Protocol Deployed"
 git branch -M main`,
-    codeLabel: 'Terminal Commands',
+    codeLabel: 'Version Control Initialization',
     subSteps: [
-      'Initialize: Creates a hidden .git directory.',
-      'Stage & Commit: Captures the current state of your code.',
-      'Main Branch: Sets the industry-standard primary branch name.'
-    ]
+      'git init: Bootstraps the local Git database within your directory.',
+      'git add .: Stages every project file, from logos to logic, for tracking.',
+      'git commit: Permanently stamps the current state of your build.',
+      'git branch -M: Aligns your primary output with global industry standards.'
+    ],
+    illustrationId: 'vault'
   },
   {
     id: 'github_sync',
-    title: '3. GitHub Cloud Linkage',
-    description: 'Establish a secure cloud repository on GitHub to act as your production source.',
-    code: `# Create a PRIVATE repo on GitHub.com, then link it:
+    title: '3. GitHub Cloud: Global Synchronization',
+    description: 'Linking your local build to GitHub creates a "Single Source of Truth." This enables seamless CI/CD (Continuous Integration/Continuous Deployment) for your affiliate portal.',
+    code: `# Establish a secure handshake with the remote cloud:
 git remote add origin https://github.com/[USERNAME]/[REPO_NAME].git
 git push -u origin main`,
-    codeLabel: 'Cloud Deployment Commands',
-    tips: 'Ensure you replace [USERNAME] and [REPO_NAME] with your actual GitHub credentials.'
+    codeLabel: 'Remote Cloud Handshake',
+    tips: 'Privacy Alert: Always set your repository to PRIVATE on GitHub to protect your proprietary affiliate link logic and admin credentials.',
+    illustrationId: 'satellite'
   },
   {
     id: 'supabase_infra',
-    title: '4. Supabase Architecture (Backend)',
-    description: 'Supabase provides the enterprise-grade Authentication and Media Storage for your curation.',
+    title: '4. Supabase PostgreSQL Core Setup',
+    description: 'Luxury brands require reliable data. Supabase provides an enterprise-grade PostgreSQL database to store your curated items and manage administrative access.',
     subSteps: [
-      'Create a Project at supabase.com.',
-      'Note your PROJECT_URL and ANON_KEY (Settings -> API).',
-      'This infrastructure handles your high-resolution media and admin access keys.'
-    ]
+      'Auth: Sign up at supabase.com and initialize a new "Organization."',
+      'Project: Create a project and select a region closest to your audience (e.g., SA-East-1).',
+      'API Keys: Secure your "Project URL" and "anon_public" key for front-end access.',
+      'Security: Copy the "service_role" key—NEVER expose this on the public web.'
+    ],
+    illustrationId: 'database'
   },
   {
     id: 'supabase_sql',
-    title: '5. SQL & Media Security Master',
-    description: 'Run this precise SQL script in the Supabase Dashboard -> SQL Editor to enable public image hosting and RLS security.',
-    code: `-- 1. INITIALIZE STORAGE BUCKET
+    title: '5. Storage Geometry & RLS Enforcement',
+    description: 'Row-Level Security (RLS) acts as your digital vault. It ensures that only authorized curators can upload or modify high-resolution product media.',
+    code: `-- SQL Master Script for Supabase SQL Editor:
+
+-- 1. INITIALIZE STORAGE BUCKET
 insert into storage.buckets (id, name, public) 
 values ('media', 'media', true)
 on conflict (id) do nothing;
 
--- 2. PUBLIC READ ACCESS (Allows visitors to view product images)
-create policy "Public Access" 
+-- 2. GLOBAL READ PROTOCOL
+create policy "Global Visibility" 
 on storage.objects for select 
 using ( bucket_id = 'media' );
 
--- 3. SECURE ADMIN UPLOAD (Only authenticated admins can add media)
-create policy "Admin Upload" 
+-- 3. ADMIN WRITE PROTOCOL
+create policy "Authorized Curator Upload" 
 on storage.objects for insert 
 with check ( 
   bucket_id = 'media' 
   and auth.role() = 'authenticated' 
 );
 
--- 4. SECURE ADMIN DELETION
-create policy "Admin Delete" 
+-- 4. ADMIN DELETE PROTOCOL
+create policy "Authorized Curator Cleanup" 
 on storage.objects for delete 
 using ( 
   bucket_id = 'media' 
   and auth.role() = 'authenticated' 
 );`,
-    codeLabel: 'Supabase SQL Implementation',
-    tips: 'This ensures your assets are visible to the world while your control panel remains impregnable.'
+    codeLabel: 'Security Logic Injection',
+    tips: 'Logic Check: This script allows the public to view your catalog while restricting modification strictly to authenticated team members.',
+    illustrationId: 'shield'
   },
   {
     id: 'google_auth',
-    title: '6. Google OAuth Setup (Auth Provider)',
-    description: 'Enable seamless one-tap login for your admin portal using Google Identity.',
+    title: '6. Identity Verification & OAuth 2.0',
+    description: 'Professional admin portals use federated identity providers. Integrating Google OAuth ensures your team can log in with a single, secure tap.',
     subSteps: [
-      'Go to console.cloud.google.com and create a new project.',
-      'Configure the "OAuth consent screen" (External).',
-      'Create "OAuth 2.0 Client IDs" (Web application).',
-      'Add Redirect URI: https://[YOUR_SUPABASE_ID].supabase.co/auth/v1/callback',
-      'In Supabase -> Authentication -> Providers -> Google: Paste Client ID and Secret.'
+      'GCP Console: Visit console.cloud.google.com and create an "OAuth Client ID."',
+      'Authorized Domain: Whitelist your Supabase project URL as an approved origin.',
+      'Handshake: Paste your Client ID and Secret into the Supabase Auth Settings.',
+      'Redirect: Add the Supabase callback URL to your Google Credentials list.'
     ],
-    tips: 'Redirect URIs are specific to your Supabase project instance.'
+    illustrationId: 'identity'
   },
   {
     id: 'emailjs_config',
-    title: '7. EmailJS Concierge Setup',
-    description: 'Connect your contact form to a professional mailing service without a backend server.',
+    title: '7. EmailJS: Secure Contact Routing',
+    description: 'Effective bridge pages convert inquiries into relationships. EmailJS routes visitor messages directly to your business inbox without requiring a complex backend.',
     subSteps: [
-      'Sign up at emailjs.com.',
-      'Add an Email Service (e.g., Gmail, Outlook).',
-      'Create an Email Template for incoming enquiries.',
-      'Copy Public Key, Service ID, and Template ID to Portal -> Settings -> Integrations.'
-    ]
+      'Service: Link your G-Suite or Outlook business account at emailjs.com.',
+      'Template: Design an elegant auto-responder using {{name}} and {{subject}} variables.',
+      'Key Sync: Inject your Public Key and Template ID into the "Canvas -> Integrations" panel.',
+      'Testing: Send a test message from your live site to verify delivery.'
+    ],
+    illustrationId: 'mail'
+  },
+  {
+    id: 'vite_optimize',
+    title: '8. Build Engine: Vite Optimization',
+    description: 'Your site performance directly impacts conversion. Vite pre-bundles your code to ensure lightning-fast interaction times and smooth image lazy-loading.',
+    subSteps: [
+      'Asset Mapping: Verify all local images are in the "public/" folder.',
+      'Config: Ensure "base" path in vite.config.ts is set correctly for your domain.',
+      'Dry Run: Execute "npm run build" locally to verify the production bundle.',
+      'Cleanup: Remove any console.logs or dev-only placeholders before deployment.'
+    ],
+    tips: 'SEO Tip: Use descriptive file names for your images (e.g., silk-dress-black.jpg) to improve Google Image Search ranking.',
+    illustrationId: 'forge'
   },
   {
     id: 'vercel_deployment',
-    title: '8. Vercel Production Launch',
-    description: 'Deploy your affiliate bridge to a global CDN for maximum speed and uptime.',
+    title: '9. Vercel Edge Network Deployment',
+    description: 'Deployment to the Edge ensures your luxury content is served from the server closest to your user, minimizing latency and maximizing perceived quality.',
     subSteps: [
-      'Import your GitHub repository into Vercel.',
-      'Environment Variables (CRITICAL): Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
-      'Click Deploy. Vercel will build and host your site on a .vercel.app domain.'
+      'Git Link: Import your GitHub repository directly through the Vercel dashboard.',
+      'Environment Variables: Inject VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      'Production Pipeline: Vercel will auto-detect Vite and initiate the build.',
+      'Launch: Your site is now live on a global CDN (Content Delivery Network).'
     ],
-    tips: 'Vercel automatically triggers a new deployment every time you push code to GitHub.'
+    illustrationId: 'beacon'
   },
   {
-    id: 'final_verification',
-    title: '9. Operational Success',
-    description: 'Finalize your portal and begin curating luxury affiliate picks.',
+    id: 'domain_setup',
+    title: '10. Brand Authority: Custom Domain & SSL',
+    description: 'A custom domain is the final stamp of brand legitimacy. Secure, encrypted connections (SSL) are mandatory for modern web browsers and user trust.',
     subSteps: [
-      'Visit your live URL.',
-      'Navigate to /login and use Google or your Supabase email to sign in.',
-      'Navigate to Portal -> System and perform a test Backup to verify database integrity.'
+      'Domain: Connect your professional TLD (e.g., .com, .luxury) in Vercel settings.',
+      'DNS Propagation: Update your A and CNAME records at your registrar.',
+      'SSL Handshake: Vercel automatically generates a Let\'s Encrypt certificate.',
+      'Verification: Ensure your site displays the padlock icon in the browser address bar.'
     ],
-    tips: 'Your bridge page is now fully operational and ready for traffic.'
+    illustrationId: 'globe'
+  },
+  {
+    id: 'tracking_pixel',
+    title: '11. Affiliate Analytics & Conversions',
+    description: 'Data-driven curation is the secret to scaling. Monitor which collections drive the highest engagement and refine your content strategy accordingly.',
+    subSteps: [
+      'Product Stats: Check the "Insights" tab in your Portal to view real-time clicks.',
+      'A/B Testing: Use different hero images to see which driving the highest CTR.',
+      'Affiliate Tags: Ensure every "Acquire" link includes your unique tracking ID.',
+      'Audit: Weekly cleanup of broken links or out-of-stock items.'
+    ],
+    illustrationId: 'growth'
+  },
+  {
+    id: 'ops_maintenance',
+    title: '12. Mission Control: Continuous Growth',
+    description: 'Your bridge page is a living asset. Regular updates and maintenance ensure it remains at the forefront of the luxury digital landscape.',
+    subSteps: [
+      'Backup: Periodically use "Data Snapshot" to export your catalog to JSON.',
+      'Content: Refresh the Hero Carousel monthly with seasonal collections.',
+      'Team: If scaling, add "Standard Administrators" to help with data entry.',
+      'Innovation: Stay updated on the latest CSS/React features to keep the UX modern.'
+    ],
+    tips: 'Final Objective: Consistency breeds trust. A well-maintained bridge page becomes an authority in its niche.',
+    illustrationId: 'satellite'
   }
 ];

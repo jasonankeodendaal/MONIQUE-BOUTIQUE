@@ -16,6 +16,11 @@ const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Hide header entirely on admin pages
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const navLinks = [
     { name: settings.navHomeLabel, path: '/' },
     { name: settings.navProductsLabel, path: '/products' },
@@ -23,8 +28,8 @@ const Header: React.FC = () => {
     { name: settings.navContactLabel, path: '/contact' },
   ];
 
-  // Enable dark section (transparent header, white text) for Home, Admin, and About pages
-  const isDarkSection = !scrolled && (location.pathname === '/' || location.pathname === '/admin' || location.pathname === '/about');
+  // Enable dark section (transparent header, white text) for Home and About pages
+  const isDarkSection = !scrolled && (location.pathname === '/' || location.pathname === '/about');
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
@@ -34,7 +39,7 @@ const Header: React.FC = () => {
     } ${isOpen ? 'bg-white border-b border-slate-200' : ''}`}>
       <nav className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="flex justify-between items-center">
-          {/* Logo Section - Hidden on Home because Home has a specific Hero logo, shown elsewhere or on Scroll */}
+          {/* Logo Section */}
           <Link to="/" className={`flex items-center space-x-4 group ${location.pathname === '/' && !scrolled && !isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <div className="relative">
               {settings.companyLogoUrl ? (

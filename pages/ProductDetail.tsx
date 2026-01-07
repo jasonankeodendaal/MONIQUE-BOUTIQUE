@@ -25,7 +25,7 @@ const ProductDetail: React.FC = () => {
     window.scrollTo(0, 0);
     const timeout = setTimeout(() => setIsLoaded(true), 100);
     
-    // Track View
+    // Track View and Start Session Timer
     if (id) {
       const savedStats = JSON.parse(localStorage.getItem('admin_product_stats') || '[]');
       const index = savedStats.findIndex((s: ProductStats) => s.productId === id);
@@ -33,9 +33,26 @@ const ProductDetail: React.FC = () => {
         savedStats[index].views += 1;
         savedStats[index].lastUpdated = Date.now();
       } else {
-        savedStats.push({ productId: id, views: 1, clicks: 0, lastUpdated: Date.now() });
+        savedStats.push({ productId: id, views: 1, clicks: 0, totalViewTime: 0, lastUpdated: Date.now() });
       }
       localStorage.setItem('admin_product_stats', JSON.stringify(savedStats));
+
+      // Start View Time Tracker
+      const startTime = Date.now();
+      const interval = setInterval(() => {
+        const currentStats = JSON.parse(localStorage.getItem('admin_product_stats') || '[]');
+        const idx = currentStats.findIndex((s: ProductStats) => s.productId === id);
+        if (idx > -1) {
+          currentStats[idx].totalViewTime = (currentStats[idx].totalViewTime || 0) + 1;
+          currentStats[idx].lastUpdated = Date.now();
+          localStorage.setItem('admin_product_stats', JSON.stringify(currentStats));
+        }
+      }, 1000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
     }
 
     return () => clearTimeout(timeout);

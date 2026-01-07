@@ -46,6 +46,7 @@ export interface ProductStats {
   productId: string;
   views: number;
   clicks: number;
+  totalViewTime: number; // in seconds
   lastUpdated: number;
 }
 
@@ -187,6 +188,11 @@ export interface SiteSettings {
   emailJsServiceId?: string;
   emailJsTemplateId?: string;
   emailJsPublicKey?: string;
+  googleAnalyticsId?: string;
+  facebookPixelId?: string;
+  tiktokPixelId?: string;
+  amazonAssociateId?: string;
+  webhookUrl?: string;
 }
 
 export interface PermissionNode {
