@@ -129,23 +129,28 @@ export interface SiteSettings {
   aboutHeroSubtitle: string;
   aboutMainImage: string;
   
+  // New Granular About Fields
+  aboutEstablishedYear: string;
+  aboutFounderName: string;
+  aboutLocation: string;
+
   aboutHistoryTitle: string;
   aboutHistoryBody: string;
   
   aboutMissionTitle: string;
   aboutMissionBody: string;
-  aboutMissionIcon: string; // New
+  aboutMissionIcon: string; 
   
   aboutCommunityTitle: string;
   aboutCommunityBody: string;
-  aboutCommunityIcon: string; // New
+  aboutCommunityIcon: string; 
   
   aboutIntegrityTitle: string;
   aboutIntegrityBody: string;
-  aboutIntegrityIcon: string; // New
+  aboutIntegrityIcon: string; 
 
-  aboutSignatureImage: string; // New
-  aboutGalleryImages: string[]; // New
+  aboutSignatureImage: string; 
+  aboutGalleryImages: string[]; 
 
   // Contact Page Content
   contactHeroTitle: string;
@@ -160,6 +165,8 @@ export interface SiteSettings {
   contactInfoTitle: string;
   contactAddressLabel: string;
   contactHoursLabel: string;
+  contactHoursWeekdays: string;
+  contactHoursWeekends: string;
 
   // Legal Content
   disclosureTitle: string;

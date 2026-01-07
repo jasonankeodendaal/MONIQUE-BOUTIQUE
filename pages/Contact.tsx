@@ -227,8 +227,8 @@ const Contact: React.FC = () => {
                      <Clock className="text-slate-500 mt-1 flex-shrink-0" size={20} />
                      <div>
                        <span className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">{settings.contactHoursLabel || 'Operating Hours'}</span>
-                       <p className="text-sm text-slate-300">Mon - Fri: 09:00 - 18:00 (SAST)</p>
-                       <p className="text-sm text-slate-300">Sat: 09:00 - 13:00</p>
+                       <p className="text-sm text-slate-300">{settings.contactHoursWeekdays}</p>
+                       <p className="text-sm text-slate-300">{settings.contactHoursWeekends}</p>
                      </div>
                   </div>
                 </div>

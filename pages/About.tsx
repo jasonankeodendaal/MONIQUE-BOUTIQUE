@@ -68,13 +68,13 @@ const About: React.FC = () => {
             <div className="md:col-span-3 hidden md:block">
                 <div className="sticky top-32 border-l-2 border-slate-100 pl-6 py-2">
                     <span className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-2">Established</span>
-                    <span className="text-xl font-serif text-slate-900 block mb-8">2024</span>
+                    <span className="text-xl font-serif text-slate-900 block mb-8">{settings.aboutEstablishedYear || '2024'}</span>
                     
                     <span className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-2">Founder</span>
-                    <span className="text-xl font-serif text-slate-900 block mb-8">{settings.companyName}</span>
+                    <span className="text-xl font-serif text-slate-900 block mb-8">{settings.aboutFounderName || settings.companyName}</span>
 
                     <span className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-2">Location</span>
-                    <span className="text-xl font-serif text-slate-900 block">South Africa</span>
+                    <span className="text-xl font-serif text-slate-900 block">{settings.aboutLocation || 'South Africa'}</span>
                 </div>
             </div>
             <div className="md:col-span-9 prose prose-lg prose-slate text-slate-500 font-light leading-loose text-left">

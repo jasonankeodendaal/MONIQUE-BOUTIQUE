@@ -157,6 +157,11 @@ export const INITIAL_SETTINGS: SiteSettings = {
   aboutHeroTitle: 'The Story of the Silhouette.',
   aboutHeroSubtitle: 'Kasi Couture is my personal curation platform, dedicated to finding the most exquisite garments and accessories across the continent.',
   aboutMainImage: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1200',
+  
+  aboutEstablishedYear: '2024',
+  aboutFounderName: 'Kasi Couture',
+  aboutLocation: 'South Africa',
+
   aboutHistoryTitle: 'A Passion for Craft',
   aboutHistoryBody: 'What began as a style blog in the heart of Soweto has evolved into a premier luxury bridge page. Our mission is to highlight the intricate craftsmanship of local and international designers.',
   
@@ -191,6 +196,8 @@ export const INITIAL_SETTINGS: SiteSettings = {
   contactInfoTitle: 'Global HQ',
   contactAddressLabel: 'Address',
   contactHoursLabel: 'Operating Hours',
+  contactHoursWeekdays: 'Mon - Fri: 09:00 - 18:00 (SAST)',
+  contactHoursWeekends: 'Sat: 09:00 - 13:00',
 
   // Legal
   disclosureTitle: 'Affiliate Disclosure',
