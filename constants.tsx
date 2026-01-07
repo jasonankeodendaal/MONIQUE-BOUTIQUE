@@ -94,16 +94,6 @@ export const INITIAL_ENQUIRIES: Enquiry[] = [
     message: 'I saw the Autumn Silk Series and I am interested in the bulk purchasing options for my boutique in Durban.',
     createdAt: Date.now() - 86400000 * 5, // 5 days ago
     status: 'read'
-  },
-  {
-    id: 'e3',
-    name: 'Elena Rossi',
-    email: 'elena@fashionweek.it',
-    whatsapp: '+39 333 123 4567',
-    subject: 'Brand Partnership',
-    message: 'We would love to feature Kasi Couture in our upcoming digital editorial. Please let me know who to contact regarding PR.',
-    createdAt: Date.now() - 3600000, // 1 hour ago
-    status: 'unread'
   }
 ];
 
@@ -299,177 +289,141 @@ export interface GuideStep {
 export const GUIDE_STEPS: GuideStep[] = [
   {
     id: 'prep_env',
-    title: '1. Machine Calibration & Engine Selection',
-    description: 'Your local development environment is the control center for your digital brand. Modern web applications require a high-performance runtime to handle complex state and media rendering.',
+    title: '1. Calibrating the Studio Engine',
+    description: 'The Concept: Your website is powered by a set of tools called a "Development Environment." Think of this as the heavy machinery in a fashion house—you need the right engines to turn your creative vision into a functioning digital storefront.',
     subSteps: [
-      'Engine: Install Node.js (LTS Version 18.0+) from nodejs.org to execute the JavaScript engine.',
-      'Control: Install Git for distributed version tracking and cloud synchronization.',
-      'Editor: Use VS Code with Prettier for consistent luxury code formatting.',
-      'Package Manager: Ensure NPM or PNPM is active for dependency resolution.'
+      'Node.js (The Engine): Download the "LTS" version from nodejs.org. This is the electricity that runs your code locally.',
+      'Git (The Archivist): Install Git from git-scm.com. It tracks every single change you make, like an automated backup system.',
+      'VS Code (The Sketchpad): This is your main workspace. Install it and add the "Prettier" extension to keep your code looking "Luxury Ready."',
+      'Terminal (The Command Center): You’ll use your computer’s Terminal or Command Prompt to talk directly to your website engine.'
     ],
-    tips: 'Industry Insight: Using NVM (Node Version Manager) prevents project-wide conflicts by allowing you to switch between Node environments instantly.',
+    tips: 'Pro Tip: When installing Node.js, always choose the "LTS" (Long Term Support) version. It is the most stable and reliable for professional business applications.',
     illustrationId: 'forge'
   },
   {
     id: 'git_init',
-    title: '2. Local Repository & Asset Encryption',
-    description: 'Version control is your business continuity insurance. It ensures that every aesthetic tweak and catalog update is documented, reversible, and secure.',
-    code: `# Execute within your project root folder:
+    title: '2. Creating Your Local Vault',
+    description: 'The Concept: "Version Control" is like having a time machine for your website. If you make a mistake, you can simply "roll back" to a previous version. We start by initializing a local database to store your project’s history.',
+    code: `# Open your terminal in the project folder and run:
 git init
 git add .
-git commit -m "Infrastructure Build: Initial Curation Protocol Deployed"
+git commit -m "Grand Opening: Initial Infrastructure Deployed"
 git branch -M main`,
-    codeLabel: 'Version Control Initialization',
+    codeLabel: 'Version Control Commands',
     subSteps: [
-      'git init: Bootstraps the local Git database within your directory.',
-      'git add .: Stages every project file, from logos to logic, for tracking.',
-      'git commit: Permanently stamps the current state of your build.',
-      'git branch -M: Aligns your primary output with global industry standards.'
+      'git init: Tells your computer to start tracking changes in this folder.',
+      'git add .: Stages all your current files (logos, styles, logic) to be saved.',
+      'git commit: Saves a "snapshot" of your site. This is your first official milestone.',
+      'git branch -M main: Sets your main production path to global standards.'
     ],
     illustrationId: 'vault'
   },
   {
     id: 'github_sync',
-    title: '3. GitHub Cloud: Global Synchronization',
-    description: 'Linking your local build to GitHub creates a "Single Source of Truth." This enables seamless CI/CD (Continuous Integration/Continuous Deployment) for your affiliate portal.',
-    code: `# Establish a secure handshake with the remote cloud:
+    title: '3. Connecting to the Global Cloud',
+    description: 'The Concept: GitHub is a "Cloud Vault" for your code. By syncing your local work to GitHub, you protect it from computer failure and allow other cloud services (like your hosting provider) to see and build your website automatically.',
+    code: `# Replace [USERNAME] and [REPO_NAME] with your own details:
 git remote add origin https://github.com/[USERNAME]/[REPO_NAME].git
 git push -u origin main`,
-    codeLabel: 'Remote Cloud Handshake',
-    tips: 'Privacy Alert: Always set your repository to PRIVATE on GitHub to protect your proprietary affiliate link logic and admin credentials.',
+    codeLabel: 'Cloud Synchronization Handshake',
+    tips: 'Critical Security: In your GitHub repository settings, ensure the project is set to "PRIVATE." You don’t want strangers seeing your admin passwords or affiliate strategy.',
     illustrationId: 'satellite'
   },
   {
     id: 'supabase_infra',
-    title: '4. Supabase PostgreSQL Core Setup',
-    description: 'Luxury brands require reliable data. Supabase provides an enterprise-grade PostgreSQL database to store your curated items and manage administrative access.',
+    title: '4. Supabase: The Brain of the Maison',
+    description: 'The Concept: Every store needs a memory. Supabase is your "Backend"—a database that stores your product descriptions, admin accounts, and customer inquiries. It works even when your computer is turned off.',
     subSteps: [
-      'Auth: Sign up at supabase.com and initialize a new "Organization."',
-      'Project: Create a project and select a region closest to your audience (e.g., SA-East-1).',
-      'API Keys: Secure your "Project URL" and "anon_public" key for front-end access.',
-      'Security: Copy the "service_role" key—NEVER expose this on the public web.'
+      'Sign Up: Go to supabase.com and create a free account.',
+      'Project Creation: Click "New Project." Name it something like "Kasi-Couture-DB."',
+      'The API Keys: In the "Project Settings -> API" tab, copy your "Project URL" and "anon public key." You will need these for Step 9.',
+      'Region Selection: Choose a database server location closest to your target audience (e.g., Cape Town or London) for maximum speed.'
     ],
     illustrationId: 'database'
   },
   {
     id: 'supabase_sql',
-    title: '5. Storage Geometry & RLS Enforcement',
-    description: 'Row-Level Security (RLS) acts as your digital vault. It ensures that only authorized curators can upload or modify high-resolution product media.',
-    code: `-- SQL Master Script for Supabase SQL Editor:
+    title: '5. Setting the Foundations (SQL)',
+    description: 'The Concept: SQL is the language we use to tell the database how to organize itself. We are going to create a "Storage Bucket"—a digital closet where your high-resolution product photos and videos will live securely.',
+    code: `-- Copy and paste this into the Supabase SQL Editor:
 
--- 1. INITIALIZE STORAGE BUCKET
+-- 1. Create the 'media' closet for our files
 insert into storage.buckets (id, name, public) 
 values ('media', 'media', true)
 on conflict (id) do nothing;
 
--- 2. GLOBAL READ PROTOCOL
-create policy "Global Visibility" 
+-- 2. Allow the public to SEE the images
+create policy "Public Access" 
 on storage.objects for select 
 using ( bucket_id = 'media' );
 
--- 3. ADMIN WRITE PROTOCOL
-create policy "Authorized Curator Upload" 
-on storage.objects for insert 
-with check ( 
-  bucket_id = 'media' 
-  and auth.role() = 'authenticated' 
-);
-
--- 4. ADMIN DELETE PROTOCOL
-create policy "Authorized Curator Cleanup" 
-on storage.objects for delete 
-using ( 
-  bucket_id = 'media' 
-  and auth.role() = 'authenticated' 
-);`,
-    codeLabel: 'Security Logic Injection',
-    tips: 'Logic Check: This script allows the public to view your catalog while restricting modification strictly to authenticated team members.',
+-- 3. Only allow YOU (the curator) to add or delete files
+create policy "Admin Control" 
+on storage.objects for all 
+using ( auth.role() = 'authenticated' );`,
+    codeLabel: 'Database Logic Injection',
+    tips: 'Why this matters: This script ensures that while customers can see your beautiful catalogs, only you have the power to change them.',
     illustrationId: 'shield'
   },
   {
     id: 'google_auth',
-    title: '6. Identity Verification & OAuth 2.0',
-    description: 'Professional admin portals use federated identity providers. Integrating Google OAuth ensures your team can log in with a single, secure tap.',
+    title: '6. Security & Identity Management',
+    description: 'The Concept: Instead of remembering a new password, we’ll set up Google Login. This uses enterprise-grade security (OAuth 2.0) to ensure that only you can access the Admin Portal of your website.',
     subSteps: [
-      'GCP Console: Visit console.cloud.google.com and create an "OAuth Client ID."',
-      'Authorized Domain: Whitelist your Supabase project URL as an approved origin.',
-      'Handshake: Paste your Client ID and Secret into the Supabase Auth Settings.',
-      'Redirect: Add the Supabase callback URL to your Google Credentials list.'
+      'Google Cloud: Visit the Google Cloud Console and create a new project.',
+      'Credentials: Create an "OAuth 2.0 Client ID."',
+      'The Callback: Add your Supabase project URL to the "Authorized Redirect URIs" list.',
+      'Activation: Paste your Client ID and Secret into the Supabase "Authentication -> Providers" section.'
     ],
     illustrationId: 'identity'
   },
   {
     id: 'emailjs_config',
-    title: '7. EmailJS: Secure Contact Routing',
-    description: 'Effective bridge pages convert inquiries into relationships. EmailJS routes visitor messages directly to your business inbox without requiring a complex backend.',
+    title: '7. EmailJS: The Digital Concierge',
+    description: 'The Concept: You need to know when customers want to talk to you. EmailJS acts as a bridge that takes messages from your website contact form and sends them directly to your personal email inbox without needing a complex mail server.',
     subSteps: [
-      'Service: Link your G-Suite or Outlook business account at emailjs.com.',
-      'Template: Design an elegant auto-responder using {{name}} and {{subject}} variables.',
-      'Key Sync: Inject your Public Key and Template ID into the "Canvas -> Integrations" panel.',
-      'Testing: Send a test message from your live site to verify delivery.'
+      'Setup: Create a free account at emailjs.com.',
+      'Link Inbox: Connect your Gmail or Outlook account.',
+      'Design: Create an "Email Template" with variables like {{name}} and {{message}}.',
+      'Integration: Copy your Public Key and Template ID into the "Canvas" tab in your Admin Portal.'
     ],
     illustrationId: 'mail'
   },
   {
-    id: 'vite_optimize',
-    title: '8. Build Engine: Vite Optimization',
-    description: 'Your site performance directly impacts conversion. Vite pre-bundles your code to ensure lightning-fast interaction times and smooth image lazy-loading.',
-    subSteps: [
-      'Asset Mapping: Verify all local images are in the "public/" folder.',
-      'Config: Ensure "base" path in vite.config.ts is set correctly for your domain.',
-      'Dry Run: Execute "npm run build" locally to verify the production bundle.',
-      'Cleanup: Remove any console.logs or dev-only placeholders before deployment.'
-    ],
-    tips: 'SEO Tip: Use descriptive file names for your images (e.g., silk-dress-black.jpg) to improve Google Image Search ranking.',
-    illustrationId: 'forge'
-  },
-  {
     id: 'vercel_deployment',
-    title: '9. Vercel Edge Network Deployment',
-    description: 'Deployment to the Edge ensures your luxury content is served from the server closest to your user, minimizing latency and maximizing perceived quality.',
+    title: '8. Vercel: Going Live to the World',
+    description: 'The Concept: Vercel is your "Internet Landlord." It takes your code from GitHub and hosts it on high-speed servers globally. It also handles "Environment Variables"—the secret keys that connect your site to Supabase.',
     subSteps: [
-      'Git Link: Import your GitHub repository directly through the Vercel dashboard.',
-      'Environment Variables: Inject VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
-      'Production Pipeline: Vercel will auto-detect Vite and initiate the build.',
-      'Launch: Your site is now live on a global CDN (Content Delivery Network).'
+      'Import: Login to Vercel and import your GitHub repository.',
+      'Environment Variables (CRITICAL): Under "Settings," add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      'Values: Paste the keys you copied from Supabase back in Step 4.',
+      'Deploy: Click "Deploy." Vercel will build your site and give you a public URL (e.g., my-curation-site.vercel.app).'
     ],
     illustrationId: 'beacon'
   },
   {
     id: 'domain_setup',
-    title: '10. Brand Authority: Custom Domain & SSL',
-    description: 'A custom domain is the final stamp of brand legitimacy. Secure, encrypted connections (SSL) are mandatory for modern web browsers and user trust.',
+    title: '9. The Brand Stamp: Custom Domains',
+    description: 'The Concept: A free URL is great for testing, but a professional brand needs a custom address (e.g., www.kasicouture.com). This is the final step in establishing your digital authority.',
     subSteps: [
-      'Domain: Connect your professional TLD (e.g., .com, .luxury) in Vercel settings.',
-      'DNS Propagation: Update your A and CNAME records at your registrar.',
-      'SSL Handshake: Vercel automatically generates a Let\'s Encrypt certificate.',
-      'Verification: Ensure your site displays the padlock icon in the browser address bar.'
+      'Purchase: Buy a domain from a registrar like Namecheap or Google Domains.',
+      'Connect: In Vercel, go to "Settings -> Domains" and add your new address.',
+      'DNS Update: Copy the "A Record" or "CNAME" from Vercel to your domain registrar settings.',
+      'Wait: It takes about 30 minutes for the internet to update (propagate) your new address.'
     ],
+    tips: 'SEO Fact: Websites with custom .com or .luxury domains rank significantly higher in Google search results than free subdomains.',
     illustrationId: 'globe'
   },
   {
     id: 'tracking_pixel',
-    title: '11. Affiliate Analytics & Conversions',
-    description: 'Data-driven curation is the secret to scaling. Monitor which collections drive the highest engagement and refine your content strategy accordingly.',
+    title: '10. The Insight Engine: Analytics',
+    description: 'The Concept: To make money, you need to know what your customers like. By adding a "Pixel" (like Google Analytics or Facebook Pixel), you can see which products are getting the most attention and refine your curation.',
     subSteps: [
-      'Product Stats: Check the "Insights" tab in your Portal to view real-time clicks.',
-      'A/B Testing: Use different hero images to see which driving the highest CTR.',
-      'Affiliate Tags: Ensure every "Acquire" link includes your unique tracking ID.',
-      'Audit: Weekly cleanup of broken links or out-of-stock items.'
+      'Measurement: Create a Google Analytics 4 property.',
+      'Tracking ID: Get your "G-XXXXXXXX" ID.',
+      'Admin Portal: Go to your Maison Portal -> Canvas -> Integrations and paste the ID.',
+      'Observe: Open your live site and watch the "Insights" tab in your admin dashboard to see traffic in real-time.'
     ],
     illustrationId: 'growth'
-  },
-  {
-    id: 'ops_maintenance',
-    title: '12. Mission Control: Continuous Growth',
-    description: 'Your bridge page is a living asset. Regular updates and maintenance ensure it remains at the forefront of the luxury digital landscape.',
-    subSteps: [
-      'Backup: Periodically use "Data Snapshot" to export your catalog to JSON.',
-      'Content: Refresh the Hero Carousel monthly with seasonal collections.',
-      'Team: If scaling, add "Standard Administrators" to help with data entry.',
-      'Innovation: Stay updated on the latest CSS/React features to keep the UX modern.'
-    ],
-    tips: 'Final Objective: Consistency breeds trust. A well-maintained bridge page becomes an authority in its niche.',
-    illustrationId: 'satellite'
   }
 ];
