@@ -112,6 +112,12 @@ const ProductDetail: React.FC = () => {
       .slice(0, 3);
   }, [allProducts, product]);
 
+  const averageRating = useMemo(() => {
+    if (!product?.reviews || product.reviews.length === 0) return 0;
+    const sum = product.reviews.reduce((acc, r) => acc + r.rating, 0);
+    return Math.round(sum / product.reviews.length);
+  }, [product?.reviews]);
+
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white text-center p-6">
@@ -224,7 +230,7 @@ const ProductDetail: React.FC = () => {
                  {/* Rating Badge */}
                  <div className="flex items-center gap-1 text-yellow-500 mb-2">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={12} fill="currentColor" className={i < Math.round(product.reviews?.reduce((acc, r) => acc + r.rating, 0) / (product.reviews?.length || 1)) ? "" : "text-slate-200"} />
+                      <Star key={i} size={12} fill="currentColor" className={i < averageRating ? "" : "text-slate-200"} />
                     ))}
                     <span className="text-[10px] font-bold text-slate-400 ml-2 uppercase tracking-widest">({product.reviews?.length || 0} Reviews)</span>
                  </div>
