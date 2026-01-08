@@ -1,51 +1,30 @@
 
 import { createClient } from '@supabase/supabase-js';
 
+// These should be configured in Vercel environment variables
+// We trim them to avoid issues with accidental whitespace during copy-paste
 const rawUrl = (import.meta as any).env?.VITE_SUPABASE_URL || '';
 const rawKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || '';
 
 const supabaseUrl = rawUrl.trim();
 const supabaseAnonKey = rawKey.trim();
 
+// Export a flag to check if Supabase is properly configured
+// Also ensures the URL looks like a valid URL (starts with http)
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http'));
 
+// Initialize client (will be null-safe if strings are empty, but calls will fail)
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co', 
   supabaseAnonKey || 'placeholder'
 );
 
 /**
- * Generic Database Helpers
- */
-export const db = {
-  async getAll<T>(table: string): Promise<T[]> {
-    if (!isSupabaseConfigured) return [];
-    const { data, error } = await supabase.from(table).select('*');
-    if (error) {
-      console.warn(`Supabase fetch error [${table}]:`, error.message);
-      return [];
-    }
-    return data as T[];
-  },
-  
-  async upsert(table: string, data: any) {
-    if (!isSupabaseConfigured) return;
-    const { error } = await supabase.from(table).upsert(data);
-    if (error) throw error;
-  },
-
-  async delete(table: string, id: string) {
-    if (!isSupabaseConfigured) return;
-    const { error } = await supabase.from(table).delete().eq('id', id);
-    if (error) throw error;
-  }
-};
-
-/**
  * Helper to upload a file to Supabase storage
  */
 export async function uploadMedia(file: File, bucket = 'media') {
   if (!isSupabaseConfigured) {
+    // Fallback: Return a local object URL for preview if not configured
     return URL.createObjectURL(file);
   }
 
@@ -67,6 +46,30 @@ export async function uploadMedia(file: File, bucket = 'media') {
 }
 
 /**
+ * Helper to wipe all files in a specific bucket
+ * Note: Requires RLS policies that allow listing and deletion
+ */
+export async function emptyStorageBucket(bucket = 'media') {
+  if (!isSupabaseConfigured) return;
+
+  // 1. List all files
+  const { data: files, error: listError } = await supabase.storage
+    .from(bucket)
+    .list();
+
+  if (listError) throw listError;
+  if (!files || files.length === 0) return;
+
+  // 2. Delete them
+  const filesToRemove = files.map((x) => x.name);
+  const { error: deleteError } = await supabase.storage
+    .from(bucket)
+    .remove(filesToRemove);
+
+  if (deleteError) throw deleteError;
+}
+
+/**
  * Diagnostics helper
  */
 export async function measureConnection(): Promise<{ status: 'online' | 'offline', latency: number, message: string }> {
@@ -76,7 +79,9 @@ export async function measureConnection(): Promise<{ status: 'online' | 'offline
   
   const start = performance.now();
   try {
-    const { error } = await supabase.from('site_settings').select('id').limit(1);
+    // Simple lightweight fetch to check connectivity
+    const { error } = await supabase.from('non_existent_table').select('id').limit(1);
+    // We expect an error (404 table not found) or success, but network connectivity is what matters.
     const end = performance.now();
     return { status: 'online', latency: Math.round(end - start), message: 'Connected' };
   } catch (err) {
