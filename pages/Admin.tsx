@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Plus, Edit2, Trash2, 
@@ -2166,9 +2167,9 @@ const Admin: React.FC = () => {
                  <p className="text-primary text-xs font-bold mb-2">INSTRUCTIONS:</p>
                  <ol className="list-decimal list-inside text-slate-400 text-xs space-y-1">
                    <li>Copy the code below.</li>
-                   <li>Go to your EmailJS Dashboard -> Email Templates.</li>
+                   <li>Go to your EmailJS Dashboard &rarr; Email Templates.</li>
                    <li>Click "Create New Template".</li>
-                   <li>Click the "Source Code" button (&lt;&gt;) in the editor toolbar.</li>
+                   <li>Click the "Source Code" button ({'< >'}) in the editor toolbar.</li>
                    <li>Paste this code and save.</li>
                  </ol>
                </div>
