@@ -1,10 +1,10 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ExternalLink, ShieldCheck, ArrowLeft, Play, Package, Share2, Tag, Sparkles, MessageCircle, Star, Send, Check, ChevronDown, Minus, Plus, Box, Truck, X, Facebook, Twitter, Mail, Copy, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, ArrowLeft, Package, Share2, Star, MessageCircle, ChevronDown, Minus, Plus, X, Facebook, Twitter, Mail, Copy, CheckCircle, Check } from 'lucide-react';
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../constants';
 import { useSettings } from '../App';
-import { Product, DiscountRule, ProductStats, Review } from '../types';
+import { Product, ProductStats, Review } from '../types';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams();
@@ -131,13 +131,6 @@ const ProductDetail: React.FC = () => {
     setTimeout(() => setCopySuccess(false), 2000);
   };
 
-  const relatedProducts = useMemo(() => {
-    if (!product) return [];
-    return allProducts
-      .filter(p => p.categoryId === product.categoryId && p.id !== product.id)
-      .slice(0, 3);
-  }, [allProducts, product]);
-
   const averageRating = useMemo(() => {
     if (!product?.reviews || product.reviews.length === 0) return 0;
     const sum = product.reviews.reduce((acc, r) => acc + r.rating, 0);
@@ -249,7 +242,7 @@ const ProductDetail: React.FC = () => {
                   <button 
                     key={i} 
                     onClick={() => setActiveMediaIndex(i)}
-                    className={`h-1.5 transition-all duration-500 rounded-full ${activeMediaIndex === i ? 'w-12 bg-primary' : 'w-4 bg-white/30'}`}
+                    className={`h-1.5 transition-all duration-500 rounded-full ${i === activeMediaIndex ? 'w-8 bg-white' : 'w-2 bg-white/50 hover:bg-white/80'}`}
                   />
                 ))}
               </div>
@@ -257,269 +250,193 @@ const ProductDetail: React.FC = () => {
           )}
         </div>
 
-        {/* Right Side: Curator Details */}
-        <div className="w-full lg:w-2/5 h-full lg:overflow-y-auto bg-white custom-scrollbar flex flex-col pt-12 lg:pt-32">
-          <div className="p-6 md:p-12 lg:p-16 flex-grow">
+        {/* Right Side: Product Information */}
+        <div className="w-full lg:w-2/5 lg:h-full lg:overflow-y-auto bg-white p-6 md:p-12 lg:pt-32">
+          <div className="max-w-xl mx-auto space-y-8">
             
-            {/* --- Header Section --- */}
-            <div className="flex items-start justify-between mb-8">
-              <div className="space-y-2">
-                 {/* Rating Badge */}
-                 <div className="flex items-center gap-1 text-yellow-500 mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={12} fill="currentColor" className={i < averageRating ? "" : "text-slate-200"} />
+            {/* Header */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-0.5 text-primary">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} size={14} fill={star <= averageRating ? "currentColor" : "none"} />
                     ))}
-                    <span className="text-[10px] font-bold text-slate-400 ml-2 uppercase tracking-widest">({product.reviews?.length || 0} Reviews)</span>
-                 </div>
-                 <h1 className="font-serif text-slate-900 leading-tight tracking-tighter text-3xl md:text-5xl">{product.name}</h1>
-                 <div className="flex items-center gap-4 pt-2">
-                    <span className="text-2xl font-bold text-slate-900">R {product.price.toLocaleString()}</span>
-                    {product.discountRules && product.discountRules.length > 0 && (
-                      <div className="bg-red-500 text-white px-3 py-1 rounded-lg font-black uppercase tracking-widest text-[10px]">
-                        {product.discountRules[0].type === 'percentage' ? `-${product.discountRules[0].value}%` : `-R${product.discountRules[0].value}`}
-                      </div>
-                    )}
-                 </div>
+                  </div>
+                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">({product.reviews?.length || 0} Verified Reviews)</span>
+                </div>
+                <button onClick={handleShare} className="p-2 rounded-full hover:bg-slate-50 text-slate-400 hover:text-slate-900 transition-colors">
+                  <Share2 size={18} />
+                </button>
               </div>
-              <button 
-                onClick={handleShare}
-                className="p-3 rounded-full bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                title="Share this product"
-              >
-                <Share2 size={18} />
-              </button>
+
+              <h1 className="text-3xl md:text-5xl font-serif text-slate-900 leading-tight">{product.name}</h1>
+              
+              <div className="flex items-center gap-4">
+                <span className="text-2xl md:text-3xl font-black text-slate-900">R {product.price.toLocaleString()}</span>
+                {product.discountRules && product.discountRules.length > 0 && (
+                  <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    {product.discountRules[0].type === 'percentage' ? `-${product.discountRules[0].value}%` : `-R${product.discountRules[0].value}`}
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* --- Descriptions --- */}
-            <div className="space-y-8 mb-10">
-              <p className="text-base text-slate-600 font-light leading-relaxed">
-                {product.description}
-              </p>
+            {/* Actions */}
+            <div className="flex flex-col gap-4 py-8 border-y border-slate-100">
+               <a 
+                 href={product.affiliateLink} 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 onClick={handleTrackClick}
+                 className="w-full py-5 bg-primary text-slate-900 font-black uppercase tracking-[0.2em] text-xs rounded-2xl hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3"
+               >
+                 <span>Secure Acquisition</span>
+                 <ExternalLink size={16} />
+               </a>
+               <p className="text-[10px] text-center text-slate-400">Transactions processed securely by our authorized retail partner.</p>
+            </div>
 
-              {/* Key Features List */}
-              {product.features && product.features.length > 0 && (
-                <div className="bg-slate-50 rounded-2xl p-6">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Sparkles size={12} className="text-primary"/> Highlights</h4>
-                  <ul className="space-y-3">
-                    {product.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
-                        <Check size={16} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span className="leading-snug">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            {/* Description */}
+            <div className="space-y-4">
+              <p className="text-slate-600 leading-relaxed font-light">{product.description}</p>
+              {product.features && (
+                <ul className="space-y-2">
+                  {product.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-sm text-slate-600">
+                      <CheckCircle size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
 
-            {/* --- Affiliate CTA --- */}
-            <a 
-              href={product.affiliateLink} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              onClick={handleTrackClick}
-              className="group relative w-full py-5 bg-slate-900 text-white rounded-2xl overflow-hidden flex items-center justify-center gap-4 shadow-xl hover:-translate-y-1 transition-all active:scale-95 mb-12"
-            >
-              <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-              <span className="relative z-10 text-xs font-black uppercase tracking-[0.2em] group-hover:text-slate-900 transition-colors">Acquire This Piece</span>
-              <ExternalLink size={16} className="relative z-10 group-hover:text-slate-900 transition-colors" />
-            </a>
-
-            {/* --- Accordions for Details --- */}
-            <div className="space-y-2 mb-16 border-t border-slate-100 pt-8">
-               {/* Specifications */}
-               <div className="border border-slate-200 rounded-2xl overflow-hidden">
+            {/* Specifications Accordion */}
+            {product.specifications && Object.keys(product.specifications).length > 0 && (
+               <div className="border border-slate-100 rounded-2xl overflow-hidden">
                   <button 
                     onClick={() => setOpenAccordion(openAccordion === 'specs' ? null : 'specs')}
-                    className="w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors"
+                    className="w-full px-6 py-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition-colors"
                   >
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-900 flex items-center gap-3"><Tag size={16} className="text-slate-400"/> Specifications</span>
-                    {openAccordion === 'specs' ? <Minus size={16} className="text-slate-400"/> : <Plus size={16} className="text-slate-400"/>}
+                     <span className="text-xs font-black uppercase tracking-widest text-slate-900">Technical Specifications</span>
+                     {openAccordion === 'specs' ? <Minus size={14}/> : <Plus size={14}/>}
                   </button>
-                  <div className={`transition-all duration-300 ease-in-out ${openAccordion === 'specs' ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="p-5 pt-0 bg-white">
-                       <div className="grid grid-cols-2 gap-y-4 gap-x-8">
-                         {product.specifications ? Object.entries(product.specifications).map(([key, value]) => (
-                            <div key={key}>
-                               <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{key}</span>
-                               <span className="text-sm font-medium text-slate-700">{value}</span>
-                            </div>
-                         )) : (
-                            <div className="col-span-2 text-slate-400 text-xs italic">Standard sizing applies. Please refer to retailer chart.</div>
-                         )}
-                         <div className="col-span-2 pt-2 border-t border-slate-100 mt-2">
-                            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">SKU</span>
-                            <span className="text-xs font-mono text-slate-500">{product.sku}</span>
-                         </div>
-                       </div>
+                  {openAccordion === 'specs' && (
+                    <div className="px-6 py-4 bg-white grid grid-cols-2 gap-4">
+                       {Object.entries(product.specifications).map(([key, value]) => (
+                          <div key={key}>
+                             <span className="block text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">{key}</span>
+                             <span className="text-sm text-slate-700">{value}</span>
+                          </div>
+                       ))}
                     </div>
-                  </div>
+                  )}
                </div>
-
-               {/* Shipping & Authenticity */}
-               <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                  <button 
-                    onClick={() => setOpenAccordion(openAccordion === 'shipping' ? null : 'shipping')}
-                    className="w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors"
-                  >
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-900 flex items-center gap-3"><Truck size={16} className="text-slate-400"/> Delivery & Authenticity</span>
-                    {openAccordion === 'shipping' ? <Minus size={16} className="text-slate-400"/> : <Plus size={16} className="text-slate-400"/>}
-                  </button>
-                  <div className={`transition-all duration-300 ease-in-out ${openAccordion === 'shipping' ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="p-5 pt-0 bg-white space-y-4">
-                       <div className="flex items-start gap-3">
-                          <ShieldCheck size={18} className="text-green-600 mt-1 flex-shrink-0"/>
-                          <div>
-                             <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Guaranteed Authentic</h5>
-                             <p className="text-xs text-slate-500 leading-relaxed">Every item listed is vetted by our curation team. We only partner with authorized retailers and official brand partners.</p>
-                          </div>
-                       </div>
-                       <div className="flex items-start gap-3">
-                          <Box size={18} className="text-blue-600 mt-1 flex-shrink-0"/>
-                          <div>
-                             <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">Retailer Fulfillment</h5>
-                             <p className="text-xs text-slate-500 leading-relaxed">This item is sold and shipped by a third-party partner. Returns and exchanges are subject to the retailer's policy.</p>
-                          </div>
-                       </div>
-                    </div>
-                  </div>
-               </div>
-            </div>
-
-            {/* --- Related Curations --- */}
-            {relatedProducts.length > 0 && (
-              <div className="mb-16">
-                 <h3 className="text-xl font-serif text-slate-900 mb-6">Complete The Look</h3>
-                 <div className="grid grid-cols-2 gap-4">
-                    {relatedProducts.map(rp => (
-                       <Link to={`/product/${rp.id}`} key={rp.id} className="group block">
-                          <div className="aspect-[3/4] rounded-xl overflow-hidden mb-3 bg-slate-100 relative">
-                             <img src={rp.media?.[0]?.url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                             <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-bold text-slate-900">
-                                R {rp.price}
-                             </div>
-                          </div>
-                          <h4 className="text-sm font-bold text-slate-900 truncate group-hover:text-primary transition-colors">{rp.name}</h4>
-                          <span className="text-[10px] text-slate-400 uppercase tracking-widest">{category?.name}</span>
-                       </Link>
-                    ))}
-                 </div>
-              </div>
             )}
 
-            {/* REVIEWS SECTION */}
-            <div className="border-t border-slate-100 pt-16">
-               <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-2xl font-serif text-slate-900 flex items-center gap-3">
-                     <MessageCircle size={24} className="text-primary"/> Impressions
-                  </h3>
+            {/* Reviews Section */}
+            <div className="pt-8 space-y-8">
+               <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-serif text-slate-900">Client Perspectives</h3>
+                  <button onClick={() => setOpenAccordion(openAccordion === 'review' ? null : 'review')} className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-slate-900 transition-colors">Write Review</button>
                </div>
-               
-               {/* MOVED FORM UP: Add Review Form First */}
-               <form onSubmit={handleSubmitReview} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 mb-12">
-                  <h4 className="text-slate-900 font-bold text-xs uppercase tracking-widest mb-4">Leave a Review</h4>
-                  <div className="space-y-3">
-                     <input 
+
+               {/* Review Form */}
+               {openAccordion === 'review' && (
+                 <form onSubmit={handleSubmitReview} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4 animate-in slide-in-from-top-4">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Rating</label>
+                       <div className="flex gap-1">
+                          {[1,2,3,4,5].map(star => (
+                             <button type="button" key={star} onClick={() => setNewReview({...newReview, rating: star})} className="focus:outline-none">
+                                <Star size={20} fill={star <= newReview.rating ? "#D4AF37" : "none"} className={star <= newReview.rating ? "text-primary" : "text-slate-300"} />
+                             </button>
+                          ))}
+                       </div>
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Name</label>
+                       <input 
                         type="text" 
-                        placeholder="Your Name" 
+                        required
                         value={newReview.userName}
                         onChange={e => setNewReview({...newReview, userName: e.target.value})}
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm focus:border-primary transition-all"
-                        required
-                     />
-                     <div className="flex gap-1">
-                        {[1,2,3,4,5].map(star => (
-                           <button 
-                              key={star} 
-                              type="button" 
-                              onClick={() => setNewReview({...newReview, rating: star})}
-                              className={`p-1.5 rounded-lg transition-all ${newReview.rating >= star ? 'text-yellow-400 bg-yellow-400/10' : 'text-slate-300 bg-white border border-slate-200'}`}
-                           >
-                              <Star size={14} fill={newReview.rating >= star ? "currentColor" : "none"} />
-                           </button>
-                        ))}
-                     </div>
-                     <textarea 
-                        placeholder="Your thoughts..." 
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-900 outline-none text-sm bg-white"
+                        placeholder="Your Name"
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Experience</label>
+                       <textarea 
                         rows={3}
+                        required
                         value={newReview.comment}
                         onChange={e => setNewReview({...newReview, comment: e.target.value})}
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm focus:border-primary transition-all resize-none"
-                        required
-                     />
-                     <button 
-                        type="submit" 
-                        disabled={isSubmittingReview}
-                        className="w-full py-3 bg-slate-900 text-white font-black uppercase text-[10px] tracking-widest rounded-xl hover:bg-primary hover:text-slate-900 transition-all disabled:opacity-50"
-                     >
-                        {isSubmittingReview ? 'Publishing...' : 'Publish'}
-                     </button>
-                  </div>
-               </form>
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-900 outline-none text-sm bg-white resize-none"
+                        placeholder="Share your thoughts..."
+                       />
+                    </div>
+                    <button disabled={isSubmittingReview} className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-primary hover:text-slate-900 transition-colors disabled:opacity-50">
+                       {isSubmittingReview ? 'Submitting...' : 'Post Review'}
+                    </button>
+                 </form>
+               )}
 
-               {/* Review List Second */}
-               <div className="space-y-6 mb-12">
-                  {product.reviews && product.reviews.length > 0 ? (
-                     product.reviews.map((review) => (
-                        <div key={review.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 relative">
-                           <div className="flex items-center gap-2 mb-2">
-                              <span className="font-bold text-slate-900 text-sm">{review.userName}</span>
-                              <div className="flex text-yellow-400">
-                                  {[...Array(5)].map((_, i) => (
-                                     <Star key={i} size={10} fill={i < review.rating ? "currentColor" : "none"} className={i < review.rating ? "" : "text-slate-200"} />
-                                  ))}
-                              </div>
-                           </div>
-                           <p className="text-slate-500 text-sm font-light leading-relaxed">{review.comment}</p>
-                           <span className="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-2 block">{new Date(review.createdAt).toLocaleDateString()}</span>
+               <div className="space-y-6">
+                  {product.reviews && product.reviews.length > 0 ? product.reviews.map(review => (
+                     <div key={review.id} className="border-b border-slate-100 pb-6 last:border-0">
+                        <div className="flex items-center justify-between mb-2">
+                           <span className="font-bold text-slate-900 text-sm">{review.userName}</span>
+                           <span className="text-[10px] text-slate-400 uppercase font-medium">{new Date(review.createdAt).toLocaleDateString()}</span>
                         </div>
-                     ))
-                  ) : (
-                     <p className="text-slate-400 text-sm italic">Be the first to share your thoughts.</p>
+                        <div className="flex gap-0.5 text-primary mb-2">
+                           {[1,2,3,4,5].map(s => <Star key={s} size={10} fill={s <= review.rating ? "currentColor" : "none"} />)}
+                        </div>
+                        <p className="text-slate-600 text-sm leading-relaxed">{review.comment}</p>
+                     </div>
+                  )) : (
+                     <div className="text-center py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                        <p className="text-slate-400 text-xs">No reviews yet. Be the first to share your experience.</p>
+                     </div>
                   )}
                </div>
             </div>
+
           </div>
         </div>
       </div>
       
       {/* Share Modal */}
       {isShareOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-[2rem] w-full max-w-sm p-8 relative shadow-2xl">
-            <button onClick={() => setIsShareOpen(false)} className="absolute top-4 right-4 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
-                <X size={20} className="text-slate-500" />
-            </button>
-            
-            <h3 className="text-2xl font-serif text-slate-900 mb-2">Share</h3>
-            <p className="text-slate-500 text-sm mb-8">Spread the word about this curation.</p>
-            
-            <div className="grid grid-cols-4 gap-4 mb-8">
-                {socialShares.map((platform) => (
-                  <a 
-                    key={platform.name}
-                    href={platform.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 ${platform.color} ${platform.text}`}
-                    title={`Share on ${platform.name}`}
-                  >
-                      <platform.icon size={24} />
-                  </a>
-                ))}
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+            <div className="bg-white rounded-[2rem] p-8 w-full max-w-sm relative">
+               <button onClick={() => setIsShareOpen(false)} className="absolute top-4 right-4 p-2 bg-slate-50 rounded-full hover:bg-slate-100"><X size={20} className="text-slate-500"/></button>
+               <h3 className="text-xl font-serif text-slate-900 mb-6 text-center">Share This Piece</h3>
+               <div className="grid grid-cols-4 gap-4 mb-6">
+                  {socialShares.map((s) => (
+                     <a 
+                      key={s.name} 
+                      href={s.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex flex-col items-center gap-2 group"
+                     >
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${s.color} ${s.text} group-hover:scale-110 transition-transform`}>
+                           <s.icon size={20} />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase">{s.name}</span>
+                     </a>
+                  ))}
+               </div>
+               <div className="relative">
+                  <input readOnly value={window.location.href} className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-500 outline-none" />
+                  <button onClick={handleCopyLink} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white shadow-sm border border-slate-100 rounded-lg hover:text-primary transition-colors">
+                     {copySuccess ? <Check size={16} className="text-green-500"/> : <Copy size={16}/>}
+                  </button>
+               </div>
             </div>
-            
-            <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex items-center justify-between gap-4">
-                <div className="flex-grow truncate text-xs text-slate-500 font-mono">
-                  {window.location.href}
-                </div>
-                <button onClick={handleCopyLink} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary hover:text-slate-900 transition-colors">
-                  {copySuccess ? <CheckCircle size={16} /> : <Copy size={16} />}
-                  {copySuccess ? 'Copied' : 'Copy'}
-                </button>
-            </div>
-          </div>
-        </div>
+         </div>
       )}
     </main>
   );

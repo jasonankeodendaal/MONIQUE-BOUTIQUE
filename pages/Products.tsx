@@ -1,9 +1,11 @@
 
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Search, ExternalLink, ShoppingBag, CheckCircle, FileText, Video as VideoIcon, ChevronDown, Filter, ArrowUpDown, ArrowRight, ArrowLeft } from 'lucide-react';
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_SUBCATEGORIES } from '../constants';
 import { useSettings } from '../App';
+import { Product } from '../types';
 
 const Products: React.FC = () => {
   const { settings } = useSettings();
@@ -43,7 +45,7 @@ const Products: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const products = useMemo(() => {
+  const products = useMemo<Product[]>(() => {
     const saved = localStorage.getItem('admin_products');
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
   }, []);
@@ -56,7 +58,7 @@ const Products: React.FC = () => {
   }, [selectedCat]);
 
   const filteredProducts = useMemo(() => {
-    let result = products.filter((p: any) => {
+    let result = products.filter((p: Product) => {
       const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
                            p.description.toLowerCase().includes(search.toLowerCase());
       const matchesCat = selectedCat === 'all' || p.categoryId === selectedCat;
@@ -65,16 +67,16 @@ const Products: React.FC = () => {
     });
 
     switch (sortBy) {
-      case 'price-low': result.sort((a: any, b: any) => a.price - b.price); break;
-      case 'price-high': result.sort((a: any, b: any) => b.price - a.price); break;
-      case 'newest': result.sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0)); break;
-      case 'name': result.sort((a: any, b: any) => a.name.localeCompare(b.name)); break;
+      case 'price-low': result.sort((a, b) => a.price - b.price); break;
+      case 'price-high': result.sort((a, b) => b.price - a.price); break;
+      case 'newest': result.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); break;
+      case 'name': result.sort((a, b) => a.name.localeCompare(b.name)); break;
     }
 
     return result;
   }, [search, selectedCat, selectedSub, sortBy, products]);
 
-  const renderProductMedia = (product: any) => {
+  const renderProductMedia = (product: Product) => {
     const media = product.media || [];
     const primary = media[0];
     
@@ -253,7 +255,7 @@ const Products: React.FC = () => {
 
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-12">
-            {filteredProducts.map((product: any) => (
+            {filteredProducts.map((product: Product) => (
               <Link 
                 to={`/product/${product.id}`}
                 key={product.id} 

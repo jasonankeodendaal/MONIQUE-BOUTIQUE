@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Plus, Edit2, Trash2, 
@@ -14,7 +15,7 @@ import {
   BarChart, ZapOff, Activity as ActivityIcon, Code, Map, Wifi, WifiOff, Facebook, Linkedin
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
-import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_SUBCATEGORIES, INITIAL_CAROUSEL, INITIAL_SETTINGS, PERMISSION_TREE, INITIAL_ADMINS, INITIAL_ENQUIRIES, GUIDE_STEPS } from '../constants';
+import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_SUBCATEGORIES, INITIAL_CAROUSEL, INITIAL_SETTINGS, PERMISSION_TREE, INITIAL_ADMINS, INITIAL_ENQUIRIES, GUIDE_STEPS, EMAIL_TEMPLATE_HTML } from '../constants';
 import { Product, Category, CarouselSlide, MediaFile, SubCategory, SiteSettings, Enquiry, DiscountRule, SocialLink, AdminUser, PermissionNode, ProductStats } from '../types';
 import { useSettings } from '../App';
 import { supabase, isSupabaseConfigured, uploadMedia, measureConnection, getSupabaseUrl } from '../lib/supabase';
@@ -855,83 +856,6 @@ const SingleImageUploader: React.FC<{ value: string; onChange: (v: string) => vo
     </div>
   );
 };
-
-// --- Email Template Constant ---
-const EMAIL_TEMPLATE_HTML = `<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 0; }
-  .wrapper { width: 100%; table-layout: fixed; background-color: #f4f4f5; padding-bottom: 60px; }
-  .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 16px; color: #334155; line-height: 1.6; }
-  .header { background-color: #1e293b; padding: 40px 20px; text-align: center; }
-  .logo-img { max-height: 60px; width: auto; display: block; margin: 0 auto; }
-  .logo-text { font-size: 24px; font-weight: bold; color: #D4AF37; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; font-family: serif; }
-  .body-content { padding: 40px 30px; }
-  .message-box { background-color: #f8fafc; border-left: 4px solid #D4AF37; padding: 20px; margin: 25px 0; border-radius: 4px; font-size: 15px; color: #475569; }
-  .btn { display: inline-block; padding: 12px 30px; background-color: #D4AF37; color: #1e293b; text-decoration: none; font-weight: bold; border-radius: 4px; margin-top: 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-  .products-title { text-align: center; margin: 40px 0 20px; font-family: serif; font-size: 22px; color: #1e293b; position: relative; }
-  .products-title span { background: #fff; padding: 0 15px; position: relative; z-index: 1; }
-  .products-title:after { content: ""; position: absolute; top: 50%; left: 0; right: 0; border-top: 1px solid #e2e8f0; z-index: 0; }
-  .product-grid { width: 100%; border-collapse: collapse; }
-  .product-cell { width: 50%; padding: 10px; vertical-align: top; }
-  .product-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; text-align: left; }
-  .product-img { width: 100%; height: 180px; object-fit: cover; background-color: #f1f5f9; display: block; }
-  .product-info { padding: 15px; }
-  .product-name { font-size: 14px; font-weight: bold; color: #1e293b; margin: 0 0 5px; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .product-price { font-size: 14px; color: #D4AF37; font-weight: bold; margin-bottom: 10px; display: block; }
-  .product-link { font-size: 12px; color: #64748b; text-decoration: none; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
-  .footer { background-color: #1e293b; padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 12px; }
-  .social-icons { margin-bottom: 20px; }
-  .social-icon { display: inline-block; width: 32px; height: 32px; margin: 0 5px; }
-  .footer p { margin: 5px 0; }
-  .footer a { color: #D4AF37; text-decoration: none; }
-  
-  @media only screen and (max-width: 480px) {
-    .product-cell { display: block; width: 100%; padding: 10px 0; }
-    .product-img { height: 220px; }
-  }
-</style>
-</head>
-<body>
-  <div class="wrapper">
-    <div class="main">
-      <div class="header">
-        {{#if company_logo_url}}
-          <img src="{{company_logo_url}}" alt="{{company_name}}" class="logo-img" />
-        {{else}}
-          <h1 class="logo-text">{{company_name}}</h1>
-        {{/if}}
-      </div>
-      
-      <div class="body-content">
-        <p>Dear {{to_name}},</p>
-        <p>Thank you for connecting with <strong>{{company_name}}</strong> regarding <strong>{{subject}}</strong>.</p>
-        
-        <div class="message-box">
-          {{{message}}}
-        </div>
-        
-        <p>If you require further assistance, please reply directly to this email.</p>
-        
-        <div style="text-align: center; margin-top: 30px;">
-          <a href="{{company_website}}" class="btn">Access Portal</a>
-        </div>
-
-        {{{products_html}}}
-      </div>
-
-      <div class="footer">
-        {{{socials_html}}}
-        <p>&copy; {{year}} {{company_name}}. All rights reserved.</p>
-        <p>{{company_address}}</p>
-        <p><a href="{{company_website}}">Visit Website</a></p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
 
 // --- Main Admin Component ---
 
