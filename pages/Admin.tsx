@@ -431,9 +431,10 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
           }
           
           // Compact HTML generation to reduce payload
+          // Ensure classes match the user's provided template
           gridContent += `<td class="product-cell" style="width:50%;padding:10px;vertical-align:top;"><div class="product-card" style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff;text-align:left;"><a href="${internalLink}" style="text-decoration:none;display:block;"><img src="${imgUrl}" alt="${p.name}" class="product-img" style="width:100%;height:150px;object-fit:cover;background-color:#f1f5f9;display:block;"/></a><div class="product-info" style="padding:10px;"><h4 class="product-name" style="font-size:13px;font-weight:bold;color:#1e293b;margin:0 0 5px;height:34px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${p.name}</h4><span class="product-price" style="font-size:13px;color:#D4AF37;font-weight:bold;margin-bottom:8px;display:block;">R ${p.price.toLocaleString()}</span><a href="${internalLink}" class="product-link" style="font-size:11px;color:#64748b;text-decoration:none;text-transform:uppercase;font-weight:bold;letter-spacing:0.5px;">View Details →</a></div></div></td>`;
           
-          // Close row every 2 items (though with slice 2, this is just one row)
+          // Close row every 2 items
           if ((i + 1) % 2 === 0 && i !== shuffled.length - 1) {
              gridContent += '</tr><tr>';
           }
@@ -467,20 +468,22 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
          socialsHtml += '</div>';
       }
 
-      await emailjs.send(serviceId, templateId, {
-          to_name: enquiry.name, 
+      const templateParams = {
+          to_name: enquiry.name || 'Valued Client', 
           to_email: enquiry.email, 
-          subject: subject, 
-          message: finalMessage,
+          subject: subject || 'Response', 
+          message: finalMessage || '', // Ensure not undefined
           reply_to: enquiry.email,
-          company_name: settings.companyName,
-          company_address: settings.address,
+          company_name: settings.companyName || '',
+          company_address: settings.address || '',
           company_website: window.location.origin,
-          company_logo_url: logoUrl, 
-          products_html: productsHtml, 
-          socials_html: socialsHtml, 
+          company_logo_url: logoUrl || '', // Ensure not undefined
+          products_html: productsHtml || '', // Ensure not undefined, even if empty string
+          socials_html: socialsHtml || '', 
           year: new Date().getFullYear().toString()
-      }, publicKey);
+      };
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
       
       setSuccess(true);
       setTimeout(onClose, 2000);
@@ -489,8 +492,8 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
       // Detailed error message if it's the specific template ID error
       if (err.text?.includes("template ID not found")) {
          setError("Error: Template ID not found. Please check Settings > Integrations and ensure no whitespace.");
-      } else if (err.text?.includes("variable")) {
-         setError("Error: One or more dynamic variables are too large (Over 50Kb). Ensure you are not sending Base64 images.");
+      } else if (err.text?.includes("variable") || err.text?.includes("corrupted")) {
+         setError("Error: Payload too large for EmailJS (Limit 50KB). Ensure images are hosted URLs, not Base64.");
       } else {
          setError(err.text || err.message || "Failed to send email. Check console.");
       }
@@ -854,8 +857,7 @@ const SingleImageUploader: React.FC<{ value: string; onChange: (v: string) => vo
 };
 
 // --- Email Template Constant ---
-const EMAIL_TEMPLATE_HTML = `
-<!DOCTYPE html>
+const EMAIL_TEMPLATE_HTML = `<!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -929,8 +931,7 @@ const EMAIL_TEMPLATE_HTML = `
     </div>
   </div>
 </body>
-</html>
-`;
+</html>`;
 
 // --- Main Admin Component ---
 
@@ -2170,13 +2171,13 @@ const Admin: React.FC = () => {
              </div>
              <div className="p-6 overflow-y-auto flex-grow bg-slate-950">
                <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-xl">
-                 <p className="text-primary text-xs font-bold mb-2">INSTRUCTIONS:</p>
+                 <p className="text-primary text-xs font-bold mb-2">IMPORTANT CONFIGURATION:</p>
                  <ol className="list-decimal list-inside text-slate-400 text-xs space-y-1">
                    <li>Copy the code below.</li>
-                   <li>Go to your EmailJS Dashboard &rarr; Email Templates.</li>
-                   <li>Click "Create New Template".</li>
-                   <li>Click the "Source Code" button ({'< >'}) in the editor toolbar.</li>
-                   <li>Paste this code and save.</li>
+                   <li>Go to your EmailJS Dashboard &rarr; Email Templates &rarr; Select Template.</li>
+                   <li><strong>CRITICAL:</strong> Click the "Source Code" icon ( <span className="font-mono text-white">&lt; &gt;</span> ) in the toolbar.</li>
+                   <li>Paste this code completely, replacing any existing content.</li>
+                   <li>Click "Source Code" again to exit code view, then Save.</li>
                  </ol>
                </div>
                <CodeBlock code={EMAIL_TEMPLATE_HTML} language="html" label="Responsive HTML Template" />
