@@ -49,11 +49,24 @@ const Login: React.FC = () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/admin' }
+        options: { 
+          // Use origin to prevent HashRouter issues during callback
+          redirectTo: window.location.origin,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
       });
       if (error) throw error;
     } catch (err: any) {
-      setError(err.message || 'Google authentication failed');
+      console.error("Auth Error:", err);
+      // Handle the specific 404 NOT_FOUND error from Supabase/GoTrue
+      if (err.message?.includes('NOT_FOUND') || err.message?.includes('404')) {
+        setError('Configuration Error: Google Login is disabled in Supabase or the Project URL is incorrect.');
+      } else {
+        setError(err.message || 'Google authentication failed');
+      }
     }
   };
 
