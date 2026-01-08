@@ -5,14 +5,12 @@ export interface Category {
   icon: string;
   image: string;
   description?: string;
-  created_at?: string;
 }
 
 export interface SubCategory {
   id: string;
   categoryId: string;
   name: string;
-  created_at?: string;
 }
 
 export interface MediaFile {
@@ -36,7 +34,6 @@ export interface Review {
   rating: number; // 1-5
   comment: string;
   createdAt: number;
-  created_at?: string;
 }
 
 export interface Product {
@@ -54,17 +51,14 @@ export interface Product {
   discountRules?: DiscountRule[];
   reviews?: Review[];
   createdAt: number;
-  created_at?: string;
 }
 
 export interface ProductStats {
   productId: string;
-  product_id?: string;
   views: number;
   clicks: number;
   totalViewTime: number; // in seconds
   lastUpdated: number;
-  last_updated?: string;
 }
 
 export interface CarouselSlide {
@@ -74,7 +68,6 @@ export interface CarouselSlide {
   title: string;
   subtitle: string;
   cta: string;
-  created_at?: string;
 }
 
 export interface Enquiry {
@@ -85,7 +78,6 @@ export interface Enquiry {
   subject: string;
   message: string;
   createdAt: number;
-  created_at?: string;
   status: 'unread' | 'read' | 'archived';
 }
 
@@ -229,7 +221,6 @@ export interface AdminUser {
   permissions: string[]; // Array of Permission IDs (flattened)
   password?: string; // Permanent password (stored locally for demo/local mode)
   createdAt: number;
-  created_at?: string;
   lastActive?: number;
   profileImage?: string;
   phone?: string;

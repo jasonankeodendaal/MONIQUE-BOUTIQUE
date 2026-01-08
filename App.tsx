@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, Link, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
@@ -10,9 +10,9 @@ import ProductDetail from './pages/ProductDetail';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Legal from './pages/Legal';
-import { SiteSettings, Product, Category, SubCategory, CarouselSlide, Enquiry, ProductStats } from './types';
-import { INITIAL_SETTINGS, INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_SUBCATEGORIES, INITIAL_CAROUSEL } from './constants';
-import { supabase, isSupabaseConfigured, db } from './lib/supabase';
+import { SiteSettings } from './types';
+import { INITIAL_SETTINGS } from './constants';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { Cloud, Check, Loader2, AlertTriangle } from 'lucide-react';
 
@@ -21,13 +21,6 @@ export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 interface SettingsContextType {
   settings: SiteSettings;
   updateSettings: (newSettings: Partial<SiteSettings>) => void;
-  products: Product[];
-  categories: Category[];
-  subCategories: SubCategory[];
-  heroSlides: CarouselSlide[];
-  enquiries: Enquiry[];
-  stats: ProductStats[];
-  refreshData: () => Promise<void>;
   user: User | null;
   loadingAuth: boolean;
   isLocalMode: boolean;
@@ -53,7 +46,9 @@ const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
     </div>
   );
 
+  // If Supabase isn't configured, allow access to Admin for setup purposes
   if (isLocalMode) return <>{children}</>;
+  
   if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
@@ -83,8 +78,18 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex gap-3 md:gap-4">
               {(settings.socialLinks || []).map(link => (
-                <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 md:w-10 md:h-10 bg-slate-800 rounded-lg md:rounded-xl flex items-center justify-center hover:bg-primary transition-colors group">
-                  {link.iconUrl ? <img src={link.iconUrl} alt={link.name} className="w-4 h-4 md:w-5 md:h-5 object-contain invert group-hover:invert-0 transition-all" /> : <span className="text-white text-[9px] md:text-[10px] font-bold">{link.name.slice(0, 2).toUpperCase()}</span>}
+                <a 
+                  key={link.id} 
+                  href={link.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 md:w-10 md:h-10 bg-slate-800 rounded-lg md:rounded-xl flex items-center justify-center hover:bg-primary transition-colors group"
+                >
+                  {link.iconUrl ? (
+                    <img src={link.iconUrl} alt={link.name} className="w-4 h-4 md:w-5 md:h-5 object-contain invert group-hover:invert-0 transition-all" />
+                  ) : (
+                    <span className="text-white text-[9px] md:text-[10px] font-bold">{link.name.slice(0, 2).toUpperCase()}</span>
+                  )}
                 </a>
               ))}
             </div>
@@ -109,7 +114,9 @@ const Footer: React.FC = () => {
         </div>
         <div className="pt-6 md:pt-8 border-t border-slate-800 text-center text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-medium text-slate-500 flex flex-col md:flex-row justify-between items-center gap-4">
           <p>&copy; {new Date().getFullYear()} {settings.companyName}. {settings.footerCopyrightText}</p>
-          <Link to={user ? "/admin" : "/login"} className="text-[8px] opacity-30 hover:opacity-100 hover:text-white transition-all">Admin</Link>
+          <Link to={user ? "/admin" : "/login"} className="text-[8px] opacity-30 hover:opacity-100 hover:text-white transition-all">
+            Admin
+          </Link>
         </div>
       </div>
     </footer>
@@ -118,126 +125,181 @@ const Footer: React.FC = () => {
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return null;
 };
 
+// Global Save Status Indicator
 const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
   if (status === 'idle') return null;
+
   return (
-    <div className={`fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-full shadow-2xl transition-all duration-300 ${status === 'error' ? 'bg-red-500 text-white' : 'bg-slate-900 text-white border border-slate-800'} animate-in slide-in-from-bottom-4`}>
+    <div className={`fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-full shadow-2xl transition-all duration-300 ${
+      status === 'error' ? 'bg-red-500 text-white' : 'bg-slate-900 text-white border border-slate-800'
+    } animate-in slide-in-from-bottom-4`}>
       {status === 'saving' && <Loader2 size={16} className="animate-spin text-primary" />}
       {status === 'saved' && <Check size={16} className="text-green-500" />}
       {status === 'error' && <AlertTriangle size={16} className="text-white" />}
-      <span className="text-[10px] font-black uppercase tracking-widest">{status === 'saving' ? 'Syncing...' : status === 'saved' ? 'Saved' : 'Save Failed'}</span>
+      
+      <span className="text-[10px] font-black uppercase tracking-widest">
+        {status === 'saving' && 'Syncing...'}
+        {status === 'saved' && 'Saved'}
+        {status === 'error' && 'Save Failed'}
+      </span>
     </div>
   );
 };
 
+// Traffic Logger & Geo Tracker Component
 const TrafficTracker = ({ logEvent }: { logEvent: (t: any, l: string) => void }) => {
   const location = useLocation();
+  
   useEffect(() => {
+    // 1. Page View Logging
     if (!location.pathname.startsWith('/admin')) {
       logEvent('view', location.pathname === '/' ? 'Home Page' : location.pathname);
     }
+    
+    // 2. Geolocation Logging (Real Data Fetch)
+    // Only fetch if we haven't tracked this session yet, and if we are not on the admin panel
     const trackGeo = async () => {
       if (location.pathname.startsWith('/admin')) return;
       if (sessionStorage.getItem('geo_tracked')) return;
+      
       try {
+        // Fetch location from public IP API
         const res = await fetch('https://ipapi.co/json/');
+        // If adblockers block this, we just fail silently
         if (!res.ok) return;
+        
         const data = await res.json();
+        
         if (data.error) return;
-        const geoEntry = { city: data.city, region: data.region, country: data.country_name, code: data.country_code, timestamp: Date.now() };
+
+        const geoEntry = {
+           city: data.city,
+           region: data.region,
+           country: data.country_name,
+           code: data.country_code,
+           timestamp: Date.now()
+        };
+        
+        // Save to localStorage for Admin to read
         const history = JSON.parse(localStorage.getItem('site_visitor_locations') || '[]');
-        localStorage.setItem('site_visitor_locations', JSON.stringify([geoEntry, ...history].slice(0, 500)));
+        // Keep last 500 entries to prevent storage overflow
+        const newHistory = [geoEntry, ...history].slice(0, 500);
+        localStorage.setItem('site_visitor_locations', JSON.stringify(newHistory));
+        
+        // Mark session as tracked
         sessionStorage.setItem('geo_tracked', 'true');
-      } catch (e) { console.warn('Geo tracking skipped (Adblocker likely active)'); }
+      } catch (e) {
+        // Silent fail for adblockers
+        console.warn('Geo tracking skipped (Adblocker likely active)');
+      }
     };
+
     trackGeo();
+
   }, [location.pathname, logEvent]);
+  
   return null;
 };
 
 const App: React.FC = () => {
-  const [settings, setSettings] = useState<SiteSettings>(INITIAL_SETTINGS);
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
-  const [subCategories, setSubCategories] = useState<SubCategory[]>(INITIAL_SUBCATEGORIES);
-  const [heroSlides, setHeroSlides] = useState<CarouselSlide[]>(INITIAL_CAROUSEL);
-  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
-  const [stats, setStats] = useState<ProductStats[]>([]);
-  
+  const [settings, setSettings] = useState<SiteSettings>(() => {
+    const saved = localStorage.getItem('site_settings');
+    return saved ? JSON.parse(saved) : INITIAL_SETTINGS;
+  });
   const [user, setUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 
-  const refreshData = useCallback(async () => {
-    if (!isSupabaseConfigured) return;
-    try {
-      const [s, p, c, sc, h, e, st] = await Promise.all([
-        db.settings.get(),
-        db.products.all(),
-        db.categories.all(),
-        db.subcategories.all(),
-        db.hero.all(),
-        db.enquiries.all(),
-        db.stats.all()
-      ]);
-      if (s) setSettings(s);
-      if (p.length) setProducts(p);
-      if (c.length) setCategories(c);
-      if (sc.length) setSubCategories(sc);
-      if (h.length) setHeroSlides(h);
-      if (e.length) setEnquiries(e);
-      if (st.length) setStats(st);
-    } catch (err) {
-      console.error("Data refresh failed", err);
+  useEffect(() => {
+    if (saveStatus === 'saved' || saveStatus === 'error') {
+      const timer = setTimeout(() => setSaveStatus('idle'), 3000);
+      return () => clearTimeout(timer);
     }
-  }, []);
+  }, [saveStatus]);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) { setLoadingAuth(false); return; }
+    if (!isSupabaseConfigured) {
+      setLoadingAuth(false);
+      return;
+    }
+
+    // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoadingAuth(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
-    refreshData();
-    return () => subscription.unsubscribe();
-  }, [refreshData]);
 
-  const updateSettings = async (newSettings: Partial<SiteSettings>) => {
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const updateSettings = (newSettings: Partial<SiteSettings>) => {
     setSaveStatus('saving');
-    const updated = { ...settings, ...newSettings };
-    setSettings(updated);
-    try {
-      await db.settings.set(updated);
+    // Simulate network delay for "Saving" effect
+    setTimeout(() => {
+      setSettings(prev => {
+        const updated = { ...prev, ...newSettings };
+        localStorage.setItem('site_settings', JSON.stringify(updated));
+        return updated;
+      });
       setSaveStatus('saved');
-    } catch (e) { setSaveStatus('error'); }
+    }, 600);
   };
 
   const logEvent = (type: 'view' | 'click' | 'system', label: string) => {
-    const newEvent = { id: Date.now().toString(), type, text: type === 'view' ? `Page View: ${label}` : label, time: new Date().toLocaleTimeString(), timestamp: Date.now() };
-    const existing = JSON.parse(localStorage.getItem('site_traffic_logs') || '[]');
-    localStorage.setItem('site_traffic_logs', JSON.stringify([newEvent, ...existing].slice(0, 50)));
+    const newEvent = {
+      id: Date.now().toString(),
+      type,
+      text: type === 'view' ? `Page View: ${label}` : label,
+      time: new Date().toLocaleTimeString(),
+      timestamp: Date.now()
+    };
+    
+    try {
+      const existing = JSON.parse(localStorage.getItem('site_traffic_logs') || '[]');
+      const updated = [newEvent, ...existing].slice(0, 50); // Keep last 50 logs
+      localStorage.setItem('site_traffic_logs', JSON.stringify(updated));
+    } catch (e) {
+      console.error("Traffic log error", e);
+    }
   };
 
   useEffect(() => {
     const hexToRgb = (hex: string) => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '212, 175, 55';
+      return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '79, 70, 229';
     };
+
     document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
     document.documentElement.style.setProperty('--primary-rgb', hexToRgb(settings.primaryColor));
+    
     document.documentElement.style.setProperty('--secondary-color', settings.secondaryColor || '#1E293B');
+    document.documentElement.style.setProperty('--secondary-rgb', hexToRgb(settings.secondaryColor || '#1E293B'));
+    
     document.documentElement.style.setProperty('--accent-color', settings.accentColor || '#F59E0B');
-  }, [settings]);
+    document.documentElement.style.setProperty('--accent-rgb', hexToRgb(settings.accentColor || '#F59E0B'));
+  }, [settings.primaryColor, settings.secondaryColor, settings.accentColor]);
 
   return (
     <SettingsContext.Provider value={{ 
-      settings, updateSettings, products, categories, subCategories, heroSlides, enquiries, stats, 
-      refreshData, user, loadingAuth, isLocalMode: !isSupabaseConfigured, saveStatus, setSaveStatus, logEvent 
+      settings, 
+      updateSettings, 
+      user, 
+      loadingAuth, 
+      isLocalMode: !isSupabaseConfigured,
+      saveStatus,
+      setSaveStatus,
+      logEvent
     }}>
       <Router>
         <ScrollToTop />
@@ -249,10 +311,18 @@ const App: React.FC = () => {
           .border-primary { border-color: var(--primary-color); }
           .hover\\:text-primary:hover { color: var(--primary-color); }
           .hover\\:bg-primary:hover { background-color: var(--primary-color); }
+          .ring-primary { --tw-ring-color: var(--primary-color); }
+          .shadow-primary { --tw-shadow-color: rgba(var(--primary-rgb), 0.2); }
+
           .text-secondary { color: var(--secondary-color); }
           .bg-secondary { background-color: var(--secondary-color); }
+          .border-secondary { border-color: var(--secondary-color); }
+          .hover\\:text-secondary:hover { color: var(--secondary-color); }
+
           .text-accent { color: var(--accent-color); }
           .bg-accent { background-color: var(--accent-color); }
+          .border-accent { border-color: var(--accent-color); }
+          .hover\\:text-accent:hover { color: var(--accent-color); }
         `}</style>
         <div className="min-h-screen flex flex-col">
           <Header />
