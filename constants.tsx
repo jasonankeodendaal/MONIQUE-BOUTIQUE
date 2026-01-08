@@ -1,4 +1,5 @@
 
+
 import { CarouselSlide, Category, Product, SiteSettings, SubCategory, AdminUser, Enquiry, PermissionNode } from './types';
 
 export const PERMISSION_TREE: PermissionNode[] = [
@@ -101,7 +102,7 @@ export const INITIAL_SETTINGS: SiteSettings = {
   companyName: 'Kasi Couture',
   slogan: 'Personal Luxury Wardrobe',
   companyLogo: 'KC',
-  companyLogoUrl: '',
+  companyLogoUrl: 'https://i.ibb.co/5X5qJXC6/Whats-App-Image-2026-01-08-at-15-34-23-removebg-preview.png',
   primaryColor: '#D4AF37',
   secondaryColor: '#1E293B',
   accentColor: '#F59E0B',
