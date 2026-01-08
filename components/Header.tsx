@@ -40,27 +40,27 @@ const Header: React.FC = () => {
       <nav className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="flex justify-between items-center">
           {/* Logo Section */}
-          <Link to="/" className={`flex items-center space-x-4 group ${location.pathname === '/' && !scrolled && !isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <Link to="/" className={`flex items-center space-x-5 group ${location.pathname === '/' && !scrolled && !isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <div className="relative">
               {settings.companyLogoUrl ? (
                 <img 
                   src={settings.companyLogoUrl} 
                   alt={settings.companyName} 
-                  className="h-12 md:h-20 w-auto object-contain group-hover:scale-105 transition-transform drop-shadow-sm" 
+                  className="h-16 md:h-24 w-auto object-contain group-hover:scale-105 transition-transform drop-shadow-sm" 
                 />
               ) : (
-                <div className="w-10 h-10 md:w-14 md:h-14 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-lg md:text-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-xl md:text-3xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
                   {settings.companyLogo}
                 </div>
               )}
             </div>
             <div className={`flex flex-col -space-y-1 text-left ${settings.companyLogoUrl ? 'hidden md:flex' : 'flex'}`}>
-              <span className={`text-xl md:text-2xl font-serif font-bold tracking-tight transition-colors duration-300 ${
+              <span className={`text-2xl md:text-3xl font-serif font-bold tracking-tight transition-colors duration-300 ${
                 scrolled || isOpen || !isDarkSection ? 'text-slate-900' : 'text-white'
               }`}>
                 {settings.companyName}
               </span>
-              <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] ${
+              <span className={`text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] ${
                 scrolled || isOpen || !isDarkSection ? 'text-primary' : 'text-primary/90'
               }`}>
                 {settings.slogan || 'Boutique Curation'}
@@ -74,10 +74,10 @@ const Header: React.FC = () => {
               <Link
                 key={link.name}
                 to={link.path}
-                className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:text-primary relative group ${
+                className={`text-sm font-bold uppercase tracking-[0.15em] transition-all hover:text-primary relative group ${
                   location.pathname === link.path 
                     ? 'text-primary' 
-                    : (scrolled || isOpen || !isDarkSection ? 'text-slate-500' : 'text-white/80')
+                    : (scrolled || isOpen || !isDarkSection ? 'text-slate-600' : 'text-white/90')
                 }`}
               >
                 {link.name}
@@ -92,7 +92,7 @@ const Header: React.FC = () => {
                 to="/products"
                 className={`p-2 transition-colors ${scrolled || !isDarkSection ? 'text-slate-900 hover:text-primary' : 'text-white/80 hover:text-white'}`}
               >
-                <ShoppingBag size={22} />
+                <ShoppingBag size={24} />
               </Link>
             </div>
           </div>
@@ -105,7 +105,7 @@ const Header: React.FC = () => {
                 scrolled || isOpen || !isDarkSection ? 'text-slate-900' : 'text-white'
               }`}
             >
-              {isOpen ? <X size={28} /> : <Menu size={28} />}
+              {isOpen ? <X size={32} /> : <Menu size={32} />}
             </button>
           </div>
         </div>
