@@ -152,14 +152,58 @@ const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
   );
 };
 
-// Traffic Logger Hook Component
+// Traffic Logger & Geo Tracker Component
 const TrafficTracker = ({ logEvent }: { logEvent: (t: any, l: string) => void }) => {
   const location = useLocation();
+  
   useEffect(() => {
+    // 1. Page View Logging
     if (!location.pathname.startsWith('/admin')) {
       logEvent('view', location.pathname === '/' ? 'Home Page' : location.pathname);
     }
+    
+    // 2. Geolocation Logging (Real Data Fetch)
+    // Only fetch if we haven't tracked this session yet, and if we are not on the admin panel
+    const trackGeo = async () => {
+      if (location.pathname.startsWith('/admin')) return;
+      if (sessionStorage.getItem('geo_tracked')) return;
+      
+      try {
+        // Fetch location from public IP API
+        const res = await fetch('https://ipapi.co/json/');
+        // If adblockers block this, we just fail silently
+        if (!res.ok) return;
+        
+        const data = await res.json();
+        
+        if (data.error) return;
+
+        const geoEntry = {
+           city: data.city,
+           region: data.region,
+           country: data.country_name,
+           code: data.country_code,
+           timestamp: Date.now()
+        };
+        
+        // Save to localStorage for Admin to read
+        const history = JSON.parse(localStorage.getItem('site_visitor_locations') || '[]');
+        // Keep last 500 entries to prevent storage overflow
+        const newHistory = [geoEntry, ...history].slice(0, 500);
+        localStorage.setItem('site_visitor_locations', JSON.stringify(newHistory));
+        
+        // Mark session as tracked
+        sessionStorage.setItem('geo_tracked', 'true');
+      } catch (e) {
+        // Silent fail for adblockers
+        console.warn('Geo tracking skipped (Adblocker likely active)');
+      }
+    };
+
+    trackGeo();
+
   }, [location.pathname, logEvent]);
+  
   return null;
 };
 

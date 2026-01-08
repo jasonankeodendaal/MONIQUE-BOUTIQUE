@@ -51,19 +51,66 @@ const SettingField: React.FC<{ label: string; value: string; onChange: (v: strin
 
 /**
  * Traffic Area Chart component
- * Replaces the WorldNetworkMap with a more analytical view of traffic origins.
+ * Replaces the static data with real aggregated data from localStorage logs.
  */
 const TrafficAreaChart: React.FC<{ stats?: ProductStats[] }> = ({ stats }) => {
-  const regions = [
-    { name: 'Gauteng, ZA', traffic: 45, status: 'Peak' },
-    { name: 'Western Cape, ZA', traffic: 28, status: 'Optimal' },
-    { name: 'London, UK', traffic: 15, status: 'Stable' },
-    { name: 'New York, US', traffic: 12, status: 'Rising' },
-    { name: 'KwaZulu-Natal, ZA', traffic: 8, status: 'Stable' },
-    { name: 'Dubai, UAE', traffic: 5, status: 'Minimal' },
-  ];
+  const [regions, setRegions] = useState<{ name: string; traffic: number; status: string }[]>([]);
+  const [totalTraffic, setTotalTraffic] = useState(0);
 
-  const totalViews = useMemo(() => stats?.reduce((acc, s) => acc + s.views, 0) || 0, [stats]);
+  // Compute aggregated total views for the summary box, fallback to 0
+  const aggregatedProductViews = useMemo(() => stats?.reduce((acc, s) => acc + s.views, 0) || 0, [stats]);
+
+  useEffect(() => {
+    const loadGeoData = () => {
+      // Fetch stored location logs
+      const rawData = JSON.parse(localStorage.getItem('site_visitor_locations') || '[]');
+      
+      if (rawData.length === 0) {
+        setRegions([]);
+        setTotalTraffic(0);
+        return;
+      }
+
+      setTotalTraffic(rawData.length);
+
+      // Aggregate counts by "Region, CountryCode"
+      const counts: Record<string, number> = {};
+      rawData.forEach((entry: any) => {
+        // Construct label: e.g. "Gauteng, ZA" or "New York, US"
+        const label = (entry.region && entry.code) 
+          ? `${entry.region}, ${entry.code}` 
+          : (entry.country || 'Unknown Location');
+        
+        counts[label] = (counts[label] || 0) + 1;
+      });
+
+      // Transform to array and sort
+      const total = rawData.length;
+      const sortedRegions = Object.entries(counts)
+        .map(([name, count]) => {
+          const percentage = Math.round((count / total) * 100);
+          
+          // Determine status label based on percentage dominance
+          let status = 'Stable';
+          if (percentage >= 50) status = 'Dominant';
+          else if (percentage >= 30) status = 'Peak';
+          else if (percentage >= 15) status = 'Rising';
+          else if (percentage >= 5) status = 'Active';
+          else status = 'Minimal';
+
+          return { name, traffic: percentage, status, count };
+        })
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 6); // Keep top 6 for UI layout
+
+      setRegions(sortedRegions);
+    };
+
+    loadGeoData();
+    // Poll for changes in case traffic happens while on admin page
+    const interval = setInterval(loadGeoData, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="relative w-full min-h-[400px] bg-slate-900 rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl backdrop-blur-xl group p-10">
@@ -84,13 +131,13 @@ const TrafficAreaChart: React.FC<{ stats?: ProductStats[] }> = ({ stats }) => {
           <div className="text-right bg-white/5 border border-white/10 px-6 py-3 rounded-2xl">
              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-0.5">Live Ingress</span>
              <span className="text-xl font-bold text-white flex items-center gap-2">
-                <Globe size={16} className="text-primary"/> 100% Verified
+                <Globe size={16} className="text-primary"/> 100% Real-Time
              </span>
           </div>
         </div>
 
         <div className="space-y-8 flex-grow">
-          {regions.map((region, idx) => (
+          {regions.length > 0 ? regions.map((region, idx) => (
             <div key={idx} className="space-y-3">
               <div className="flex justify-between items-end">
                 <div className="flex items-center gap-4">
@@ -111,23 +158,29 @@ const TrafficAreaChart: React.FC<{ stats?: ProductStats[] }> = ({ stats }) => {
                 />
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="flex flex-col items-center justify-center py-12 text-center opacity-50">
+              <Globe size={48} className="text-slate-600 mb-4" />
+              <h4 className="text-white font-bold uppercase tracking-widest">Awaiting Signal</h4>
+              <p className="text-slate-500 text-xs mt-2 max-w-xs">Visit the public site to generate the first geographic traffic data points.</p>
+            </div>
+          )}
         </div>
 
         <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
            <div className="flex gap-10">
               <div className="text-left">
-                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Global Weight</span>
-                 <span className="text-2xl font-bold text-white">{(totalViews * 0.82).toFixed(0)}</span>
+                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Total Visitors</span>
+                 <span className="text-2xl font-bold text-white">{totalTraffic.toLocaleString()}</span>
               </div>
               <div className="text-left border-l border-white/5 pl-10">
-                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Local Reach</span>
-                 <span className="text-2xl font-bold text-primary">{(totalViews * 0.18).toFixed(0)}</span>
+                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Page Impressions</span>
+                 <span className="text-2xl font-bold text-primary">{aggregatedProductViews.toLocaleString()}</span>
               </div>
            </div>
            <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 px-6 py-3 rounded-full">
               <Activity size={14} className="text-primary animate-pulse"/>
-              <span className="text-[10px] font-black text-primary uppercase tracking-widest">Real-Time Sync Active</span>
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest">Sync Active</span>
            </div>
         </div>
       </div>
