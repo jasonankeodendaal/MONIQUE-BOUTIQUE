@@ -401,6 +401,16 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
       let finalMessage = message.replace(/\n/g, '<br>');
       if (fileLinks.length > 0) finalMessage += `<br><br><strong>Attachments:</strong><br>${fileLinks.map(l => `<a href="${l.split(': ')[1]}">${l.split(': ')[0]}</a>`).join('<br>')}`;
       
+      // Helper to check for Base64 strings (too large for EmailJS parameters limit)
+      const isBase64 = (str?: string) => str?.startsWith('data:');
+
+      // --- Prepare Logo ---
+      let logoUrl = settings.companyLogoUrl || '';
+      if (isBase64(logoUrl)) {
+         console.warn("EmailJS Warning: Skipping Base64 Logo to prevent payload error. Use a hosted URL instead.");
+         logoUrl = ''; // Fallback to text logo in template logic
+      }
+
       // --- Generate Products Grid HTML ---
       let productsHtml = '';
       const allProducts = JSON.parse(localStorage.getItem('admin_products') || '[]');
@@ -411,9 +421,14 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
         let gridContent = '';
         for (let i = 0; i < shuffled.length; i++) {
           const p = shuffled[i];
-          // Use internal link: origin + /#/product/ + id
           const internalLink = `${window.location.origin}/#/product/${p.id}`;
-          const imgUrl = p.media?.[0]?.url || 'https://via.placeholder.com/300?text=No+Image';
+          
+          let imgUrl = p.media?.[0]?.url || 'https://via.placeholder.com/300?text=No+Image';
+          
+          // SAFETY CHECK: If image is Base64, replace with placeholder to avoid breaking EmailJS
+          if (isBase64(imgUrl)) {
+             imgUrl = 'https://placehold.co/300x300/e2e8f0/1e293b.png?text=View+Item';
+          }
           
           gridContent += `
             <td class="product-cell" style="width:50%; padding:10px; vertical-align:top;">
@@ -452,8 +467,13 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
       if (settings.socialLinks && settings.socialLinks.length > 0) {
          socialsHtml += '<div class="social-icons" style="margin-bottom:20px;">';
          settings.socialLinks.forEach(link => {
-            // Using a generic icon if no specific icon url, or standard platform images
-            const iconSrc = link.iconUrl || 'https://cdn-icons-png.flaticon.com/512/733/733579.png'; // Fallback
+            let iconSrc = link.iconUrl || 'https://cdn-icons-png.flaticon.com/512/733/733579.png'; // Fallback
+            
+            // SAFETY CHECK: Base64 icons
+            if (isBase64(iconSrc)) {
+                iconSrc = 'https://cdn-icons-png.flaticon.com/512/733/733579.png';
+            }
+
             socialsHtml += `
               <a href="${link.url}" target="_blank" style="display:inline-block; margin:0 5px;">
                  <img src="${iconSrc}" alt="${link.name}" class="social-icon" style="width:32px; height:32px; display:block;" />
@@ -472,10 +492,10 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
           company_name: settings.companyName,
           company_address: settings.address,
           company_website: window.location.origin,
-          company_logo_url: settings.companyLogoUrl || '', // Pass logo
-          products_html: productsHtml, // Pass generated grid
-          socials_html: socialsHtml, // Pass generated socials
-          year: new Date().getFullYear()
+          company_logo_url: logoUrl, 
+          products_html: productsHtml, 
+          socials_html: socialsHtml, 
+          year: new Date().getFullYear().toString()
       }, publicKey);
       
       setSuccess(true);
@@ -485,6 +505,8 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
       // Detailed error message if it's the specific template ID error
       if (err.text?.includes("template ID not found")) {
          setError("Error: Template ID not found. Please check Settings > Integrations and ensure no whitespace.");
+      } else if (err.text?.includes("variable")) {
+         setError("Error: One or more dynamic variables are too large or corrupted. Ensure you are not sending Base64 images.");
       } else {
          setError(err.text || err.message || "Failed to send email. Check console.");
       }

@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ExternalLink, ShieldCheck, ArrowLeft, Play, Package, Share2, Tag, Sparkles, MessageCircle, Star, Send, Check, ChevronDown, Minus, Plus, Box, Truck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, ShieldCheck, ArrowLeft, Play, Package, Share2, Tag, Sparkles, MessageCircle, Star, Send, Check, ChevronDown, Minus, Plus, Box, Truck, X, Facebook, Twitter, Mail, Copy, CheckCircle } from 'lucide-react';
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../constants';
 import { useSettings } from '../App';
 import { Product, DiscountRule, ProductStats, Review } from '../types';
@@ -29,6 +29,10 @@ const ProductDetail: React.FC = () => {
 
   // Accordion State
   const [openAccordion, setOpenAccordion] = useState<string | null>('specs');
+
+  // Share State
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -105,6 +109,28 @@ const ProductDetail: React.FC = () => {
     }, 800);
   };
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product?.name,
+          text: `Check out ${product?.name} at ${settings.companyName}`,
+          url: window.location.href
+        });
+      } catch (err) {
+        console.log("Share skipped", err);
+      }
+    } else {
+      setIsShareOpen(true);
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  };
+
   const relatedProducts = useMemo(() => {
     if (!product) return [];
     return allProducts
@@ -117,6 +143,17 @@ const ProductDetail: React.FC = () => {
     const sum = product.reviews.reduce((acc, r) => acc + r.rating, 0);
     return Math.round(sum / product.reviews.length);
   }, [product?.reviews]);
+
+  const socialShares = useMemo(() => {
+     const url = window.location.href;
+     const text = `Check out ${product?.name}`;
+     return [
+      { name: 'WhatsApp', icon: MessageCircle, color: 'bg-[#25D366]', text: 'text-white', url: `https://wa.me/?text=${encodeURIComponent(`${text}: ${url}`)}` },
+      { name: 'Facebook', icon: Facebook, color: 'bg-[#1877F2]', text: 'text-white', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` },
+      { name: 'Twitter', icon: Twitter, color: 'bg-[#1DA1F2]', text: 'text-white', url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}` },
+      { name: 'Email', icon: Mail, color: 'bg-slate-100', text: 'text-slate-900', url: `mailto:?subject=${encodeURIComponent(product?.name || '')}&body=${encodeURIComponent(`${text}: ${url}`)}` },
+    ];
+  }, [product]);
 
   if (!product) {
     return (
@@ -244,7 +281,11 @@ const ProductDetail: React.FC = () => {
                     )}
                  </div>
               </div>
-              <button className="p-3 rounded-full bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+              <button 
+                onClick={handleShare}
+                className="p-3 rounded-full bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                title="Share this product"
+              >
                 <Share2 size={18} />
               </button>
             </div>
@@ -441,6 +482,45 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Share Modal */}
+      {isShareOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm p-8 relative shadow-2xl">
+            <button onClick={() => setIsShareOpen(false)} className="absolute top-4 right-4 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
+                <X size={20} className="text-slate-500" />
+            </button>
+            
+            <h3 className="text-2xl font-serif text-slate-900 mb-2">Share</h3>
+            <p className="text-slate-500 text-sm mb-8">Spread the word about this curation.</p>
+            
+            <div className="grid grid-cols-4 gap-4 mb-8">
+                {socialShares.map((platform) => (
+                  <a 
+                    key={platform.name}
+                    href={platform.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 ${platform.color} ${platform.text}`}
+                    title={`Share on ${platform.name}`}
+                  >
+                      <platform.icon size={24} />
+                  </a>
+                ))}
+            </div>
+            
+            <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex items-center justify-between gap-4">
+                <div className="flex-grow truncate text-xs text-slate-500 font-mono">
+                  {window.location.href}
+                </div>
+                <button onClick={handleCopyLink} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary hover:text-slate-900 transition-colors">
+                  {copySuccess ? <CheckCircle size={16} /> : <Copy size={16} />}
+                  {copySuccess ? 'Copied' : 'Copy'}
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
