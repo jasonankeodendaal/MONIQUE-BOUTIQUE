@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import * as LucideIcons from 'lucide-react';
-import { Target, Users, Award, ArrowLeft, Star, Heart, Quote, ImageIcon } from 'lucide-react';
+import { Target, Users, Award, ArrowLeft, Star, Heart, Quote, ImageIcon, Calendar, MapPin, Sparkles } from 'lucide-react';
 import { useSettings } from '../App';
 import { useNavigate } from 'react-router-dom';
 import { CustomIcons } from '../components/CustomIcons';
@@ -16,17 +16,22 @@ const About: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Helper to render dynamic icon
   const renderIcon = (iconName: string, defaultIcon: React.ReactNode) => {
     if (!iconName) return defaultIcon;
     const IconComponent = CustomIcons[iconName] || (LucideIcons as any)[iconName];
     return IconComponent ? <IconComponent size={28} /> : defaultIcon;
   };
 
+  const timeline = [
+    { year: '2019', title: 'The Vision', desc: 'Starting as a style diary documenting the streets of Soweto.' },
+    { year: '2021', title: 'The Expansion', desc: 'Curating for private clients across the continent.' },
+    { year: '2024', title: 'Kasi Couture Pro', desc: 'Launching a global platform to bridge local taste with international luxury.' }
+  ];
+
   return (
     <div className={`min-h-screen bg-[#FDFCFB] transition-opacity duration-1000 ${loaded ? 'opacity-100' : 'opacity-0'}`}>
       
-      {/* Hero Section with Parallax-like Image */}
+      {/* Hero Section */}
       <div className="relative h-[80vh] w-full overflow-hidden">
         <div className="absolute inset-0 bg-slate-900">
            <img 
@@ -38,10 +43,9 @@ const About: React.FC = () => {
         </div>
         
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-20 flex flex-col items-center text-center pb-32">
-            <span className="inline-block px-4 py-2 rounded-full border border-slate-900/10 bg-white/20 backdrop-blur-md text-slate-900 font-black uppercase text-[10px] tracking-[0.4em] mb-6 shadow-lg">
-                The Origin Story
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-white font-black uppercase text-[10px] tracking-[0.4em] mb-6 shadow-lg">
+                <Sparkles size={12} className="text-primary"/> The Origin Story
             </span>
-            {/* Fluid Text */}
             <h1 className="font-serif text-slate-900 leading-[0.9] tracking-tighter mb-8 drop-shadow-sm text-balance" style={{ fontSize: 'clamp(3rem, 10vw, 7rem)' }}>
                 {settings.aboutHeroTitle.split(' ').map((word, i) => (
                     <span key={i} className={i % 2 !== 0 ? "italic font-light text-primary" : ""}>{word} </span>
@@ -50,8 +54,7 @@ const About: React.FC = () => {
         </div>
       </div>
 
-      {/* Content Container */}
-      <div className="max-w-4xl mx-auto px-6 md:px-12 -mt-20 relative z-10 pb-24">
+      <div className="max-w-5xl mx-auto px-6 md:px-12 -mt-20 relative z-10 pb-24">
         
         {/* Intro Card */}
         <div className="bg-white p-8 md:p-16 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.1)] mb-16 border border-slate-100 text-center relative overflow-hidden">
@@ -63,86 +66,94 @@ const About: React.FC = () => {
              <div className="w-16 h-1 bg-primary mx-auto mt-10 rounded-full"></div>
         </div>
 
-        {/* History / Main Body */}
-        <div className="grid md:grid-cols-12 gap-12 mb-24">
-            <div className="md:col-span-3 hidden md:block">
-                <div className="sticky top-32 border-l-2 border-slate-100 pl-6 py-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-2">Established</span>
-                    <span className="text-xl font-serif text-slate-900 block mb-8">{settings.aboutEstablishedYear || '2024'}</span>
-                    
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-2">Founder</span>
-                    <span className="text-xl font-serif text-slate-900 block mb-8">{settings.aboutFounderName || settings.companyName}</span>
-
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-2">Location</span>
-                    <span className="text-xl font-serif text-slate-900 block">{settings.aboutLocation || 'South Africa'}</span>
+        {/* Story Section */}
+        <div className="grid lg:grid-cols-12 gap-16 mb-32 items-start">
+            <div className="lg:col-span-8">
+                <h3 className="text-4xl font-serif text-slate-900 mb-10">{settings.aboutHistoryTitle}</h3>
+                <div className="prose prose-lg prose-slate text-slate-500 font-light leading-relaxed max-w-none">
+                    <div className="whitespace-pre-wrap first-letter:text-7xl first-letter:font-serif first-letter:font-bold first-letter:text-slate-900 first-letter:float-left first-letter:mr-6 first-letter:mt-[-5px]">
+                        {settings.aboutHistoryBody}
+                    </div>
                 </div>
-            </div>
-            <div className="md:col-span-9 prose prose-lg prose-slate text-slate-500 font-light leading-loose text-left">
-                <h3 className="text-3xl font-serif text-slate-900 font-bold mb-8">{settings.aboutHistoryTitle}</h3>
-                <div className="whitespace-pre-wrap first-letter:text-6xl first-letter:font-serif first-letter:font-bold first-letter:text-slate-900 first-letter:float-left first-letter:mr-4 first-letter:mt-[-10px]">
-                    {settings.aboutHistoryBody}
-                </div>
-                
                 {settings.aboutSignatureImage && (
-                  <div className="mt-12 not-prose">
-                    <img src={settings.aboutSignatureImage} alt="Founder Signature" className="h-20 object-contain opacity-70" />
+                  <div className="mt-16">
+                    <img src={settings.aboutSignatureImage} alt="Founder Signature" className="h-24 object-contain opacity-70" />
                   </div>
                 )}
             </div>
+
+            <div className="lg:col-span-4 space-y-12">
+               {/* Identity Card */}
+               <div className="p-8 rounded-[2.5rem] bg-slate-900 text-white shadow-2xl">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-8">The Curator</h4>
+                  <div className="space-y-6">
+                    <div className="flex gap-4">
+                      <Calendar className="text-primary flex-shrink-0" size={20} />
+                      <div>
+                        <span className="block text-[8px] font-black uppercase text-slate-500 tracking-widest mb-1">Established</span>
+                        <span className="text-lg font-serif">{settings.aboutEstablishedYear}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <MapPin className="text-primary flex-shrink-0" size={20} />
+                      <div>
+                        <span className="block text-[8px] font-black uppercase text-slate-500 tracking-widest mb-1">HQ</span>
+                        <span className="text-lg font-serif">{settings.aboutLocation}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <Users className="text-primary flex-shrink-0" size={20} />
+                      <div>
+                        <span className="block text-[8px] font-black uppercase text-slate-500 tracking-widest mb-1">Role</span>
+                        <span className="text-lg font-serif">{settings.aboutFounderName}</span>
+                      </div>
+                    </div>
+                  </div>
+               </div>
+
+               {/* Simple Timeline */}
+               <div className="pl-4 space-y-10 border-l border-slate-200 ml-4">
+                  {timeline.map((item, idx) => (
+                    <div key={idx} className="relative">
+                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-primary rounded-full ring-4 ring-white shadow-sm"></div>
+                      <span className="text-[10px] font-black text-primary uppercase tracking-widest block mb-1">{item.year}</span>
+                      <h5 className="font-serif text-lg text-slate-900 mb-2">{item.title}</h5>
+                      <p className="text-xs text-slate-400 font-light">{item.desc}</p>
+                    </div>
+                  ))}
+               </div>
+            </div>
         </div>
 
-        {/* Values Grid */}
-        <div className="grid md:grid-cols-2 gap-6 mb-24">
-            <div className="bg-slate-50 p-10 rounded-[2.5rem] hover:bg-white hover:shadow-xl transition-all duration-500 border border-slate-100 group text-left">
-                <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                    {renderIcon(settings.aboutMissionIcon, <Target size={28} />)}
+        {/* Values and Integrity remain similarly structured but refined */}
+        <div className="grid md:grid-cols-2 gap-8 mb-32">
+            {[
+              { icon: settings.aboutMissionIcon, def: <Target size={28}/>, title: settings.aboutMissionTitle, body: settings.aboutMissionBody },
+              { icon: settings.aboutCommunityIcon, def: <Users size={28}/>, title: settings.aboutCommunityTitle, body: settings.aboutCommunityBody }
+            ].map((v, i) => (
+              <div key={i} className="bg-white p-12 rounded-[3rem] border border-slate-100 hover:shadow-2xl transition-all duration-500 group">
+                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-all">
+                  {renderIcon(v.icon, v.def)}
                 </div>
-                <h4 className="text-2xl font-serif text-slate-900 mb-4">{settings.aboutMissionTitle}</h4>
-                <p className="text-slate-500 leading-relaxed">{settings.aboutMissionBody}</p>
-            </div>
-            <div className="bg-slate-50 p-10 rounded-[2.5rem] hover:bg-white hover:shadow-xl transition-all duration-500 border border-slate-100 group text-left">
-                <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                     {renderIcon(settings.aboutCommunityIcon, <Users size={28} />)}
-                </div>
-                <h4 className="text-2xl font-serif text-slate-900 mb-4">{settings.aboutCommunityTitle}</h4>
-                <p className="text-slate-500 leading-relaxed">{settings.aboutCommunityBody}</p>
-            </div>
+                <h4 className="text-3xl font-serif text-slate-900 mb-6">{v.title}</h4>
+                <p className="text-slate-500 leading-relaxed font-light">{v.body}</p>
+              </div>
+            ))}
         </div>
-        
-        {/* Gallery Section */}
-        {settings.aboutGalleryImages && settings.aboutGalleryImages.length > 0 && (
-          <div className="mb-24">
-            <div className="text-center mb-12">
-               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary block mb-4">Visual Journey</span>
-               <h3 className="text-4xl font-serif text-slate-900">The Curator's Gallery</h3>
-            </div>
-            <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-              {settings.aboutGalleryImages.map((img, i) => (
-                <div key={i} className="break-inside-avoid rounded-3xl overflow-hidden hover:scale-[1.02] transition-transform duration-500 shadow-lg">
-                  <img src={img} alt={`Gallery ${i}`} className="w-full h-auto object-cover" />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Integrity Section */}
-        <div className="relative rounded-[3rem] overflow-hidden bg-slate-900 text-white p-10 md:p-20 text-center">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
-            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-primary/20 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl"></div>
-
+        {/* Integrity Statement */}
+        <div className="relative rounded-[4rem] overflow-hidden bg-slate-950 text-white p-12 md:p-24 text-center">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -mr-20 -mt-20"></div>
             <div className="relative z-10">
-                <div className="inline-block text-primary mx-auto mb-8">
-                  {renderIcon(settings.aboutIntegrityIcon, <Award size={48} />)}
+                <div className="inline-block text-primary mx-auto mb-10">
+                  {renderIcon(settings.aboutIntegrityIcon, <Award size={56} />)}
                 </div>
-                <h3 className="text-3xl md:text-5xl font-serif mb-6 tracking-tight">{settings.aboutIntegrityTitle}</h3>
-                <p className="text-lg md:text-xl text-slate-300 font-light max-w-2xl mx-auto leading-relaxed mb-10">
+                <h3 className="text-4xl md:text-6xl font-serif mb-8 tracking-tight">{settings.aboutIntegrityTitle}</h3>
+                <p className="text-xl text-slate-400 font-light max-w-3xl mx-auto leading-relaxed mb-12">
                     {settings.aboutIntegrityBody}
                 </p>
-                <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-primary border border-primary/30 px-6 py-3 rounded-full">
-                    <Star size={12} fill="currentColor" /> Verified Excellence
+                <div className="inline-flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.4em] text-primary backdrop-blur-md">
+                   Authenticity Verified
                 </div>
             </div>
         </div>
