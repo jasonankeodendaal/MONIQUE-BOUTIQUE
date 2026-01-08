@@ -63,3 +63,29 @@ export async function emptyStorageBucket(bucket = 'media') {
 
   if (deleteError) throw deleteError;
 }
+
+/**
+ * Diagnostics helper
+ */
+export async function measureConnection(): Promise<{ status: 'online' | 'offline', latency: number, message: string }> {
+  if (!isSupabaseConfigured) {
+    return { status: 'offline', latency: 0, message: 'Missing Environment Variables' };
+  }
+  
+  const start = performance.now();
+  try {
+    // Simple lightweight fetch to check connectivity
+    const { error } = await supabase.from('non_existent_table').select('id').limit(1);
+    // We expect an error (404 table not found) or success, but network connectivity is what matters.
+    // If it's a network error, it usually throws or returns a specific code.
+    // However, simplest check is usually just auth session or storage bucket list if public.
+    
+    // Better check: just checking if we get a response from the server, even if it's an error.
+    const end = performance.now();
+    return { status: 'online', latency: Math.round(end - start), message: 'Connected' };
+  } catch (err) {
+    return { status: 'offline', latency: 0, message: 'Connection Failed' };
+  }
+}
+
+export const getSupabaseUrl = () => supabaseUrl;

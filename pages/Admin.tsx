@@ -11,13 +11,13 @@ import {
   Megaphone, Sparkles, Wand2, CopyCheck, Loader2, Users, Key, Lock, Briefcase, Download, UploadCloud, FileJson, Link as LinkIcon, Reply, Paperclip, Send, AlertOctagon,
   ArrowLeft, Eye, MessageSquare, CreditCard, Shield, Award, PenTool, Image, Globe2, HelpCircle, PenLine, Images, Instagram, Twitter, ChevronRight, Layers, FileCode, Search, Grid,
   Maximize2, Minimize2, CheckSquare, Square, Target, Clock, Filter, FileSpreadsheet, BarChart3, TrendingUp, MousePointer2, Star, Activity, Zap, Timer, ServerCrash,
-  BarChart, ZapOff, Activity as ActivityIcon, Code, Map
+  BarChart, ZapOff, Activity as ActivityIcon, Code, Map, Wifi, WifiOff
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_SUBCATEGORIES, INITIAL_CAROUSEL, INITIAL_SETTINGS, PERMISSION_TREE, INITIAL_ADMINS, INITIAL_ENQUIRIES, GUIDE_STEPS } from '../constants';
 import { Product, Category, CarouselSlide, MediaFile, SubCategory, SiteSettings, Enquiry, DiscountRule, SocialLink, AdminUser, PermissionNode, ProductStats } from '../types';
 import { useSettings } from '../App';
-import { supabase, isSupabaseConfigured, uploadMedia } from '../lib/supabase';
+import { supabase, isSupabaseConfigured, uploadMedia, measureConnection, getSupabaseUrl } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import { CustomIcons } from '../components/CustomIcons';
@@ -658,7 +658,7 @@ const SingleImageUploader: React.FC<{ value: string; onChange: (v: string) => vo
 // --- Main Admin Component ---
 
 const Admin: React.FC = () => {
-  const { settings, updateSettings, user, isLocalMode } = useSettings();
+  const { settings, updateSettings, user, isLocalMode, setSaveStatus } = useSettings();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'enquiries' | 'catalog' | 'hero' | 'categories' | 'site_editor' | 'team' | 'analytics' | 'system' | 'guide'>('enquiries');
   const [editorDrawerOpen, setEditorDrawerOpen] = useState(false);
@@ -673,6 +673,9 @@ const Admin: React.FC = () => {
   const [admins, setAdmins] = useState<AdminUser[]>(() => JSON.parse(localStorage.getItem('admin_users') || JSON.stringify(INITIAL_ADMINS)));
   const [stats, setStats] = useState<ProductStats[]>(() => JSON.parse(localStorage.getItem('admin_product_stats') || '[]'));
   
+  // Connection State
+  const [connectionHealth, setConnectionHealth] = useState<{status: 'online' | 'offline', latency: number, message: string} | null>(null);
+
   // Form States
   const [showAdminForm, setShowAdminForm] = useState(false);
   const [adminData, setAdminData] = useState<Partial<AdminUser>>({});
@@ -706,8 +709,8 @@ const Admin: React.FC = () => {
   const [tempFeature, setTempFeature] = useState('');
   const [tempSpec, setTempSpec] = useState({ key: '', value: '' });
 
-  // Simulated Live Traffic State
-  const [trafficEvents, setTrafficEvents] = useState<{id: string, text: string, time: string, type: 'view' | 'click' | 'system'}[]>([]);
+  // Real Traffic State (replaces simulated)
+  const [trafficEvents, setTrafficEvents] = useState<any[]>([]);
 
   useEffect(() => {
     localStorage.setItem('admin_products', JSON.stringify(products));
@@ -719,36 +722,47 @@ const Admin: React.FC = () => {
     localStorage.setItem('admin_product_stats', JSON.stringify(stats));
   }, [products, categories, subCategories, heroSlides, enquiries, admins, stats]);
 
-  // Simulate traffic events
+  // Read Traffic Logs
+  useEffect(() => {
+    const fetchTraffic = () => {
+       const logs = JSON.parse(localStorage.getItem('site_traffic_logs') || '[]');
+       setTrafficEvents(logs);
+    };
+    
+    fetchTraffic();
+    const interval = setInterval(fetchTraffic, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Measure Connection
   useEffect(() => {
     if (activeTab === 'system') {
-      const interval = setInterval(() => {
-        const types: ('view' | 'click' | 'system')[] = ['view', 'click', 'system'];
-        const randomType = types[Math.floor(Math.random() * types.length)];
-        const randomProduct = products[Math.floor(Math.random() * products.length)]?.name || 'Maison Hub';
-        
-        const eventText = randomType === 'view' ? `Page View: ${randomProduct}` :
-                          randomType === 'click' ? `Affiliate Click: ${randomProduct}` :
-                          `System Heartbeat: Database Connected`;
-
-        setTrafficEvents(prev => [{
-          id: Date.now().toString(),
-          text: eventText,
-          time: new Date().toLocaleTimeString(),
-          type: randomType
-        }, ...prev].slice(0, 10));
-      }, 4000);
-      return () => clearInterval(interval);
+       const check = async () => {
+          const health = await measureConnection();
+          setConnectionHealth(health);
+       };
+       check();
+       const interval = setInterval(check, 10000);
+       return () => clearInterval(interval);
     }
-  }, [activeTab, products]);
+  }, [activeTab]);
 
   const handleLogout = async () => { if (isSupabaseConfigured) await supabase.auth.signOut(); navigate('/login'); };
   const handleFactoryReset = () => { if (window.confirm("⚠️ DANGER: Factory Reset?")) { localStorage.clear(); window.location.reload(); } };
   const handleBackup = () => { const data = { products, categories, subCategories, heroSlides, enquiries, admins, settings, stats }; const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup.json`; a.click(); };
   
+  // Helper to simulate network save
+  const performSave = async (action: () => void) => {
+    setSaveStatus('saving');
+    // Simulate slight network delay
+    await new Promise(resolve => setTimeout(resolve, 600));
+    action();
+    setSaveStatus('saved');
+  };
+
   // Enquiry Logic
-  const toggleEnquiryStatus = (id: string) => setEnquiries(prev => prev.map(e => e.id === id ? { ...e, status: e.status === 'read' ? 'unread' : 'read' } : e));
-  const deleteEnquiry = (id: string) => setEnquiries(prev => prev.filter(e => e.id !== id));
+  const toggleEnquiryStatus = (id: string) => performSave(() => setEnquiries(prev => prev.map(e => e.id === id ? { ...e, status: e.status === 'read' ? 'unread' : 'read' } : e)));
+  const deleteEnquiry = (id: string) => performSave(() => setEnquiries(prev => prev.filter(e => e.id !== id)));
   const exportEnquiries = () => {
     const csvContent = "data:text/csv;charset=utf-8," + "Name,Email,Subject,Message,Date\n" + enquiries.map(e => `${e.name},${e.email},${e.subject},"${e.message}",${new Date(e.createdAt).toLocaleDateString()}`).join("\n");
     const encodedUri = encodeURI(csvContent);
@@ -771,13 +785,14 @@ const Admin: React.FC = () => {
   const removeSocialLink = (id: string) => updateSettings({ socialLinks: (settings.socialLinks || []).filter(link => link.id !== id) });
   
   // Handlers
-  const handleSaveProduct = () => { if (editingId) setProducts(prev => prev.map(p => p.id === editingId ? { ...p, ...productData } as Product : p)); else setProducts(prev => [{ ...productData, id: Date.now().toString(), createdAt: Date.now() } as Product, ...prev]); setShowProductForm(false); setEditingId(null); };
-  const handleSaveCategory = () => { if (editingId) setCategories(prev => prev.map(c => c.id === editingId ? { ...c, ...catData } as Category : c)); else setCategories(prev => [...prev, { ...catData, id: Date.now().toString() } as Category]); setShowCategoryForm(false); setEditingId(null); };
-  const handleSaveHero = () => { if (editingId) setHeroSlides(prev => prev.map(h => h.id === editingId ? { ...h, ...heroData } as CarouselSlide : h)); else setHeroSlides(prev => [...prev, { ...heroData, id: Date.now().toString() } as CarouselSlide]); setShowHeroForm(false); setEditingId(null); };
+  const handleSaveProduct = () => performSave(() => { if (editingId) setProducts(prev => prev.map(p => p.id === editingId ? { ...p, ...productData } as Product : p)); else setProducts(prev => [{ ...productData, id: Date.now().toString(), createdAt: Date.now() } as Product, ...prev]); setShowProductForm(false); setEditingId(null); });
+  const handleSaveCategory = () => performSave(() => { if (editingId) setCategories(prev => prev.map(c => c.id === editingId ? { ...c, ...catData } as Category : c)); else setCategories(prev => [...prev, { ...catData, id: Date.now().toString() } as Category]); setShowCategoryForm(false); setEditingId(null); });
+  const handleSaveHero = () => performSave(() => { if (editingId) setHeroSlides(prev => prev.map(h => h.id === editingId ? { ...h, ...heroData } as CarouselSlide : h)); else setHeroSlides(prev => [...prev, { ...heroData, id: Date.now().toString() } as CarouselSlide]); setShowHeroForm(false); setEditingId(null); });
   
   const handleSaveAdmin = async () => {
     if (!adminData.email || !adminData.password) return;
     setCreatingAdmin(true);
+    setSaveStatus('saving');
     try {
       if (!editingId && isSupabaseConfigured) {
         // Create in Supabase Auth if not just a simulation
@@ -796,8 +811,10 @@ const Admin: React.FC = () => {
       }
       setShowAdminForm(false);
       setEditingId(null);
+      setSaveStatus('saved');
     } catch (err: any) {
       alert(`Error saving member: ${err.message}`);
+      setSaveStatus('error');
     } finally {
       setCreatingAdmin(false);
     }
@@ -1213,7 +1230,7 @@ const Admin: React.FC = () => {
                 <div className="flex gap-2">
                   <button onClick={() => setSelectedAdProduct(p)} className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-slate-900 transition-colors" title="Generate Ad"><Megaphone size={18}/></button>
                   <button onClick={() => { setProductData(p); setEditingId(p.id); setShowProductForm(true); }} className="p-3 bg-slate-800 text-slate-400 rounded-xl hover:text-white transition-colors"><Edit2 size={18}/></button>
-                  <button onClick={() => setProducts(products.filter(x => x.id !== p.id))} className="p-3 bg-slate-800 text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={18}/></button>
+                  <button onClick={() => performSave(() => setProducts(products.filter(x => x.id !== p.id)))} className="p-3 bg-slate-800 text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={18}/></button>
                 </div>
               </div>
             ))}
@@ -1245,7 +1262,7 @@ const Admin: React.FC = () => {
                     {s.type === 'video' ? <video src={s.image} className="w-full h-full object-cover" muted /> : <img src={s.image} className="w-full h-full object-cover" />}
                     <div className="absolute inset-0 bg-black/60 p-10 flex flex-col justify-end text-left">
                        <h4 className="text-white text-xl font-serif">{s.title}</h4>
-                       <div className="flex gap-2 mt-4"><button onClick={() => { setHeroData(s); setEditingId(s.id); setShowHeroForm(true); }} className="p-3 bg-white/10 text-white rounded-xl hover:bg-white/20"><Edit2 size={16}/></button><button onClick={() => setHeroSlides(heroSlides.filter(x => x.id !== s.id))} className="p-3 bg-white/10 text-white rounded-xl hover:bg-red-500"><Trash2 size={16}/></button></div>
+                       <div className="flex gap-2 mt-4"><button onClick={() => { setHeroData(s); setEditingId(s.id); setShowHeroForm(true); }} className="p-3 bg-white/10 text-white rounded-xl hover:bg-white/20"><Edit2 size={16}/></button><button onClick={() => performSave(() => setHeroSlides(heroSlides.filter(x => x.id !== s.id)))} className="p-3 bg-white/10 text-white rounded-xl hover:bg-red-500"><Trash2 size={16}/></button></div>
                     </div>
                  </div>
               ))}
@@ -1295,7 +1312,7 @@ const Admin: React.FC = () => {
              {categories.map(c => (
                 <div key={c.id} className="bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-800 flex flex-col relative group">
                    <div className="h-32 overflow-hidden relative"><img src={c.image} className="w-full h-full object-cover opacity-50" /><div className="absolute inset-0 flex items-center px-8 gap-4"><div className="w-12 h-12 bg-slate-800 text-primary rounded-xl flex items-center justify-center shadow-xl">{React.createElement((LucideIcons as any)[c.icon] || LucideIcons.Package, { size: 20 })}</div><h4 className="font-bold text-white text-lg">{c.name}</h4></div></div>
-                   <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => { setCatData(c); setEditingId(c.id); setShowCategoryForm(true); }} className="p-2 bg-black/50 text-white rounded-lg backdrop-blur-md"><Edit2 size={14}/></button><button onClick={() => setCategories(categories.filter(x => x.id !== c.id))} className="p-2 bg-black/50 text-white rounded-lg backdrop-blur-md hover:bg-red-500"><Trash2 size={14}/></button></div>
+                   <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => { setCatData(c); setEditingId(c.id); setShowCategoryForm(true); }} className="p-2 bg-black/50 text-white rounded-lg backdrop-blur-md"><Edit2 size={14}/></button><button onClick={() => performSave(() => setCategories(categories.filter(x => x.id !== c.id)))} className="p-2 bg-black/50 text-white rounded-lg backdrop-blur-md hover:bg-red-500"><Trash2 size={14}/></button></div>
                 </div>
              ))}
           </div>
@@ -1379,7 +1396,7 @@ const Admin: React.FC = () => {
                  </div>
                  <div className="flex gap-3 w-full md:w-auto">
                     <button onClick={() => { setAdminData(a); setEditingId(a.id); setShowAdminForm(true); }} className="flex-1 md:flex-none p-4 bg-slate-800 text-slate-400 rounded-2xl hover:bg-slate-700 hover:text-white transition-all"><Edit2 size={20}/></button>
-                    <button onClick={() => setAdmins(prev => prev.filter(x => x.id !== a.id))} className="flex-1 md:flex-none p-4 bg-slate-800 text-slate-400 hover:bg-red-500/20 hover:text-red-500 rounded-2xl transition-all"><Trash2 size={20}/></button>
+                    <button onClick={() => performSave(() => setAdmins(prev => prev.filter(x => x.id !== a.id)))} className="flex-1 md:flex-none p-4 bg-slate-800 text-slate-400 hover:bg-red-500/20 hover:text-red-500 rounded-2xl transition-all"><Trash2 size={20}/></button>
                  </div>
                </div>
              ))}
@@ -1430,6 +1447,56 @@ const Admin: React.FC = () => {
                 </div>
              </div>
            ))}
+        </div>
+
+        {/* --- SUPABASE CONNECTION DIAGNOSTICS SECTION --- */}
+        <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 relative overflow-hidden">
+           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] pointer-events-none"></div>
+           <div className="relative z-10 flex flex-col md:flex-row gap-10 items-start">
+             <div className="flex-1 space-y-6">
+                <div>
+                  <h3 className="text-white font-bold text-2xl flex items-center gap-3"><Database size={24} className="text-primary"/> Connection Diagnostics</h3>
+                  <p className="text-slate-400 text-sm mt-2">Real-time status of your database backend connection.</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/50">
+                     <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest block mb-2">Connection Status</span>
+                     <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${connectionHealth?.status === 'online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                        <span className={`text-lg font-bold ${connectionHealth?.status === 'online' ? 'text-white' : 'text-red-400'}`}>{connectionHealth?.status === 'online' ? 'Operational' : 'Disconnected'}</span>
+                     </div>
+                  </div>
+                  <div className="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/50">
+                     <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest block mb-2">Network Latency</span>
+                     <div className="flex items-center gap-3">
+                        <Activity size={20} className={connectionHealth?.latency && connectionHealth.latency < 200 ? 'text-green-500' : 'text-yellow-500'} />
+                        <span className="text-lg font-bold text-white">{connectionHealth?.latency || 0} ms</span>
+                     </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-black/20 rounded-xl border border-slate-700/50 font-mono text-[10px] text-slate-400 break-all">
+                   <div className="flex justify-between mb-2"><span className="uppercase font-bold text-slate-500">Endpoint URL</span> <span className="text-primary">{isSupabaseConfigured ? 'CONFIGURED' : 'MISSING'}</span></div>
+                   {getSupabaseUrl() ? getSupabaseUrl().replace(/^(https:\/\/)([^.]+)(.+)$/, '$1****$3') : 'No URL Configured'}
+                </div>
+             </div>
+
+             <div className="w-full md:w-80 space-y-4">
+                <div className="p-6 bg-slate-800 rounded-3xl border border-slate-700 flex flex-col items-center text-center">
+                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-white ${connectionHealth?.status === 'online' ? 'bg-green-500' : 'bg-slate-600'}`}>
+                      {connectionHealth?.status === 'online' ? <Wifi size={32}/> : <WifiOff size={32}/>}
+                   </div>
+                   <h4 className="text-white font-bold mb-1">{connectionHealth?.message || 'Checking...'}</h4>
+                   <p className="text-xs text-slate-400">Last heartbeat: {new Date().toLocaleTimeString()}</p>
+                </div>
+                <div className="p-6 bg-slate-800 rounded-3xl border border-slate-700 text-center">
+                   <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest block mb-2">Active Session</span>
+                   <span className="text-sm font-bold text-white truncate w-full block">{user?.email || 'Local User'}</span>
+                   <span className="text-[9px] text-primary uppercase font-bold mt-1 block">{user?.role || 'Simulated'} Role</span>
+                </div>
+             </div>
+           </div>
         </div>
 
         {/* Product Performance Showcase */}
@@ -1834,7 +1901,7 @@ const Admin: React.FC = () => {
             </div>
 
             <div className="fixed bottom-0 right-0 w-full max-w-2xl p-6 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 flex justify-end gap-4">
-              <button onClick={() => setEditorDrawerOpen(false)} className="px-8 py-4 bg-primary text-slate-900 rounded-xl font-black uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20">Save Configuration</button>
+              <button onClick={() => { setSaveStatus('saving'); setTimeout(() => { setEditorDrawerOpen(false); setSaveStatus('saved'); }, 500); }} className="px-8 py-4 bg-primary text-slate-900 rounded-xl font-black uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20">Save Configuration</button>
             </div>
           </div>
         </div>

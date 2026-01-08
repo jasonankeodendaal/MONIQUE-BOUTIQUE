@@ -14,6 +14,9 @@ import { SiteSettings } from './types';
 import { INITIAL_SETTINGS } from './constants';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
+import { Cloud, Check, Loader2, AlertTriangle } from 'lucide-react';
+
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 interface SettingsContextType {
   settings: SiteSettings;
@@ -21,6 +24,9 @@ interface SettingsContextType {
   user: User | null;
   loadingAuth: boolean;
   isLocalMode: boolean;
+  saveStatus: SaveStatus;
+  setSaveStatus: (status: SaveStatus) => void;
+  logEvent: (type: 'view' | 'click' | 'system', label: string) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -125,6 +131,38 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Global Save Status Indicator
+const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
+  if (status === 'idle') return null;
+
+  return (
+    <div className={`fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-full shadow-2xl transition-all duration-300 ${
+      status === 'error' ? 'bg-red-500 text-white' : 'bg-slate-900 text-white border border-slate-800'
+    } animate-in slide-in-from-bottom-4`}>
+      {status === 'saving' && <Loader2 size={16} className="animate-spin text-primary" />}
+      {status === 'saved' && <Check size={16} className="text-green-500" />}
+      {status === 'error' && <AlertTriangle size={16} className="text-white" />}
+      
+      <span className="text-[10px] font-black uppercase tracking-widest">
+        {status === 'saving' && 'Syncing...'}
+        {status === 'saved' && 'Saved'}
+        {status === 'error' && 'Save Failed'}
+      </span>
+    </div>
+  );
+};
+
+// Traffic Logger Hook Component
+const TrafficTracker = ({ logEvent }: { logEvent: (t: any, l: string) => void }) => {
+  const location = useLocation();
+  useEffect(() => {
+    if (!location.pathname.startsWith('/admin')) {
+      logEvent('view', location.pathname === '/' ? 'Home Page' : location.pathname);
+    }
+  }, [location.pathname, logEvent]);
+  return null;
+};
+
 const App: React.FC = () => {
   const [settings, setSettings] = useState<SiteSettings>(() => {
     const saved = localStorage.getItem('site_settings');
@@ -132,6 +170,14 @@ const App: React.FC = () => {
   });
   const [user, setUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+
+  useEffect(() => {
+    if (saveStatus === 'saved' || saveStatus === 'error') {
+      const timer = setTimeout(() => setSaveStatus('idle'), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [saveStatus]);
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -154,11 +200,34 @@ const App: React.FC = () => {
   }, []);
 
   const updateSettings = (newSettings: Partial<SiteSettings>) => {
-    setSettings(prev => {
-      const updated = { ...prev, ...newSettings };
-      localStorage.setItem('site_settings', JSON.stringify(updated));
-      return updated;
-    });
+    setSaveStatus('saving');
+    // Simulate network delay for "Saving" effect
+    setTimeout(() => {
+      setSettings(prev => {
+        const updated = { ...prev, ...newSettings };
+        localStorage.setItem('site_settings', JSON.stringify(updated));
+        return updated;
+      });
+      setSaveStatus('saved');
+    }, 600);
+  };
+
+  const logEvent = (type: 'view' | 'click' | 'system', label: string) => {
+    const newEvent = {
+      id: Date.now().toString(),
+      type,
+      text: type === 'view' ? `Page View: ${label}` : label,
+      time: new Date().toLocaleTimeString(),
+      timestamp: Date.now()
+    };
+    
+    try {
+      const existing = JSON.parse(localStorage.getItem('site_traffic_logs') || '[]');
+      const updated = [newEvent, ...existing].slice(0, 50); // Keep last 50 logs
+      localStorage.setItem('site_traffic_logs', JSON.stringify(updated));
+    } catch (e) {
+      console.error("Traffic log error", e);
+    }
   };
 
   useEffect(() => {
@@ -183,10 +252,15 @@ const App: React.FC = () => {
       updateSettings, 
       user, 
       loadingAuth, 
-      isLocalMode: !isSupabaseConfigured 
+      isLocalMode: !isSupabaseConfigured,
+      saveStatus,
+      setSaveStatus,
+      logEvent
     }}>
       <Router>
         <ScrollToTop />
+        <TrafficTracker logEvent={logEvent} />
+        <SaveStatusIndicator status={saveStatus} />
         <style>{`
           .text-primary { color: var(--primary-color); }
           .bg-primary { background-color: var(--primary-color); }
