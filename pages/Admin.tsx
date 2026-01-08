@@ -284,7 +284,12 @@ const Admin: React.FC = () => {
         enquiries.map(e => (
           <div key={e.id} className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-6 flex flex-col md:flex-row gap-6">
             <div className="flex-grow space-y-2">
-              <div className="flex items-center gap-3"><h4 className="text-white font-bold">{e.name}</h4><span className="text-xs text-slate-500">{new Date(e.created_at || e.createdAt || 0).toLocaleDateString()}</span></div>
+              <div className="flex items-center gap-3">
+                <h4 className="text-white font-bold">{e.name}</h4>
+                <span className="text-xs text-slate-500">
+                  {new Date(e.created_at || e.createdAt || 0).toLocaleDateString()}
+                </span>
+              </div>
               <p className="text-primary text-sm font-bold">{e.email}</p>
               <div className="p-4 bg-slate-800/50 rounded-2xl text-slate-400 text-sm italic">"{e.message}"</div>
             </div>

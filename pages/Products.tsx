@@ -48,7 +48,7 @@ const Products: React.FC = () => {
   }, [selectedCat, allSubCategories]);
 
   const filteredProducts = useMemo(() => {
-    let result = products.filter((p: Product) => {
+    let result = [...products].filter((p: Product) => {
       const name = p.name || '';
       const desc = p.description || '';
       const matchesSearch = name.toLowerCase().includes(search.toLowerCase()) || desc.toLowerCase().includes(search.toLowerCase());
@@ -62,7 +62,13 @@ const Products: React.FC = () => {
     switch (sortBy) {
       case 'price-low': result.sort((a, b) => a.price - b.price); break;
       case 'price-high': result.sort((a, b) => b.price - a.price); break;
-      case 'newest': result.sort((a, b) => (new Date(b.created_at || b.createdAt || 0).getTime()) - (new Date(a.created_at || a.createdAt || 0).getTime())); break;
+      case 'newest': 
+        result.sort((a, b) => {
+          const dateA = new Date(a.created_at || a.createdAt || 0).getTime();
+          const dateB = new Date(b.created_at || b.createdAt || 0).getTime();
+          return dateB - dateA;
+        }); 
+        break;
       case 'name': result.sort((a, b) => a.name.localeCompare(b.name)); break;
     }
     return result;
