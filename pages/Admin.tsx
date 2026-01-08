@@ -25,13 +25,13 @@ import { CustomIcons } from '../components/CustomIcons';
 // --- Reusable UI Components for Admin ---
 
 const AdminHelpBox: React.FC<{ title: string; steps: string[] }> = ({ title, steps }) => (
-  <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl mb-8 flex gap-5 items-start text-left">
+  <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl mb-8 flex gap-5 items-start text-left">
     <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary flex-shrink-0">
       <span className="text-xl">💡</span>
     </div>
     <div className="space-y-2">
-      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</h4>
-      <ul className="list-disc list-inside text-slate-500 text-sm font-medium space-y-1">
+      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</h4>
+      <ul className="list-disc list-inside text-slate-500 text-xs font-medium space-y-1">
         {steps.map((step, i) => <li key={i}>{step}</li>)}
       </ul>
     </div>
@@ -40,11 +40,11 @@ const AdminHelpBox: React.FC<{ title: string; steps: string[] }> = ({ title, ste
 
 const SettingField: React.FC<{ label: string; value: string; onChange: (v: string) => void; type?: 'text' | 'textarea' | 'color' | 'number' | 'password'; placeholder?: string; rows?: number }> = ({ label, value, onChange, type = 'text', placeholder, rows = 4 }) => (
   <div className="space-y-2 text-left w-full">
-    <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">{label}</label>
+    <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{label}</label>
     {type === 'textarea' ? (
-      <textarea rows={rows} className="w-full px-5 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:border-primary transition-all resize-none font-light text-sm leading-relaxed" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
+      <textarea rows={rows} className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:border-primary transition-all resize-none font-light text-sm" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
     ) : (
-      <input type={type} className="w-full px-5 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:border-primary transition-all text-sm" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
+      <input type={type} className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:border-primary transition-all text-sm" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
     )}
   </div>
 );
@@ -105,44 +105,44 @@ const TrafficAreaChart: React.FC<{ stats?: ProductStats[] }> = ({ stats }) => {
   }, []);
 
   return (
-    <div className="relative w-full min-h-[400px] bg-slate-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl backdrop-blur-xl group p-8">
+    <div className="relative w-full min-h-[400px] bg-slate-900 rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl backdrop-blur-xl group p-10">
       <div className="absolute inset-0 opacity-5 pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(var(--primary-color) 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
       </div>
 
       <div className="relative z-10 flex flex-col h-full">
-        <div className="flex justify-between items-start mb-8">
+        <div className="flex justify-between items-start mb-12">
           <div className="text-left">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-1">
               <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse shadow-[0_0_12px_rgba(var(--primary-rgb),0.8)]"></div>
-              <span className="text-xs font-bold uppercase tracking-widest text-white/40">Geographic Distribution</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">Geographic Distribution</span>
             </div>
-            <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white">Area <span className="text-primary">Traffic</span></h3>
+            <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white">Area <span className="text-primary">Traffic</span></h3>
           </div>
-          <div className="text-right bg-white/5 border border-white/10 px-5 py-2 rounded-xl">
-             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-0.5">Live Ingress</span>
-             <span className="text-lg font-bold text-white flex items-center gap-2">
+          <div className="text-right bg-white/5 border border-white/10 px-6 py-3 rounded-2xl">
+             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-0.5">Live Ingress</span>
+             <span className="text-xl font-bold text-white flex items-center gap-2">
                 <Globe size={16} className="text-primary"/> 100% Real-Time
              </span>
           </div>
         </div>
 
-        <div className="space-y-6 flex-grow">
+        <div className="space-y-8 flex-grow">
           {regions.length > 0 ? regions.map((region, idx) => (
-            <div key={idx} className="space-y-2">
+            <div key={idx} className="space-y-3">
               <div className="flex justify-between items-end">
                 <div className="flex items-center gap-4">
                   <span className="text-slate-600 font-serif font-bold text-lg italic">0{idx + 1}</span>
                   <div>
                     <h4 className="text-white font-bold text-sm tracking-wide uppercase">{region.name}</h4>
-                    <span className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">{region.status}</span>
+                    <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest">{region.status}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-white font-black text-base">{region.traffic}%</span>
+                  <span className="text-white font-black text-lg">{region.traffic}%</span>
                 </div>
               </div>
-              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
+              <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
                 <div 
                   className="h-full bg-gradient-to-r from-primary/40 via-primary to-primary rounded-full transition-all duration-[2000ms] ease-out shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]" 
                   style={{ width: `${region.traffic}%`, transitionDelay: `${idx * 200}ms` }}
@@ -153,25 +153,25 @@ const TrafficAreaChart: React.FC<{ stats?: ProductStats[] }> = ({ stats }) => {
             <div className="flex flex-col items-center justify-center py-12 text-center opacity-50">
               <Globe size={48} className="text-slate-600 mb-4" />
               <h4 className="text-white font-bold uppercase tracking-widest">Awaiting Signal</h4>
-              <p className="text-slate-500 text-sm mt-2 max-w-xs">Visit the public site to generate the first geographic traffic data points.</p>
+              <p className="text-slate-500 text-xs mt-2 max-w-xs">Visit the public site to generate the first geographic traffic data points.</p>
             </div>
           )}
         </div>
 
-        <div className="mt-8 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
            <div className="flex gap-10">
               <div className="text-left">
-                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Total Visitors</span>
-                 <span className="text-xl font-bold text-white">{totalTraffic.toLocaleString()}</span>
+                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Total Visitors</span>
+                 <span className="text-2xl font-bold text-white">{totalTraffic.toLocaleString()}</span>
               </div>
               <div className="text-left border-l border-white/5 pl-10">
-                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Page Impressions</span>
-                 <span className="text-xl font-bold text-primary">{aggregatedProductViews.toLocaleString()}</span>
+                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Page Impressions</span>
+                 <span className="text-2xl font-bold text-primary">{aggregatedProductViews.toLocaleString()}</span>
               </div>
            </div>
-           <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 px-4 py-2 rounded-full">
+           <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 px-6 py-3 rounded-full">
               <Activity size={14} className="text-primary animate-pulse"/>
-              <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Sync Active</span>
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest">Sync Active</span>
            </div>
         </div>
       </div>
@@ -184,7 +184,7 @@ const GuideIllustration: React.FC<{ id?: string }> = ({ id }) => {
   switch (id) {
     case 'forge':
       return (
-        <div className="relative w-full aspect-square bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-center overflow-hidden">
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center overflow-hidden">
            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,var(--primary-color),transparent_70%)]" />
            <div className="relative z-10 flex flex-col items-center">
               <div className="flex gap-4 mb-8">
@@ -204,7 +204,7 @@ const GuideIllustration: React.FC<{ id?: string }> = ({ id }) => {
     // ... [Other Guide Illustrations remain same - keeping concise for update] ...
     default:
       return (
-        <div className="relative w-full aspect-square bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-center">
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center">
            <Rocket className="text-slate-800 w-24 h-24" />
         </div>
       );
@@ -242,33 +242,33 @@ const PermissionSelector: React.FC<{
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {PERMISSION_TREE.map(group => {
         const childIds = group.children?.map(c => c.id) || [];
         const isAllSelected = childIds.every(id => permissions.includes(id));
         
         return (
-          <div key={group.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-3">
+          <div key={group.id} className="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
               <div className="flex flex-col">
                 <span className="text-white font-bold text-sm">{group.label}</span>
-                <span className="text-slate-500 text-xs">{group.description}</span>
+                <span className="text-slate-500 text-[10px]">{group.description}</span>
               </div>
               <button 
                 onClick={() => toggleGroup(group)}
-                className="text-xs font-bold uppercase tracking-widest text-primary hover:text-white transition-colors"
+                className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors"
               >
                 {isAllSelected ? 'Deselect All' : 'Select All'}
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {group.children?.map(perm => {
                 const isSelected = permissions.includes(perm.id);
                 return (
                   <button
                     key={perm.id}
                     onClick={() => togglePermission(perm.id)}
-                    className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${
                       isSelected 
                         ? 'bg-primary/10 border-primary text-white' 
                         : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
@@ -308,17 +308,17 @@ const IconPicker: React.FC<{ selected: string; onSelect: (icon: string) => void 
 
   return (
     <div className="relative text-left w-full">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between px-5 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700 transition-colors">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between px-6 py-4 bg-slate-800 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700 transition-colors">
         <div className="flex items-center gap-3">
           <SelectedIconComponent size={18} />
-          <span className="text-sm font-bold">{selected}</span>
+          <span className="text-xs font-bold">{selected}</span>
         </div>
         <ChevronDown size={14} />
       </button>
       
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-slate-700 w-full max-w-4xl h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-4xl h-[80vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden">
              <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800">
                <div>
                  <h3 className="text-white font-bold text-lg flex items-center gap-2"><Grid size={18} className="text-primary"/> Icon Library</h3>
@@ -330,7 +330,7 @@ const IconPicker: React.FC<{ selected: string; onSelect: (icon: string) => void 
                 <div className="relative">
                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                    <input 
-                    className="w-full pl-12 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-sm outline-none text-white focus:border-primary transition-all" 
+                    className="w-full pl-12 pr-4 py-4 bg-slate-800 border border-slate-700 rounded-xl text-sm outline-none text-white focus:border-primary transition-all" 
                     placeholder="Search icons..." 
                     value={search} 
                     onChange={e => { setSearch(e.target.value); setLimit(100); }} 
@@ -401,45 +401,85 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
       let finalMessage = message.replace(/\n/g, '<br>');
       if (fileLinks.length > 0) finalMessage += `<br><br><strong>Attachments:</strong><br>${fileLinks.map(l => `<a href="${l.split(': ')[1]}">${l.split(': ')[0]}</a>`).join('<br>')}`;
       
-      // FIX: EmailJS has a 50kb limit. We cannot send Base64 images or huge HTML blocks.
-      // We will send simplified text data for products.
-      
-      let productListText = '';
-      const allProducts = JSON.parse(localStorage.getItem('admin_products') || '[]');
-      if (allProducts.length > 0) {
-        // Pick 3 random products
-        const shuffled = [...allProducts].sort(() => 0.5 - Math.random()).slice(0, 3);
-        
-        // Build a simple text/link list instead of complex HTML to save payload size
-        productListText = '<br><strong>Our Latest Collection:</strong><br><ul>';
-        shuffled.forEach((p: any) => {
-           const link = `${window.location.origin}/#/product/${p.id}`;
-           productListText += `<li><a href="${link}">${p.name}</a> - R ${p.price}</li>`;
-        });
-        productListText += '</ul>';
+      // Helper to check for Base64 strings (too large for EmailJS parameters limit)
+      const isBase64 = (str?: string) => str?.startsWith('data:');
+
+      // --- Prepare Logo ---
+      let logoUrl = settings.companyLogoUrl || '';
+      if (isBase64(logoUrl)) {
+         console.warn("EmailJS Warning: Skipping Base64 Logo to prevent payload error. Use a hosted URL instead.");
+         logoUrl = ''; // Fallback to text logo in template logic
       }
 
-      // Prepare Simple Social Links
+      // --- Generate Products Grid HTML ---
+      let productsHtml = '';
+      const allProducts = JSON.parse(localStorage.getItem('admin_products') || '[]');
+      if (allProducts.length > 0) {
+        // Pick 2 random products instead of 4 to save space and avoid the 50Kb limit
+        const shuffled = [...allProducts].sort(() => 0.5 - Math.random()).slice(0, 2);
+        
+        let gridContent = '';
+        for (let i = 0; i < shuffled.length; i++) {
+          const p = shuffled[i];
+          const internalLink = `${window.location.origin}/#/product/${p.id}`;
+          
+          let imgUrl = p.media?.[0]?.url || 'https://via.placeholder.com/300?text=No+Image';
+          
+          // SAFETY CHECK: If image is Base64, replace with placeholder to avoid breaking EmailJS
+          if (isBase64(imgUrl)) {
+             imgUrl = 'https://placehold.co/300x300/e2e8f0/1e293b.png?text=View+Item';
+          }
+          
+          // Compact HTML generation to reduce payload
+          // Ensure classes match the user's provided template
+          gridContent += `<td class="product-cell" style="width:50%;padding:10px;vertical-align:top;"><div class="product-card" style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff;text-align:left;"><a href="${internalLink}" style="text-decoration:none;display:block;"><img src="${imgUrl}" alt="${p.name}" class="product-img" style="width:100%;height:150px;object-fit:cover;background-color:#f1f5f9;display:block;"/></a><div class="product-info" style="padding:10px;"><h4 class="product-name" style="font-size:13px;font-weight:bold;color:#1e293b;margin:0 0 5px;height:34px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${p.name}</h4><span class="product-price" style="font-size:13px;color:#D4AF37;font-weight:bold;margin-bottom:8px;display:block;">R ${p.price.toLocaleString()}</span><a href="${internalLink}" class="product-link" style="font-size:11px;color:#64748b;text-decoration:none;text-transform:uppercase;font-weight:bold;letter-spacing:0.5px;">View Details →</a></div></div></td>`;
+          
+          // Close row every 2 items
+          if ((i + 1) % 2 === 0 && i !== shuffled.length - 1) {
+             gridContent += '</tr><tr>';
+          }
+        }
+
+        productsHtml = `
+          <div class="products-title" style="text-align:center;margin:30px 0 15px;font-family:serif;font-size:20px;color:#1e293b;position:relative;">
+            <span style="background:#fff;padding:0 15px;position:relative;z-index:1;">Curated For You</span>
+            <div style="position:absolute;top:50%;left:0;right:0;border-top:1px solid #e2e8f0;z-index:0;"></div>
+          </div>
+          <table class="product-grid" style="width:100%;border-collapse:collapse;">
+            <tr>${gridContent}</tr>
+          </table>
+        `;
+      }
+
+      // --- Generate Socials HTML ---
       let socialsHtml = '';
       if (settings.socialLinks && settings.socialLinks.length > 0) {
-         socialsHtml = '<br>';
+         socialsHtml += '<div class="social-icons" style="margin-bottom:20px;">';
          settings.socialLinks.forEach(link => {
-            socialsHtml += `<a href="${link.url}">${link.name}</a> &nbsp; `;
+            let iconSrc = link.iconUrl || 'https://cdn-icons-png.flaticon.com/512/733/733579.png'; // Fallback
+            
+            // SAFETY CHECK: Base64 icons
+            if (isBase64(iconSrc)) {
+                iconSrc = 'https://cdn-icons-png.flaticon.com/512/733/733579.png';
+            }
+
+            socialsHtml += `<a href="${link.url}" target="_blank" style="display:inline-block;margin:0 5px;"><img src="${iconSrc}" alt="${link.name}" class="social-icon" style="width:28px;height:28px;display:block;"/></a>`;
          });
+         socialsHtml += '</div>';
       }
 
       const templateParams = {
           to_name: enquiry.name || 'Valued Client', 
           to_email: enquiry.email, 
           subject: subject || 'Response', 
-          message: finalMessage || '', 
+          message: finalMessage || '', // Ensure not undefined
           reply_to: enquiry.email,
           company_name: settings.companyName || '',
           company_address: settings.address || '',
           company_website: window.location.origin,
-          // We remove the complex products_html grid to prevent "variable corrupted" errors
-          products_html: productListText, 
-          socials_html: socialsHtml, 
+          company_logo_url: logoUrl || '', // Ensure not undefined
+          products_html: productsHtml || '', // Ensure not undefined, even if empty string
+          socials_html: socialsHtml || '', 
           year: new Date().getFullYear().toString()
       };
 
@@ -449,12 +489,13 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
       setTimeout(onClose, 2000);
     } catch (err: any) {
       console.error('EmailJS Error:', err);
-      if (err.text?.includes("template ID")) {
-         setError("Error: Template ID not found. Check Settings.");
-      } else if (err.text?.includes("variable") || err.text?.includes("corrupted") || err.status === 413) {
-         setError("Error: Payload too large. Try removing attachments or reducing message size.");
+      // Detailed error message if it's the specific template ID error
+      if (err.text?.includes("template ID not found")) {
+         setError("Error: Template ID not found. Please check Settings > Integrations and ensure no whitespace.");
+      } else if (err.text?.includes("variable") || err.text?.includes("corrupted")) {
+         setError("Error: Payload too large for EmailJS (Limit 50KB). Ensure images are hosted URLs, not Base64.");
       } else {
-         setError(err.text || err.message || "Failed to send email.");
+         setError(err.text || err.message || "Failed to send email. Check console.");
       }
     } finally {
       setSending(false);
@@ -467,7 +508,7 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="bg-slate-900 border border-slate-700 w-full max-w-3xl rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         <div className="p-6 border-b border-slate-800 flex justify-between items-center"><h3 className="text-white font-bold flex items-center gap-3"><Reply size={20} className="text-primary"/> Reply to {enquiry.name}</h3><button onClick={onClose} className="text-slate-500 hover:text-white"><X size={24}/></button></div>
         <div className="p-6 overflow-y-auto space-y-6">
           {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm">{error}</div>}
@@ -477,7 +518,7 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
               <SettingField label="Subject" value={subject} onChange={setSubject} />
             </div>
             <SettingField label="Message (HTML Support Enabled)" value={message} onChange={setMessage} type="textarea" rows={12} />
-            <div className="space-y-2 text-left"><label className="text-xs font-bold uppercase text-slate-500 tracking-widest flex items-center gap-2"><Paperclip size={12}/> Attachments (Requires Storage)</label><input type="file" multiple onChange={e => e.target.files && setAttachments(Array.from(e.target.files))} className="block w-full text-xs text-slate-400 file:bg-slate-800 file:text-primary file:rounded-full file:border-0 file:py-2 file:px-4" /></div>
+            <div className="space-y-2 text-left"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest flex items-center gap-2"><Paperclip size={12}/> Attachments (Requires Storage)</label><input type="file" multiple onChange={e => e.target.files && setAttachments(Array.from(e.target.files))} className="block w-full text-xs text-slate-400 file:bg-slate-800 file:text-primary file:rounded-full file:border-0 file:py-2 file:px-4" /></div>
           </div>
         </div>
         <div className="p-6 border-t border-slate-800 flex justify-end gap-3"><button onClick={onClose} className="px-6 py-3 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-widest">Cancel</button><button onClick={handleSend} disabled={sending} className="px-8 py-3 bg-primary text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 disabled:opacity-50">{sending ? <Loader2 size={16} className="animate-spin"/> : <Send size={16}/>} Send Email</button></div>
@@ -592,7 +633,7 @@ const AdGeneratorModal: React.FC<{ product: Product; onClose: () => void }> = ({
        {/* Preview Side */}
        <div className="w-full md:w-1/2 bg-black/40 border-r border-slate-800 flex flex-col h-full relative">
           <div className="p-8 flex justify-between items-center border-b border-slate-800">
-             <span className="text-xs font-bold uppercase text-slate-500 tracking-widest flex items-center gap-2"><Sparkles size={14} className="text-primary" /> Content Preview</span>
+             <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest flex items-center gap-2"><Sparkles size={14} className="text-primary" /> Content Preview</span>
              <button onClick={onClose} className="md:hidden p-2 text-slate-500"><X size={24} /></button>
           </div>
           
@@ -650,7 +691,7 @@ const AdGeneratorModal: React.FC<{ product: Product; onClose: () => void }> = ({
                      className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all min-w-[100px] ${platform.id === p.id ? 'bg-slate-800 border-primary text-white' : 'bg-slate-900 border-slate-800 text-slate-500 hover:bg-slate-800'}`}
                   >
                      <p.icon size={24} style={{ color: platform.id === p.id ? '#fff' : p.color }} />
-                     <span className="text-xs font-bold uppercase">{p.name}</span>
+                     <span className="text-[10px] font-bold uppercase">{p.name}</span>
                   </button>
                ))}
             </div>
@@ -658,8 +699,8 @@ const AdGeneratorModal: React.FC<{ product: Product; onClose: () => void }> = ({
             {/* Text Editor */}
             <div className="space-y-2">
                <div className="flex justify-between">
-                  <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Caption</label>
-                  <span className={`text-xs font-bold ${customText.length > platform.maxLength ? 'text-red-500' : 'text-slate-600'}`}>{customText.length} / {platform.maxLength}</span>
+                  <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Caption</label>
+                  <span className={`text-[10px] font-bold ${customText.length > platform.maxLength ? 'text-red-500' : 'text-slate-600'}`}>{customText.length} / {platform.maxLength}</span>
                </div>
                <textarea 
                   rows={10}
@@ -691,7 +732,7 @@ const AdGeneratorModal: React.FC<{ product: Product; onClose: () => void }> = ({
                </button>
             </div>
             
-            <p className="text-xs text-slate-600 text-center">
+            <p className="text-[10px] text-slate-600 text-center">
                Tip: Instagram and TikTok require you to manually upload the image file. Download the image first, then paste the caption.
             </p>
           </div>
@@ -705,9 +746,9 @@ const CodeBlock: React.FC<{ code: string; language?: string; label?: string }> =
   const copyToClipboard = () => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); };
   return (
     <div className="relative group mb-6 text-left">
-      {label && <div className="text-xs font-bold uppercase text-slate-500 tracking-widest mb-2 flex items-center gap-2"><Terminal size={12}/>{label}</div>}
+      {label && <div className="text-[9px] font-black uppercase text-slate-500 tracking-widest mb-2 flex items-center gap-2"><Terminal size={12}/>{label}</div>}
       <div className="absolute top-8 right-4 z-10"><button onClick={copyToClipboard} className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/50 hover:text-white transition-all backdrop-blur-md border border-white/5">{copied ? <Check size={14} /> : <Copy size={14} />}</button></div>
-      <pre className="p-6 bg-black rounded-2xl text-xs md:text-sm font-mono text-slate-400 overflow-x-auto border border-slate-800 leading-relaxed custom-scrollbar shadow-inner"><code>{code}</code></pre>
+      <pre className="p-6 bg-black rounded-2xl text-[10px] md:text-xs font-mono text-slate-400 overflow-x-auto border border-slate-800 leading-relaxed custom-scrollbar shadow-inner"><code>{code}</code></pre>
     </div>
   );
 };
@@ -739,12 +780,12 @@ const FileUploader: React.FC<{ files: MediaFile[]; onFilesChange: (files: MediaF
 
   return (
     <div className="space-y-4 text-left w-full">
-      <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors bg-slate-900/30 group min-h-[140px]">
+      <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-slate-800 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors bg-slate-900/30 group min-h-[160px]">
         <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
            <Upload className="text-slate-400 group-hover:text-white" size={20} />
         </div>
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest text-center">Click or Drag to Upload {label}</p>
-        <span className="text-[10px] text-slate-600 mt-2">{multiple ? 'Multiple files allowed' : 'Single file only'}</span>
+        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Click or Drag to Upload {label}</p>
+        <span className="text-[9px] text-slate-600 mt-2">{multiple ? 'Multiple files allowed' : 'Single file only'}</span>
         <input type="file" ref={fileInputRef} className="hidden" multiple={multiple} accept={accept} onChange={e => processFiles(e.target.files)} />
       </div>
       
@@ -776,7 +817,7 @@ const SingleImageUploader: React.FC<{ value: string; onChange: (v: string) => vo
   
   return (
     <div className="space-y-2 text-left w-full">
-       <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">{label}</label>
+       <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{label}</label>
        <div 
         onClick={() => inputRef.current?.click()}
         className={`relative ${className} overflow-hidden bg-slate-800 border-2 border-dashed border-slate-700 hover:border-primary/50 transition-all cursor-pointer group rounded-2xl`}
@@ -793,7 +834,7 @@ const SingleImageUploader: React.FC<{ value: string; onChange: (v: string) => vo
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-slate-500">
                <ImageIcon size={32} className="mb-3 opacity-50" />
-               <span className="text-xs font-bold uppercase tracking-widest text-center px-4">Upload File</span>
+               <span className="text-[10px] font-black uppercase tracking-widest text-center px-4">Upload File</span>
             </div>
           )}
           <input 
@@ -815,7 +856,7 @@ const SingleImageUploader: React.FC<{ value: string; onChange: (v: string) => vo
   );
 };
 
-// --- Simplified Email Template (No Complex HTML Variables) ---
+// --- Email Template Constant ---
 const EMAIL_TEMPLATE_HTML = `<!DOCTYPE html>
 <html>
 <head>
@@ -825,19 +866,43 @@ const EMAIL_TEMPLATE_HTML = `<!DOCTYPE html>
   .wrapper { width: 100%; table-layout: fixed; background-color: #f4f4f5; padding-bottom: 60px; }
   .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 16px; color: #334155; line-height: 1.6; }
   .header { background-color: #1e293b; padding: 40px 20px; text-align: center; }
+  .logo-img { max-height: 60px; width: auto; display: block; margin: 0 auto; }
   .logo-text { font-size: 24px; font-weight: bold; color: #D4AF37; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; font-family: serif; }
   .body-content { padding: 40px 30px; }
   .message-box { background-color: #f8fafc; border-left: 4px solid #D4AF37; padding: 20px; margin: 25px 0; border-radius: 4px; font-size: 15px; color: #475569; }
   .btn { display: inline-block; padding: 12px 30px; background-color: #D4AF37; color: #1e293b; text-decoration: none; font-weight: bold; border-radius: 4px; margin-top: 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  .products-title { text-align: center; margin: 40px 0 20px; font-family: serif; font-size: 22px; color: #1e293b; position: relative; }
+  .products-title span { background: #fff; padding: 0 15px; position: relative; z-index: 1; }
+  .products-title:after { content: ""; position: absolute; top: 50%; left: 0; right: 0; border-top: 1px solid #e2e8f0; z-index: 0; }
+  .product-grid { width: 100%; border-collapse: collapse; }
+  .product-cell { width: 50%; padding: 10px; vertical-align: top; }
+  .product-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; text-align: left; }
+  .product-img { width: 100%; height: 180px; object-fit: cover; background-color: #f1f5f9; display: block; }
+  .product-info { padding: 15px; }
+  .product-name { font-size: 14px; font-weight: bold; color: #1e293b; margin: 0 0 5px; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .product-price { font-size: 14px; color: #D4AF37; font-weight: bold; margin-bottom: 10px; display: block; }
+  .product-link { font-size: 12px; color: #64748b; text-decoration: none; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
   .footer { background-color: #1e293b; padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 12px; }
+  .social-icons { margin-bottom: 20px; }
+  .social-icon { display: inline-block; width: 32px; height: 32px; margin: 0 5px; }
+  .footer p { margin: 5px 0; }
   .footer a { color: #D4AF37; text-decoration: none; }
+  
+  @media only screen and (max-width: 480px) {
+    .product-cell { display: block; width: 100%; padding: 10px 0; }
+    .product-img { height: 220px; }
+  }
 </style>
 </head>
 <body>
   <div class="wrapper">
     <div class="main">
       <div class="header">
-        <h1 class="logo-text">{{company_name}}</h1>
+        {{#if company_logo_url}}
+          <img src="{{company_logo_url}}" alt="{{company_name}}" class="logo-img" />
+        {{else}}
+          <h1 class="logo-text">{{company_name}}</h1>
+        {{/if}}
       </div>
       
       <div class="body-content">
@@ -848,21 +913,20 @@ const EMAIL_TEMPLATE_HTML = `<!DOCTYPE html>
           {{{message}}}
         </div>
         
-        <div style="margin-top:20px; font-size:14px; color:#64748b;">
-          {{{products_html}}}
-        </div>
-        
         <p>If you require further assistance, please reply directly to this email.</p>
         
         <div style="text-align: center; margin-top: 30px;">
-          <a href="{{company_website}}" class="btn">Visit Website</a>
+          <a href="{{company_website}}" class="btn">Access Portal</a>
         </div>
+
+        {{{products_html}}}
       </div>
 
       <div class="footer">
-        <p>Connect with us: {{{socials_html}}}</p>
+        {{{socials_html}}}
         <p>&copy; {{year}} {{company_name}}. All rights reserved.</p>
         <p>{{company_address}}</p>
+        <p><a href="{{company_website}}">Visit Website</a></p>
       </div>
     </div>
   </div>
@@ -1110,43 +1174,43 @@ const Admin: React.FC = () => {
 
   const renderEnquiries = () => (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
          <div className="space-y-2">
             <h2 className="text-3xl font-serif text-white">Inbox</h2>
             <p className="text-slate-400 text-sm">Manage incoming client communications.</p>
          </div>
          <div className="flex gap-3">
-            <button onClick={() => setEnquiries(prev => prev.map(e => ({...e, status: 'read'})))} className="px-5 py-2.5 bg-slate-800 text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest hover:text-white transition-colors">Mark All Read</button>
-            <button onClick={exportEnquiries} className="px-5 py-2.5 bg-primary text-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-colors flex items-center gap-2"><FileSpreadsheet size={16}/> Export CSV</button>
+            <button onClick={() => setEnquiries(prev => prev.map(e => ({...e, status: 'read'})))} className="px-6 py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest hover:text-white transition-colors">Mark All Read</button>
+            <button onClick={exportEnquiries} className="px-6 py-3 bg-primary text-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-colors flex items-center gap-2"><FileSpreadsheet size={16}/> Export CSV</button>
          </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
          <div className="relative flex-grow">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-            <input type="text" placeholder="Search sender, email, or subject..." value={enquirySearch} onChange={e => setEnquirySearch(e.target.value)} className="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none focus:border-primary transition-all text-sm placeholder:text-slate-600" />
+            <input type="text" placeholder="Search sender, email, or subject..." value={enquirySearch} onChange={e => setEnquirySearch(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none focus:border-primary transition-all text-sm placeholder:text-slate-600" />
          </div>
          <div className="flex gap-2">
             {['all', 'unread', 'read'].map(filter => (
-               <button key={filter} onClick={() => setEnquiryFilter(filter as any)} className={`px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${enquiryFilter === filter ? 'bg-primary text-slate-900' : 'bg-slate-900 text-slate-500 hover:text-white border border-slate-800'}`}>
+               <button key={filter} onClick={() => setEnquiryFilter(filter as any)} className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${enquiryFilter === filter ? 'bg-primary text-slate-900' : 'bg-slate-900 text-slate-500 hover:text-white border border-slate-800'}`}>
                   {filter}
                </button>
             ))}
          </div>
       </div>
 
-      {filteredEnquiries.length === 0 ? <div className="text-center py-20 bg-slate-900/50 rounded-2xl border border-dashed border-slate-800 text-slate-500">No enquiries found.</div> : 
+      {filteredEnquiries.length === 0 ? <div className="text-center py-20 bg-slate-900/50 rounded-[3rem] border border-dashed border-slate-800 text-slate-500">No enquiries found.</div> : 
         filteredEnquiries.map(e => (
-          <div key={e.id} className={`bg-slate-900 border transition-all rounded-2xl p-6 flex flex-col md:flex-row gap-6 text-left ${e.status === 'unread' ? 'border-primary/30 shadow-[0_10px_30px_-10px_rgba(var(--primary-rgb),0.1)]' : 'border-slate-800'}`}>
+          <div key={e.id} className={`bg-slate-900 border transition-all rounded-[2.5rem] p-6 flex flex-col md:flex-row gap-6 text-left ${e.status === 'unread' ? 'border-primary/30 shadow-[0_10px_30px_-10px_rgba(var(--primary-rgb),0.1)]' : 'border-slate-800'}`}>
             <div className="flex-grow space-y-2">
-              <div className="flex items-center gap-3"><h4 className="text-white font-bold text-lg">{e.name}</h4><span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{new Date(e.createdAt).toLocaleDateString()}</span></div>
+              <div className="flex items-center gap-3"><h4 className="text-white font-bold">{e.name}</h4><span className="text-[9px] font-black text-slate-500 uppercase">{new Date(e.createdAt).toLocaleDateString()}</span></div>
               <p className="text-primary text-sm font-bold">{e.email}</p>
-              <div className="p-4 bg-slate-800/50 rounded-xl text-slate-300 text-sm italic leading-relaxed">"{e.message}"</div>
+              <div className="p-4 bg-slate-800/50 rounded-2xl text-slate-400 text-sm italic leading-relaxed">"{e.message}"</div>
             </div>
             <div className="flex gap-2 items-start">
-              <button onClick={() => setReplyEnquiry(e)} className="p-3 bg-primary/20 text-primary rounded-xl hover:bg-primary hover:text-slate-900 transition-colors" title="Reply"><Reply size={20}/></button>
-              <button onClick={() => toggleEnquiryStatus(e.id)} className={`p-3 rounded-xl transition-colors ${e.status === 'read' ? 'bg-slate-800 text-slate-500' : 'bg-green-500/20 text-green-500'}`} title={e.status === 'read' ? 'Mark Unread' : 'Mark Read'}><CheckCircle size={20}/></button>
-              <button onClick={() => deleteEnquiry(e.id)} className="p-3 bg-slate-800 text-slate-500 rounded-xl hover:bg-red-500/20 hover:text-red-500 transition-colors" title="Delete"><Trash2 size={20}/></button>
+              <button onClick={() => setReplyEnquiry(e)} className="p-4 bg-primary/20 text-primary rounded-2xl hover:bg-primary hover:text-slate-900 transition-colors" title="Reply"><Reply size={20}/></button>
+              <button onClick={() => toggleEnquiryStatus(e.id)} className={`p-4 rounded-2xl transition-colors ${e.status === 'read' ? 'bg-slate-800 text-slate-500' : 'bg-green-500/20 text-green-500'}`} title={e.status === 'read' ? 'Mark Unread' : 'Mark Read'}><CheckCircle size={20}/></button>
+              <button onClick={() => deleteEnquiry(e.id)} className="p-4 bg-slate-800 text-slate-500 rounded-2xl hover:bg-red-500/20 hover:text-red-500 transition-colors" title="Delete"><Trash2 size={20}/></button>
             </div>
           </div>
         ))
@@ -1169,7 +1233,7 @@ const Admin: React.FC = () => {
     const maxCatViews = Math.max(...catStats.map(c => c.views), 1);
 
     return (
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
+      <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
         <div className="flex justify-between items-end">
            <div className="space-y-2">
               <h2 className="text-3xl font-serif text-white">Analytics</h2>
@@ -1177,23 +1241,23 @@ const Admin: React.FC = () => {
            </div>
            <div className="flex gap-8">
               <div className="text-right">
-                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Total Impressions</span>
+                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1">Total Impressions</span>
                  <span className="text-3xl font-bold text-white">{totalViews.toLocaleString()}</span>
               </div>
               <div className="text-right border-l border-slate-800 pl-8">
-                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Affiliate Conversions</span>
+                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1">Affiliate Conversions</span>
                  <span className="text-3xl font-bold text-primary">{totalClicks.toLocaleString()}</span>
               </div>
            </div>
         </div>
         {/* Charts Grid */}
         <div className="grid lg:grid-cols-2 gap-8">
-           <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800">
-              <h3 className="text-white font-bold mb-8 flex items-center gap-3"><TrendingUp size={18} className="text-primary"/> Category Engagement</h3>
-              <div className="space-y-5">
+           <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-slate-800">
+              <h3 className="text-white font-bold mb-10 flex items-center gap-3"><TrendingUp size={18} className="text-primary"/> Category Engagement</h3>
+              <div className="space-y-6">
                  {catStats.map((c, i) => (
                    <div key={i} className="space-y-2">
-                      <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-slate-400">
+                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                          <span>{c.name}</span>
                          <span>{c.views} views</span>
                       </div>
@@ -1204,51 +1268,51 @@ const Admin: React.FC = () => {
                  ))}
               </div>
            </div>
-           <div className="grid grid-cols-2 gap-4">
+           <div className="grid grid-cols-2 gap-6">
               {[
                 { label: 'Avg. CTR', value: totalViews > 0 ? `${((totalClicks / totalViews) * 100).toFixed(1)}%` : '0%', icon: MousePointer2, color: 'text-primary' },
                 { label: 'Peak Interest', value: sortedProducts[0]?.name || 'N/A', icon: Star, color: 'text-yellow-500' },
                 { label: 'Active Curations', value: products.length, icon: ShoppingBag, color: 'text-blue-500' },
                 { label: 'Hot Dept.', value: catStats[0]?.name || 'N/A', icon: LayoutGrid, color: 'text-purple-500' }
               ].map((m, i) => (
-                <div key={i} className="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                <div key={i} className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 flex flex-col justify-between">
                    <div className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center ${m.color}`}><m.icon size={20}/></div>
-                   <div className="mt-4">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">{m.label}</span>
+                   <div className="mt-6">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1">{m.label}</span>
                       <span className="text-lg font-bold text-white truncate block">{m.value}</span>
                    </div>
                 </div>
               ))}
            </div>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-6">
            <h3 className="text-white font-bold text-xl px-2">Top Performing Products</h3>
-           <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+           <div className="bg-slate-900 rounded-[2.5rem] border border-slate-800 overflow-hidden">
               <table className="w-full text-left border-collapse">
                  <thead>
                     <tr className="bg-slate-800/50">
-                       <th className="p-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Collection Piece</th>
-                       <th className="p-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Department</th>
-                       <th className="p-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Impressions</th>
-                       <th className="p-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Clicks</th>
-                       <th className="p-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">CTR</th>
+                       <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Collection Piece</th>
+                       <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Department</th>
+                       <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Impressions</th>
+                       <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Clicks</th>
+                       <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">CTR</th>
                     </tr>
                  </thead>
                  <tbody className="divide-y divide-slate-800">
                     {sortedProducts.slice(0, 10).map((p, i) => (
                       <tr key={i} className="hover:bg-slate-800/30 transition-colors">
-                         <td className="p-5">
+                         <td className="p-6">
                             <div className="flex items-center gap-4">
                                <img src={p.media?.[0]?.url} className="w-10 h-10 rounded-lg object-cover bg-slate-800" />
                                <span className="text-white font-bold text-sm">{p.name}</span>
                             </div>
                          </td>
-                         <td className="p-5">
+                         <td className="p-6">
                             <span className="text-slate-500 text-xs">{categories.find(c => c.id === p.categoryId)?.name}</span>
                          </td>
-                         <td className="p-5 text-slate-300 font-medium">{p.views.toLocaleString()}</td>
-                         <td className="p-5 text-primary font-bold">{p.clicks.toLocaleString()}</td>
-                         <td className="p-5">
+                         <td className="p-6 text-slate-300 font-medium">{p.views.toLocaleString()}</td>
+                         <td className="p-6 text-primary font-bold">{p.clicks.toLocaleString()}</td>
+                         <td className="p-6">
                             <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-black">{p.ctr}%</span>
                          </td>
                       </tr>
@@ -1264,7 +1328,7 @@ const Admin: React.FC = () => {
   const renderCatalog = () => (
     <div className="space-y-6 text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
       {showProductForm ? (
-        <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 space-y-8">
+        <div className="bg-slate-900 p-8 md:p-12 rounded-[2.5rem] border border-slate-800 space-y-8">
           <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-6">
              <h3 className="text-2xl font-serif text-white">{editingId ? 'Edit Masterpiece' : 'New Collection Item'}</h3>
              <button onClick={() => setShowProductForm(false)} className="text-slate-500 hover:text-white transition-colors"><X size={24}/></button>
@@ -1279,16 +1343,16 @@ const Admin: React.FC = () => {
              </div>
              <div className="space-y-6">
                 <div className="space-y-2">
-                   <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Department</label>
-                   <select className="w-full px-5 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none" value={productData.categoryId} onChange={e => setProductData({...productData, categoryId: e.target.value, subCategoryId: ''})}>
+                   <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Department</label>
+                   <select className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none" value={productData.categoryId} onChange={e => setProductData({...productData, categoryId: e.target.value, subCategoryId: ''})}>
                       <option value="">Select Department</option>
                       {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                    </select>
                 </div>
                 <div className="space-y-2">
-                   <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Sub-Category</label>
+                   <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Sub-Category</label>
                    <select 
-                      className="w-full px-5 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none disabled:opacity-50" 
+                      className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none disabled:opacity-50" 
                       value={productData.subCategoryId} 
                       onChange={e => setProductData({...productData, subCategoryId: e.target.value})}
                       disabled={!productData.categoryId}
@@ -1359,7 +1423,7 @@ const Admin: React.FC = () => {
                           {Object.entries(productData.specifications || {}).map(([key, value]) => (
                               <div key={key} className="flex items-center justify-between p-3 bg-slate-900 rounded-xl border border-slate-800">
                                   <div className="flex flex-col">
-                                      <span className="text-[10px] font-bold uppercase text-slate-500">{key}</span>
+                                      <span className="text-[10px] font-black uppercase text-slate-500">{key}</span>
                                       <span className="text-sm text-slate-300">{value}</span>
                                   </div>
                                   <button onClick={() => handleRemoveSpec(key)} className="text-slate-500 hover:text-red-500"><X size={14}/></button>
@@ -1383,7 +1447,7 @@ const Admin: React.FC = () => {
                    <div className="flex-1"><SettingField label="Description" value={tempDiscountRule.description || ''} onChange={v => setTempDiscountRule({...tempDiscountRule, description: v})} /></div>
                    <div className="w-32"><SettingField label="Value" value={tempDiscountRule.value?.toString() || ''} onChange={v => setTempDiscountRule({...tempDiscountRule, value: Number(v)})} type="number" /></div>
                    <div className="w-32 space-y-2">
-                      <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Type</label>
+                      <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Type</label>
                       <select className="w-full px-4 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none text-sm" value={tempDiscountRule.type} onChange={e => setTempDiscountRule({...tempDiscountRule, type: e.target.value as any})}><option value="percentage">Percent (%)</option><option value="fixed">Fixed (R)</option></select>
                    </div>
                    <button onClick={handleAddDiscountRule} className="p-4 bg-primary text-slate-900 rounded-xl hover:bg-white transition-colors"><Plus size={20}/></button>
@@ -1403,8 +1467,8 @@ const Admin: React.FC = () => {
           </div>
 
           <div className="flex gap-4 pt-8">
-             <button onClick={handleSaveProduct} className="flex-1 py-4 bg-primary text-slate-900 font-bold uppercase text-xs rounded-xl hover:brightness-110 transition-all shadow-xl shadow-primary/20">Save Product</button>
-             <button onClick={() => setShowProductForm(false)} className="flex-1 py-4 bg-slate-800 text-slate-400 font-bold uppercase text-xs rounded-xl hover:text-white transition-all">Cancel</button>
+             <button onClick={handleSaveProduct} className="flex-1 py-5 bg-primary text-slate-900 font-black uppercase text-xs rounded-xl hover:brightness-110 transition-all shadow-xl shadow-primary/20">Save Product</button>
+             <button onClick={() => setShowProductForm(false)} className="flex-1 py-5 bg-slate-800 text-slate-400 font-black uppercase text-xs rounded-xl hover:text-white transition-all">Cancel</button>
           </div>
         </div>
       ) : (
@@ -1414,17 +1478,17 @@ const Admin: React.FC = () => {
                 <h2 className="text-3xl font-serif text-white">Catalog</h2>
                 <p className="text-slate-400 text-sm">Curate your collection of affiliate products.</p>
              </div>
-             <button onClick={() => { setProductData({}); setShowProductForm(true); setEditingId(null); }} className="px-6 py-3 bg-primary text-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-colors flex items-center gap-3"><Plus size={18} /> Add Product</button>
+             <button onClick={() => { setProductData({}); setShowProductForm(true); setEditingId(null); }} className="px-8 py-4 bg-primary text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-colors flex items-center gap-3"><Plus size={18} /> Add Product</button>
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 mb-6">
              <div className="relative flex-grow">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                <input type="text" placeholder="Search by name..." value={productSearch} onChange={e => setProductSearch(e.target.value)} className="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none focus:border-primary transition-all text-sm placeholder:text-slate-600" />
+                <input type="text" placeholder="Search by name..." value={productSearch} onChange={e => setProductSearch(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none focus:border-primary transition-all text-sm placeholder:text-slate-600" />
              </div>
              <div className="relative min-w-[200px]">
                 <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                <select value={productCatFilter} onChange={e => setProductCatFilter(e.target.value)} className="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none focus:border-primary transition-all text-sm appearance-none cursor-pointer">
+                <select value={productCatFilter} onChange={e => setProductCatFilter(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none focus:border-primary transition-all text-sm appearance-none cursor-pointer">
                    <option value="all">All Departments</option>
                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
@@ -1434,8 +1498,8 @@ const Admin: React.FC = () => {
 
           <div className="grid gap-4">
             {products.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()) && (productCatFilter === 'all' || p.categoryId === productCatFilter)).map(p => (
-              <div key={p.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex items-center justify-between hover:border-primary/30 transition-colors group">
-                <div className="flex items-center gap-4">
+              <div key={p.id} className="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 flex items-center justify-between hover:border-primary/30 transition-colors group">
+                <div className="flex items-center gap-6">
                   <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-800 border border-slate-700 relative"><img src={p.media?.[0]?.url} className="w-full h-full object-cover" /></div>
                   <div>
                      <h4 className="text-white font-bold">{p.name}</h4>
@@ -1462,23 +1526,23 @@ const Admin: React.FC = () => {
      <div className="space-y-6 text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
         <AdminHelpBox title="Hero Carousel" steps={["Use high-res 16:9 images", "Videos auto-play muted", "Text overlays automatically adjust"]} />
         {showHeroForm ? ( 
-           <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 space-y-6">
+           <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                  <SettingField label="Title" value={heroData.title || ''} onChange={v => setHeroData({...heroData, title: v})} />
-                 <div className="space-y-2"><label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Type</label><select className="w-full px-5 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none" value={heroData.type} onChange={e => setHeroData({...heroData, type: e.target.value as any})}><option value="image">Image</option><option value="video">Video</option></select></div>
+                 <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Type</label><select className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none" value={heroData.type} onChange={e => setHeroData({...heroData, type: e.target.value as any})}><option value="image">Image</option><option value="video">Video</option></select></div>
               </div>
               <SettingField label="Subtitle" value={heroData.subtitle || ''} onChange={v => setHeroData({...heroData, subtitle: v})} type="textarea" />
               <SettingField label="Button Label" value={heroData.cta || ''} onChange={v => setHeroData({...heroData, cta: v})} />
               <SingleImageUploader label="Media File" value={heroData.image || ''} onChange={v => setHeroData({...heroData, image: v})} />
-              <div className="flex gap-4"><button onClick={handleSaveHero} className="flex-1 py-4 bg-primary text-slate-900 font-bold uppercase text-xs rounded-xl">Save Slide</button><button onClick={() => setShowHeroForm(false)} className="flex-1 py-4 bg-slate-800 text-slate-400 font-bold uppercase text-xs rounded-xl">Cancel</button></div>
+              <div className="flex gap-4"><button onClick={handleSaveHero} className="flex-1 py-5 bg-primary text-slate-900 font-black uppercase text-xs rounded-xl">Save Slide</button><button onClick={() => setShowHeroForm(false)} className="flex-1 py-5 bg-slate-800 text-slate-400 font-black uppercase text-xs rounded-xl">Cancel</button></div>
            </div> 
         ) : ( 
            <div className="grid md:grid-cols-2 gap-6">
-              <button onClick={() => { setHeroData({ title: '', subtitle: '', cta: 'Explore', image: '', type: 'image' }); setShowHeroForm(true); setEditingId(null); }} className="w-full p-8 border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-4 text-slate-500 hover:text-primary"><Plus size={48} /><span className="font-bold uppercase tracking-widest text-xs">New Slide</span></button>
+              <button onClick={() => { setHeroData({ title: '', subtitle: '', cta: 'Explore', image: '', type: 'image' }); setShowHeroForm(true); setEditingId(null); }} className="w-full p-8 border-2 border-dashed border-slate-800 rounded-[3rem] flex flex-col items-center justify-center gap-4 text-slate-500 hover:text-primary"><Plus size={48} /><span className="font-black uppercase tracking-widest text-xs">New Slide</span></button>
               {heroSlides.map(s => (
-                 <div key={s.id} className="relative aspect-video rounded-3xl overflow-hidden group border border-slate-800">
+                 <div key={s.id} className="relative aspect-video rounded-[3rem] overflow-hidden group border border-slate-800">
                     {s.type === 'video' ? <video src={s.image} className="w-full h-full object-cover" muted /> : <img src={s.image} className="w-full h-full object-cover" />}
-                    <div className="absolute inset-0 bg-black/60 p-8 flex flex-col justify-end text-left">
+                    <div className="absolute inset-0 bg-black/60 p-10 flex flex-col justify-end text-left">
                        <h4 className="text-white text-xl font-serif">{s.title}</h4>
                        <div className="flex gap-2 mt-4"><button onClick={() => { setHeroData(s); setEditingId(s.id); setShowHeroForm(true); }} className="p-3 bg-white/10 text-white rounded-xl hover:bg-white/20"><Edit2 size={16}/></button><button onClick={() => performSave(() => setHeroSlides(heroSlides.filter(x => x.id !== s.id)))} className="p-3 bg-white/10 text-white rounded-xl hover:bg-red-500"><Trash2 size={16}/></button></div>
                     </div>
@@ -1492,12 +1556,12 @@ const Admin: React.FC = () => {
   const renderCategories = () => (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
        {showCategoryForm ? (
-          <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 space-y-8">
+          <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-8">
              <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                    <h3 className="text-white font-bold text-xl mb-4">Department Details</h3>
                    <SettingField label="Department Name" value={catData.name || ''} onChange={v => setCatData({...catData, name: v})} />
-                   <div className="space-y-2"><label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={catData.icon || 'Package'} onSelect={icon => setCatData({...catData, icon})} /></div>
+                   <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={catData.icon || 'Package'} onSelect={icon => setCatData({...catData, icon})} /></div>
                    <SettingField label="Description" value={catData.description || ''} onChange={v => setCatData({...catData, description: v})} type="textarea" />
                 </div>
                 <div className="space-y-6">
@@ -1520,13 +1584,13 @@ const Admin: React.FC = () => {
                    </div>
                 </div>
              </div>
-             <div className="flex gap-4 pt-4 border-t border-slate-800"><button onClick={handleSaveCategory} className="flex-1 py-4 bg-primary text-slate-900 font-bold uppercase text-xs rounded-xl">Save Dept</button><button onClick={() => setShowCategoryForm(false)} className="flex-1 py-4 bg-slate-800 text-slate-400 font-bold uppercase text-xs rounded-xl">Cancel</button></div>
+             <div className="flex gap-4 pt-4 border-t border-slate-800"><button onClick={handleSaveCategory} className="flex-1 py-5 bg-primary text-slate-900 font-black uppercase text-xs rounded-xl">Save Dept</button><button onClick={() => setShowCategoryForm(false)} className="flex-1 py-5 bg-slate-800 text-slate-400 font-black uppercase text-xs rounded-xl">Cancel</button></div>
           </div>
        ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-             <button onClick={() => { setCatData({ name: '', icon: 'Package', description: '', image: '' }); setShowCategoryForm(true); setEditingId(null); }} className="w-full h-40 border-2 border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-primary"><Plus size={32} /><span className="font-bold text-xs uppercase tracking-widest">New Dept</span></button>
+             <button onClick={() => { setCatData({ name: '', icon: 'Package', description: '', image: '' }); setShowCategoryForm(true); setEditingId(null); }} className="w-full h-40 border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-primary"><Plus size={32} /><span className="font-black text-[10px] uppercase tracking-widest">New Dept</span></button>
              {categories.map(c => (
-                <div key={c.id} className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 flex flex-col relative group">
+                <div key={c.id} className="bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-800 flex flex-col relative group">
                    <div className="h-32 overflow-hidden relative"><img src={c.image} className="w-full h-full object-cover opacity-50" /><div className="absolute inset-0 flex items-center px-8 gap-4"><div className="w-12 h-12 bg-slate-800 text-primary rounded-xl flex items-center justify-center shadow-xl">{React.createElement((LucideIcons as any)[c.icon] || LucideIcons.Package, { size: 20 })}</div><h4 className="font-bold text-white text-lg">{c.name}</h4></div></div>
                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => { setCatData(c); setEditingId(c.id); setShowCategoryForm(true); }} className="p-2 bg-black/50 text-white rounded-lg backdrop-blur-md"><Edit2 size={14}/></button><button onClick={() => performSave(() => setCategories(categories.filter(x => x.id !== c.id)))} className="p-2 bg-black/50 text-white rounded-lg backdrop-blur-md hover:bg-red-500"><Trash2 size={14}/></button></div>
                 </div>
@@ -1538,10 +1602,10 @@ const Admin: React.FC = () => {
 
   const renderTeam = () => (
      <div className="space-y-8 max-w-5xl mx-auto text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="flex justify-between items-end mb-8"><div className="text-left"><h2 className="text-3xl font-serif text-white">Team Management</h2><p className="text-slate-400 text-sm mt-2">Sync with Supabase for secure multi-admin access.</p></div><button onClick={() => { setAdminData({ role: 'admin', permissions: [] }); setShowAdminForm(true); setEditingId(null); }} className="px-6 py-3 bg-primary text-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest"><Plus size={16}/> New Member</button></div>
+        <div className="flex justify-between items-end mb-8"><div className="text-left"><h2 className="text-3xl font-serif text-white">Team Management</h2><p className="text-slate-400 text-sm mt-2">Sync with Supabase for secure multi-admin access.</p></div><button onClick={() => { setAdminData({ role: 'admin', permissions: [] }); setShowAdminForm(true); setEditingId(null); }} className="px-6 py-3 bg-primary text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest"><Plus size={16}/> New Member</button></div>
         
         {showAdminForm ? (
-           <div className="bg-slate-900 p-8 md:p-12 rounded-2xl border border-slate-800 space-y-12">
+           <div className="bg-slate-900 p-8 md:p-12 rounded-[3rem] border border-slate-800 space-y-12">
               <div className="grid md:grid-cols-2 gap-12">
                  <div className="space-y-6">
                     <h3 className="text-white font-bold text-xl border-b border-slate-800 pb-4">Personal Details</h3>
@@ -1556,9 +1620,9 @@ const Admin: React.FC = () => {
                  <div className="space-y-6">
                     <h3 className="text-white font-bold text-xl border-b border-slate-800 pb-4">Access Control</h3>
                     <div className="space-y-2">
-                       <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">System Role</label>
+                       <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">System Role</label>
                        <select 
-                        className="w-full px-5 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none" 
+                        className="w-full px-6 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none" 
                         value={adminData.role} 
                         onChange={e => setAdminData({...adminData, role: e.target.value as any, permissions: e.target.value === 'owner' ? ['*'] : []})}
                        >
@@ -1566,7 +1630,7 @@ const Admin: React.FC = () => {
                           <option value="owner">System Owner (Root)</option>
                        </select>
                     </div>
-                    <label className="text-xs font-bold uppercase text-slate-500 tracking-widest mt-6 block">Detailed Permissions</label>
+                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest mt-6 block">Detailed Permissions</label>
                     <PermissionSelector permissions={adminData.permissions || []} onChange={p => setAdminData({...adminData, permissions: p})} role={adminData.role || 'admin'} />
                  </div>
               </div>
@@ -1585,7 +1649,7 @@ const Admin: React.FC = () => {
         ) : (
            <div className="grid gap-6">
              {admins.map(a => (
-               <div key={a.id} className="bg-slate-900 p-8 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-8 hover:border-primary/40 transition-all group">
+               <div key={a.id} className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-8 hover:border-primary/40 transition-all group">
                  <div className="flex items-center gap-8 w-full">
                     <div className="w-24 h-24 bg-slate-800 rounded-3xl flex items-center justify-center text-slate-400 text-3xl font-bold uppercase border border-slate-700 shadow-inner group-hover:text-primary transition-colors">
                       {a.profileImage ? <img src={a.profileImage} className="w-full h-full object-cover rounded-3xl"/> : a.name?.charAt(0)}
@@ -1593,7 +1657,7 @@ const Admin: React.FC = () => {
                     <div className="space-y-2 flex-grow">
                        <div className="flex items-center gap-3">
                           <h4 className="text-white text-xl font-bold">{a.name}</h4>
-                          <span className={`px-3 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${a.role === 'owner' ? 'bg-primary text-slate-900' : 'bg-slate-800 text-slate-400'}`}>
+                          <span className={`px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${a.role === 'owner' ? 'bg-primary text-slate-900' : 'bg-slate-800 text-slate-400'}`}>
                             {a.role}
                           </span>
                        </div>
@@ -1602,11 +1666,11 @@ const Admin: React.FC = () => {
                           {a.phone && <span className="flex items-center gap-2"><Phone size={14} className="text-primary"/> {a.phone}</span>}
                        </div>
                        <div className="pt-2 flex flex-wrap gap-2">
-                          <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Status:</span>
-                          <span className="text-xs font-bold text-green-500 uppercase tracking-widest flex items-center gap-1"><div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"/> Verified</span>
+                          <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Status:</span>
+                          <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest flex items-center gap-1"><div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"/> Verified</span>
                           <span className="mx-2 text-slate-800">|</span>
-                          <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Access:</span>
-                          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{a.role === 'owner' ? 'Full System' : `${a.permissions.length} modules`}</span>
+                          <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Access:</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{a.role === 'owner' ? 'Full System' : `${a.permissions.length} modules`}</span>
                        </div>
                     </div>
                  </div>
@@ -1637,7 +1701,7 @@ const Admin: React.FC = () => {
            <div className="flex justify-between items-end px-2">
              <div className="space-y-2">
                 <h3 className="text-white font-bold text-xl flex items-center gap-3"><Map size={22} className="text-primary"/> Global Interaction Protocol</h3>
-                <p className="text-slate-500 text-xs uppercase tracking-widest font-bold opacity-60">High-Precision Geographic Analytics</p>
+                <p className="text-slate-500 text-xs uppercase tracking-widest font-black opacity-60">High-Precision Geographic Analytics</p>
              </div>
            </div>
            
@@ -1652,10 +1716,10 @@ const Admin: React.FC = () => {
              { label: 'Storage Usage', value: '1.2 GB', icon: UploadCloud, color: 'text-blue-500' },
              { label: 'Total Session Time', value: `${Math.floor(totalSessionTime / 60)}m ${totalSessionTime % 60}s`, icon: Timer, color: 'text-purple-500' }
            ].map((item, i) => (
-             <div key={i} className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 flex items-center gap-4">
+             <div key={i} className="bg-slate-900/50 p-6 rounded-[2rem] border border-slate-800 flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center ${item.color}`}><item.icon size={20}/></div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">{item.label}</span>
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">{item.label}</span>
                   <span className="text-base font-bold text-white">{item.value}</span>
                 </div>
              </div>
@@ -1663,7 +1727,7 @@ const Admin: React.FC = () => {
         </div>
 
         {/* --- SUPABASE CONNECTION DIAGNOSTICS SECTION --- */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
+        <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 relative overflow-hidden">
            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] pointer-events-none"></div>
            <div className="relative z-10 flex flex-col md:flex-row gap-10 items-start">
              <div className="flex-1 space-y-6">
@@ -1673,15 +1737,15 @@ const Admin: React.FC = () => {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700/50">
-                     <span className="text-xs font-bold uppercase text-slate-500 tracking-widest block mb-2">Connection Status</span>
+                  <div className="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/50">
+                     <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest block mb-2">Connection Status</span>
                      <div className="flex items-center gap-3">
                         <div className={`w-3 h-3 rounded-full ${connectionHealth?.status === 'online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
                         <span className={`text-lg font-bold ${connectionHealth?.status === 'online' ? 'text-white' : 'text-red-400'}`}>{connectionHealth?.status === 'online' ? 'Operational' : 'Disconnected'}</span>
                      </div>
                   </div>
-                  <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700/50">
-                     <span className="text-xs font-bold uppercase text-slate-500 tracking-widest block mb-2">Network Latency</span>
+                  <div className="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/50">
+                     <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest block mb-2">Network Latency</span>
                      <div className="flex items-center gap-3">
                         <Activity size={20} className={connectionHealth?.latency && connectionHealth.latency < 200 ? 'text-green-500' : 'text-yellow-500'} />
                         <span className="text-lg font-bold text-white">{connectionHealth?.latency || 0} ms</span>
@@ -1696,17 +1760,17 @@ const Admin: React.FC = () => {
              </div>
 
              <div className="w-full md:w-80 space-y-4">
-                <div className="p-6 bg-slate-800 rounded-2xl border border-slate-700 flex flex-col items-center text-center">
+                <div className="p-6 bg-slate-800 rounded-3xl border border-slate-700 flex flex-col items-center text-center">
                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-white ${connectionHealth?.status === 'online' ? 'bg-green-500' : 'bg-slate-600'}`}>
                       {connectionHealth?.status === 'online' ? <Wifi size={32}/> : <WifiOff size={32}/>}
                    </div>
                    <h4 className="text-white font-bold mb-1">{connectionHealth?.message || 'Checking...'}</h4>
                    <p className="text-xs text-slate-400">Last heartbeat: {new Date().toLocaleTimeString()}</p>
                 </div>
-                <div className="p-6 bg-slate-800 rounded-2xl border border-slate-700 text-center">
-                   <span className="text-xs font-bold uppercase text-slate-500 tracking-widest block mb-2">Active Session</span>
+                <div className="p-6 bg-slate-800 rounded-3xl border border-slate-700 text-center">
+                   <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest block mb-2">Active Session</span>
                    <span className="text-sm font-bold text-white truncate w-full block">{user?.email || 'Local User'}</span>
-                   <span className="text-xs text-primary uppercase font-bold mt-1 block">{user?.role || 'Simulated'} Role</span>
+                   <span className="text-[9px] text-primary uppercase font-bold mt-1 block">{user?.role || 'Simulated'} Role</span>
                 </div>
              </div>
            </div>
@@ -1715,7 +1779,7 @@ const Admin: React.FC = () => {
         {/* Product Performance Showcase */}
         <div className="grid lg:grid-cols-2 gap-8">
            {/* Most Clicked Showcase */}
-           <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 relative overflow-hidden">
+           <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-slate-800 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-10"><Zap size={120} className="text-primary"/></div>
               <h3 className="text-white font-bold text-xl mb-10 flex items-center gap-3"><TrendingUp size={22} className="text-primary"/> Engagement Leaders</h3>
               <div className="space-y-6">
@@ -1726,7 +1790,7 @@ const Admin: React.FC = () => {
                           <img src={p.media?.[0]?.url} className="w-12 h-12 rounded-xl object-cover bg-slate-800" />
                           <div className="max-w-[150px]">
                             <h4 className="text-white font-bold text-sm truncate">{p.name}</h4>
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{categories.find(c => c.id === p.categoryId)?.name}</span>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{categories.find(c => c.id === p.categoryId)?.name}</span>
                           </div>
                        </div>
                        <div className="text-right">
@@ -1741,7 +1805,7 @@ const Admin: React.FC = () => {
            </div>
 
            {/* View Duration Showcase */}
-           <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 relative overflow-hidden">
+           <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-slate-800 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-10"><Timer size={120} className="text-purple-500"/></div>
               <h3 className="text-white font-bold text-xl mb-10 flex items-center gap-3"><Eye size={22} className="text-purple-500"/> Deep Engagement</h3>
               <div className="space-y-6">
@@ -1751,12 +1815,12 @@ const Admin: React.FC = () => {
                           <img src={p.media?.[0]?.url} className="w-12 h-12 rounded-xl object-cover bg-slate-800" />
                           <div className="max-w-[150px]">
                             <h4 className="text-white font-bold text-sm truncate">{p.name}</h4>
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Retention Tracker</span>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Retention Tracker</span>
                           </div>
                        </div>
                        <div className="text-right">
                           <span className="text-white font-black text-lg block">{p.totalViewTime || 0}s <span className="text-[10px] text-slate-500 uppercase tracking-widest font-medium">Stayed</span></span>
-                          <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Avg: {p.views > 0 ? (p.totalViewTime / p.views).toFixed(1) : 0}s / view</span>
+                          <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Avg: {p.views > 0 ? (p.totalViewTime / p.views).toFixed(1) : 0}s / view</span>
                        </div>
                     </div>
                  ))}
@@ -1768,14 +1832,14 @@ const Admin: React.FC = () => {
         <div className="grid lg:grid-cols-3 gap-8">
            <div className="lg:col-span-2 space-y-6">
               <h3 className="text-white font-bold text-xl px-2">Live Traffic Feed</h3>
-              <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden divide-y divide-slate-800">
+              <div className="bg-slate-900 rounded-[2.5rem] border border-slate-800 overflow-hidden divide-y divide-slate-800">
                  {trafficEvents.map(event => (
-                   <div key={event.id} className="p-4 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
+                   <div key={event.id} className="p-6 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
                       <div className="flex items-center gap-4">
                          <div className={`w-2 h-2 rounded-full animate-pulse ${event.type === 'view' ? 'bg-blue-500' : event.type === 'click' ? 'bg-primary' : 'bg-green-500'}`} />
                          <span className="text-slate-300 text-sm font-medium">{event.text}</span>
                       </div>
-                      <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{event.time}</span>
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{event.time}</span>
                    </div>
                  ))}
                  {trafficEvents.length === 0 && <div className="p-20 text-center text-slate-600 font-bold uppercase tracking-widest text-xs">Awaiting Global Interaction...</div>}
@@ -1785,12 +1849,12 @@ const Admin: React.FC = () => {
            <div className="space-y-6">
               <h3 className="text-white font-bold text-xl px-2">Data Operations</h3>
               <div className="space-y-4">
-                <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 text-left space-y-4">
+                <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 text-left space-y-4">
                    <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2"><Download size={18} className="text-primary"/> Data Snapshot</h3>
                    <p className="text-slate-500 text-xs leading-relaxed">Securely export all catalog items, analytics, and settings to a portable JSON format.</p>
                    <button onClick={handleBackup} className="px-6 py-4 bg-slate-800 text-white rounded-xl text-xs uppercase font-black hover:bg-slate-700 transition-colors w-full flex items-center justify-center gap-2">Backup Master</button>
                 </div>
-                <div className="bg-red-950/10 p-8 rounded-2xl border border-red-500/20 text-left space-y-4">
+                <div className="bg-red-950/10 p-8 rounded-[2.5rem] border border-red-500/20 text-left space-y-4">
                    <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2"><Flame size={18} className="text-red-500"/> Core Wipe</h3>
                    <p className="text-slate-500 text-xs leading-relaxed">Irreversibly factory reset all local storage data. This action cannot be undone.</p>
                    <button onClick={handleFactoryReset} className="px-6 py-4 bg-red-600 text-white rounded-xl text-xs uppercase font-black hover:bg-red-500 transition-colors w-full flex items-center justify-center gap-2">Execute Reset</button>
@@ -1804,7 +1868,7 @@ const Admin: React.FC = () => {
 
   const renderGuide = () => (
      <div className="space-y-24 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-32 max-w-6xl mx-auto text-left">
-        <div className="bg-gradient-to-br from-primary/30 to-slate-950 p-16 md:p-24 rounded-3xl border border-primary/20 relative overflow-hidden shadow-2xl">
+        <div className="bg-gradient-to-br from-primary/30 to-slate-950 p-16 md:p-24 rounded-[4rem] border border-primary/20 relative overflow-hidden shadow-2xl">
           <Rocket className="absolute -bottom-20 -right-20 text-primary/10 w-96 h-96 rotate-12" />
           <div className="max-w-3xl relative z-10">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.3em] mb-8 border border-primary/30">
@@ -1818,7 +1882,7 @@ const Admin: React.FC = () => {
           {GUIDE_STEPS.map((step, idx) => (
             <div key={step.id} className="relative grid md:grid-cols-12 gap-12 md:gap-20">
               <div className="md:col-span-1 flex flex-col items-center">
-                 <div className="w-16 h-16 rounded-2xl bg-slate-900 border-2 border-slate-800 flex items-center justify-center text-primary font-black text-2xl shadow-2xl sticky top-32">{idx + 1}</div>
+                 <div className="w-16 h-16 rounded-[2rem] bg-slate-900 border-2 border-slate-800 flex items-center justify-center text-primary font-black text-2xl shadow-2xl sticky top-32">{idx + 1}</div>
                  <div className="flex-grow w-0.5 bg-gradient-to-b from-slate-800 to-transparent my-4" />
               </div>
               <div className="md:col-span-7 space-y-10">
@@ -1829,7 +1893,7 @@ const Admin: React.FC = () => {
                 {step.subSteps && (
                   <div className="grid gap-4">
                     {step.subSteps.map((sub, i) => (
-                      <div key={i} className="flex items-start gap-4 p-6 bg-slate-900/50 rounded-2xl border border-slate-800/50 hover:border-primary/30 transition-all group">
+                      <div key={i} className="flex items-start gap-4 p-6 bg-slate-900/50 rounded-3xl border border-slate-800/50 hover:border-primary/30 transition-all group">
                         <CheckCircle size={20} className="text-primary mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
                         <span className="text-slate-300 text-sm md:text-base leading-relaxed">{sub}</span>
                       </div>
@@ -1838,7 +1902,7 @@ const Admin: React.FC = () => {
                 )}
                 {step.code && (<CodeBlock code={step.code} label={step.codeLabel} />)}
                 {step.tips && (
-                  <div className="bg-primary/5 border border-primary/20 rounded-2xl p-8 flex items-start gap-6 text-primary/80 text-sm md:text-base leading-relaxed">
+                  <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-8 flex items-start gap-6 text-primary/80 text-sm md:text-base leading-relaxed">
                     <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 text-primary"><Info size={24}/></div>
                     <p>{step.tips}</p>
                   </div>
@@ -1847,7 +1911,7 @@ const Admin: React.FC = () => {
               <div className="md:col-span-4 sticky top-32 h-fit">
                  <GuideIllustration id={step.illustrationId} />
                  <div className="mt-8 p-6 bg-slate-900/30 rounded-2xl border border-slate-800 border-dashed text-center">
-                    <span className="text-[10px] font-bold uppercase text-slate-600 tracking-widest">Setup Phase Completion</span>
+                    <span className="text-[10px] font-black uppercase text-slate-600 tracking-widest">Setup Phase Completion</span>
                     <div className="w-full h-1 bg-slate-800 rounded-full mt-4 overflow-hidden">
                        <div className="h-full bg-primary" style={{ width: `${((idx + 1) / GUIDE_STEPS.length) * 100}%` }} />
                     </div>
@@ -1856,7 +1920,7 @@ const Admin: React.FC = () => {
             </div>
           ))}
         </div>
-        <div className="bg-slate-900 p-16 rounded-3xl text-center border border-slate-800 relative overflow-hidden">
+        <div className="bg-slate-900 p-16 rounded-[4rem] text-center border border-slate-800 relative overflow-hidden">
            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
            <Rocket className="mx-auto text-primary mb-8" size={64} />
            <h3 className="text-4xl font-serif text-white mb-6">Mission Critical: Complete</h3>
@@ -1878,10 +1942,10 @@ const Admin: React.FC = () => {
           {id: 'legal', label: 'Legal Text', icon: Shield, desc: 'Privacy, Terms, Disclosure'},
           {id: 'integrations', label: 'Integrations', icon: LinkIcon, desc: 'EmailJS, Tracking, Webhooks'}
         ].map(s => ( 
-          <button key={s.id} onClick={() => handleOpenEditor(s.id)} className="bg-slate-900 p-8 rounded-2xl text-left border border-slate-800 hover:border-primary/50 hover:bg-slate-800 transition-all group h-full flex flex-col justify-between">
+          <button key={s.id} onClick={() => handleOpenEditor(s.id)} className="bg-slate-900 p-8 rounded-[2.5rem] text-left border border-slate-800 hover:border-primary/50 hover:bg-slate-800 transition-all group h-full flex flex-col justify-between">
              <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-slate-900 transition-colors shadow-lg"><s.icon size={24}/></div>
              <div><h3 className="text-white font-bold text-xl mb-1">{s.label}</h3><p className="text-slate-500 text-xs">{s.desc}</p></div>
-             <div className="mt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary opacity-0 group-hover:opacity-100 transition-opacity">Edit Section <ArrowRight size={12}/></div>
+             <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary opacity-0 group-hover:opacity-100 transition-opacity">Edit Section <ArrowRight size={12}/></div>
           </button> 
         ))}
      </div>
@@ -1901,10 +1965,10 @@ const Admin: React.FC = () => {
       {selectedAdProduct && <AdGeneratorModal product={selectedAdProduct} onClose={() => setSelectedAdProduct(null)} />}
       {replyEnquiry && <EmailReplyModal enquiry={replyEnquiry} onClose={() => setReplyEnquiry(null)} />}
 
-      <header className="max-w-7xl mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 text-left">
+      <header className="max-w-[1400px] mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 text-left">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-4">
-            <h1 className="text-4xl md:text-5xl font-serif text-white tracking-tighter">Maison <span className="text-primary italic font-light">Portal</span></h1>
+            <h1 className="text-4xl md:text-6xl font-serif text-white tracking-tighter">Maison <span className="text-primary italic font-light">Portal</span></h1>
             <div className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-[9px] font-black text-primary uppercase tracking-[0.2em]">{isLocalMode ? 'LOCAL MODE' : (user?.email?.split('@')[0] || 'ADMIN')}</div>
           </div>
         </div>
@@ -1921,14 +1985,14 @@ const Admin: React.FC = () => {
               { id: 'system', label: 'System', icon: Activity }, 
               { id: 'guide', label: 'Pilot', icon: Rocket } 
             ].map(tab => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-primary text-slate-900' : 'text-slate-500 hover:text-slate-300'}`}><div className="flex items-center gap-2"><tab.icon size={12} />{tab.label}</div></button>
+              <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-primary text-slate-900' : 'text-slate-500 hover:text-slate-300'}`}><div className="flex items-center gap-2"><tab.icon size={12} />{tab.label}</div></button>
             ))}
           </div>
-          <button onClick={handleLogout} className="px-6 py-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-red-500 hover:text-white transition-all w-fit"><LogOut size={14} /> Exit</button>
+          <button onClick={handleLogout} className="px-6 py-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-red-500 hover:text-white transition-all w-fit"><LogOut size={14} /> Exit</button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 pb-20">
+      <main className="max-w-[1400px] mx-auto px-6 pb-20">
         {activeTab === 'enquiries' && renderEnquiries()}
         {activeTab === 'analytics' && renderAnalytics()}
         {activeTab === 'catalog' && renderCatalog()}
@@ -1943,7 +2007,7 @@ const Admin: React.FC = () => {
       {/* Full Screen Editor Drawer */}
       {editorDrawerOpen && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="w-full max-w-xl bg-slate-950 h-full overflow-y-auto border-l border-slate-800 p-8 md:p-10 text-left shadow-2xl slide-in-from-right duration-300">
+          <div className="w-full max-w-2xl bg-slate-950 h-full overflow-y-auto border-l border-slate-800 p-8 md:p-12 text-left shadow-2xl slide-in-from-right duration-300">
             <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-800">
                <div><h3 className="text-3xl font-serif text-white uppercase">{activeEditorSection}</h3><p className="text-slate-500 text-xs mt-1">Global Site Configuration</p></div>
                <button onClick={() => setEditorDrawerOpen(false)} className="p-3 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><X size={24}/></button>
@@ -1966,7 +2030,7 @@ const Admin: React.FC = () => {
                {activeEditorSection === 'home' && (
                   <>
                      <div className="space-y-6"><h4 className="text-white font-bold">About Section</h4><SettingField label="Title" value={tempSettings.homeAboutTitle} onChange={v => updateTempSettings({homeAboutTitle: v})} /><SettingField label="Body" value={tempSettings.homeAboutDescription} onChange={v => updateTempSettings({homeAboutDescription: v})} type="textarea" /><SettingField label="Button Text" value={tempSettings.homeAboutCta} onChange={v => updateTempSettings({homeAboutCta: v})} /><SingleImageUploader label="Featured Image" value={tempSettings.homeAboutImage} onChange={v => updateTempSettings({homeAboutImage: v})} /></div>
-                     <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Trust Strip</h4><SettingField label="Section Title" value={tempSettings.homeTrustSectionTitle} onChange={v => updateTempSettings({homeTrustSectionTitle: v})} /><div className="grid gap-6">{[1,2,3].map(i => (<div key={i} className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-3"><span className="text-xs font-bold uppercase text-slate-500">Item {i}</span><SettingField label="Title" value={(tempSettings as any)[`homeTrustItem${i}Title`]} onChange={v => updateTempSettings({[`homeTrustItem${i}Title`]: v})} /><SettingField label="Desc" value={(tempSettings as any)[`homeTrustItem${i}Desc`]} onChange={v => updateTempSettings({[`homeTrustItem${i}Desc`]: v})} type="textarea" /><div className="space-y-2"><label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={(tempSettings as any)[`homeTrustItem${i}Icon`] || 'ShieldCheck'} onSelect={icon => updateTempSettings({[`homeTrustItem${i}Icon`]: icon})} /></div></div>))}</div></div>
+                     <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Trust Strip</h4><SettingField label="Section Title" value={tempSettings.homeTrustSectionTitle} onChange={v => updateTempSettings({homeTrustSectionTitle: v})} /><div className="grid gap-6">{[1,2,3].map(i => (<div key={i} className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-3"><span className="text-[10px] font-black uppercase text-slate-500">Item {i}</span><SettingField label="Title" value={(tempSettings as any)[`homeTrustItem${i}Title`]} onChange={v => updateTempSettings({[`homeTrustItem${i}Title`]: v})} /><SettingField label="Desc" value={(tempSettings as any)[`homeTrustItem${i}Desc`]} onChange={v => updateTempSettings({[`homeTrustItem${i}Desc`]: v})} type="textarea" /><div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={(tempSettings as any)[`homeTrustItem${i}Icon`] || 'ShieldCheck'} onSelect={icon => updateTempSettings({[`homeTrustItem${i}Icon`]: icon})} /></div></div>))}</div></div>
                   </>
                )}
                {activeEditorSection === 'collections' && (
@@ -1976,7 +2040,7 @@ const Admin: React.FC = () => {
                      <SettingField label="Subtitle" value={tempSettings.productsHeroSubtitle} onChange={v => updateTempSettings({productsHeroSubtitle: v})} type="textarea" />
                      <SettingField label="Search Placeholder" value={tempSettings.productsSearchPlaceholder} onChange={v => updateTempSettings({productsSearchPlaceholder: v})} />
                      <div className="space-y-4 pt-4 border-t border-slate-800">
-                        <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Hero Carousel Images</label>
+                        <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Hero Carousel Images</label>
                         <FileUploader files={(tempSettings.productsHeroImages || []).map(url => ({id: url, url, name: 'hero', type: 'image/jpeg', size: 0}))} onFilesChange={files => updateTempSettings({productsHeroImages: files.map(f => f.url)})} />
                      </div>
                   </div>
@@ -1992,10 +2056,10 @@ const Admin: React.FC = () => {
                         </div>
                      </div>
                      <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Content Blocks</h4>
-                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-xl"><h5 className="text-primary font-bold text-xs uppercase">History</h5><SettingField label="Title" value={tempSettings.aboutHistoryTitle} onChange={v => updateTempSettings({aboutHistoryTitle: v})} /><SettingField label="Body" value={tempSettings.aboutHistoryBody} onChange={v => updateTempSettings({aboutHistoryBody: v})} type="textarea" /></div>
-                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-xl"><h5 className="text-primary font-bold text-xs uppercase">Mission</h5><SettingField label="Title" value={tempSettings.aboutMissionTitle} onChange={v => updateTempSettings({aboutMissionTitle: v})} /><SettingField label="Body" value={tempSettings.aboutMissionBody} onChange={v => updateTempSettings({aboutMissionBody: v})} type="textarea" /><div className="space-y-2"><label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={tempSettings.aboutMissionIcon || 'Target'} onSelect={icon => updateTempSettings({aboutMissionIcon: icon})} /></div></div>
-                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-xl"><h5 className="text-primary font-bold text-xs uppercase">Community</h5><SettingField label="Title" value={tempSettings.aboutCommunityTitle} onChange={v => updateTempSettings({aboutCommunityTitle: v})} /><SettingField label="Body" value={tempSettings.aboutCommunityBody} onChange={v => updateTempSettings({aboutCommunityBody: v})} type="textarea" /><div className="space-y-2"><label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={tempSettings.aboutCommunityIcon || 'Users'} onSelect={icon => updateTempSettings({aboutCommunityIcon: icon})} /></div></div>
-                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-xl"><h5 className="text-primary font-bold text-xs uppercase">Integrity</h5><SettingField label="Title" value={tempSettings.aboutIntegrityTitle} onChange={v => updateTempSettings({aboutIntegrityTitle: v})} /><SettingField label="Body" value={tempSettings.aboutIntegrityBody} onChange={v => updateTempSettings({aboutIntegrityBody: v})} type="textarea" /><div className="space-y-2"><label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={tempSettings.aboutIntegrityIcon || 'Award'} onSelect={icon => updateTempSettings({aboutIntegrityIcon: icon})} /></div></div>
+                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl"><h5 className="text-primary font-bold text-xs uppercase">History</h5><SettingField label="Title" value={tempSettings.aboutHistoryTitle} onChange={v => updateTempSettings({aboutHistoryTitle: v})} /><SettingField label="Body" value={tempSettings.aboutHistoryBody} onChange={v => updateTempSettings({aboutHistoryBody: v})} type="textarea" /></div>
+                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl"><h5 className="text-primary font-bold text-xs uppercase">Mission</h5><SettingField label="Title" value={tempSettings.aboutMissionTitle} onChange={v => updateTempSettings({aboutMissionTitle: v})} /><SettingField label="Body" value={tempSettings.aboutMissionBody} onChange={v => updateTempSettings({aboutMissionBody: v})} type="textarea" /><div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={tempSettings.aboutMissionIcon || 'Target'} onSelect={icon => updateTempSettings({aboutMissionIcon: icon})} /></div></div>
+                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl"><h5 className="text-primary font-bold text-xs uppercase">Community</h5><SettingField label="Title" value={tempSettings.aboutCommunityTitle} onChange={v => updateTempSettings({aboutCommunityTitle: v})} /><SettingField label="Body" value={tempSettings.aboutCommunityBody} onChange={v => updateTempSettings({aboutCommunityBody: v})} type="textarea" /><div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={tempSettings.aboutCommunityIcon || 'Users'} onSelect={icon => updateTempSettings({aboutCommunityIcon: icon})} /></div></div>
+                        <div className="space-y-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl"><h5 className="text-primary font-bold text-xs uppercase">Integrity</h5><SettingField label="Title" value={tempSettings.aboutIntegrityTitle} onChange={v => updateTempSettings({aboutIntegrityTitle: v})} /><SettingField label="Body" value={tempSettings.aboutIntegrityBody} onChange={v => updateTempSettings({aboutIntegrityBody: v})} type="textarea" /><div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Icon</label><IconPicker selected={tempSettings.aboutIntegrityIcon || 'Award'} onSelect={icon => updateTempSettings({aboutIntegrityIcon: icon})} /></div></div>
                      </div>
                      <div className="space-y-6 border-t border-slate-800 pt-8"><h4 className="text-white font-bold">Gallery</h4><FileUploader files={(tempSettings.aboutGalleryImages || []).map(url => ({id: url, url, name: 'gallery', type: 'image/jpeg', size: 0}))} onFilesChange={files => updateTempSettings({aboutGalleryImages: files.map(f => f.url)})} /></div>
                   </>
@@ -2027,7 +2091,7 @@ const Admin: React.FC = () => {
                              <button onClick={() => removeTempSocialLink(link.id)} className="self-end md:self-start p-3 text-slate-500 hover:text-red-500"><Trash2 size={18}/></button>
                           </div>
                        ))}
-                       <button onClick={addTempSocialLink} className="w-full py-4 border border-dashed border-slate-700 text-slate-400 rounded-xl hover:text-white hover:border-slate-500 uppercase font-bold text-xs flex items-center justify-center gap-2"><Plus size={16}/> Add Social Link</button>
+                       <button onClick={addTempSocialLink} className="w-full py-4 border border-dashed border-slate-700 text-slate-400 rounded-xl hover:text-white hover:border-slate-500 uppercase font-black text-xs flex items-center justify-center gap-2"><Plus size={16}/> Add Social Link</button>
                     </div>
                   </>
                )}
@@ -2042,22 +2106,22 @@ const Admin: React.FC = () => {
                {/* UPDATED INTEGRATIONS SECTION WITH EMAIL TEMPLATE VIEWER */}
                {activeEditorSection === 'integrations' && (
                   <div className="space-y-12">
-                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl space-y-6">
+                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] space-y-6">
                         <div className="flex justify-between items-center">
                            <h4 className="text-white font-bold flex items-center gap-3"><Database size={20} className="text-primary"/> Backend Protocol</h4>
-                           <div className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${isSupabaseConfigured ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                           <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isSupabaseConfigured ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                               {isSupabaseConfigured ? 'Synchronized' : 'Offline'}
                            </div>
                         </div>
                         <AdminHelpBox title="Supabase Cloud" steps={["Configure VITE_SUPABASE_URL in Vercel", "Configure VITE_SUPABASE_ANON_KEY", "Deployment required for sync"]} />
                      </div>
 
-                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl space-y-6">
+                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] space-y-6">
                         <div className="flex items-center justify-between">
                            <h4 className="text-white font-bold flex items-center gap-3"><Mail size={20} className="text-primary"/> Lead Routing (EmailJS)</h4>
                            <button 
                              onClick={() => setShowEmailTemplate(true)}
-                             className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2 hover:text-white"
+                             className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2 hover:text-white"
                            >
                               <FileCode size={14} /> Get Template
                            </button>
@@ -2070,7 +2134,7 @@ const Admin: React.FC = () => {
                         </div>
                      </div>
 
-                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl space-y-6">
+                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] space-y-6">
                         <h4 className="text-white font-bold flex items-center gap-3"><BarChart size={20} className="text-primary"/> Pixel & Analytics</h4>
                         <div className="grid gap-4">
                            <SettingField label="Google Analytics 4" value={tempSettings.googleAnalyticsId || ''} onChange={v => updateTempSettings({googleAnalyticsId: v})} placeholder="G-XXXXXXXXXX" />
@@ -2079,7 +2143,7 @@ const Admin: React.FC = () => {
                         </div>
                      </div>
 
-                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl space-y-6">
+                     <div className="p-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] space-y-6">
                         <h4 className="text-white font-bold flex items-center gap-3"><Tag size={20} className="text-primary"/> Affiliate Management</h4>
                         <div className="space-y-4">
                            <SettingField label="Amazon Associate ID" value={tempSettings.amazonAssociateId || ''} onChange={v => updateTempSettings({amazonAssociateId: v})} placeholder="storename-20" />
@@ -2090,8 +2154,8 @@ const Admin: React.FC = () => {
                )}
             </div>
 
-            <div className="fixed bottom-0 right-0 w-full max-w-xl p-6 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 flex justify-end gap-4">
-              <button onClick={() => { updateSettings(tempSettings); setSaveStatus('saving'); setTimeout(() => { setEditorDrawerOpen(false); setSaveStatus('saved'); }, 500); }} className="px-8 py-4 bg-primary text-slate-900 rounded-xl font-bold uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20">Save Configuration</button>
+            <div className="fixed bottom-0 right-0 w-full max-w-2xl p-6 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 flex justify-end gap-4">
+              <button onClick={() => { updateSettings(tempSettings); setSaveStatus('saving'); setTimeout(() => { setEditorDrawerOpen(false); setSaveStatus('saved'); }, 500); }} className="px-8 py-4 bg-primary text-slate-900 rounded-xl font-black uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20">Save Configuration</button>
             </div>
           </div>
         </div>
@@ -2100,7 +2164,7 @@ const Admin: React.FC = () => {
       {/* Email Template Modal */}
       {showEmailTemplate && (
          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-           <div className="bg-slate-900 border border-slate-700 w-full max-w-4xl h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+           <div className="bg-slate-900 border border-slate-700 w-full max-w-4xl h-[80vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden">
              <div className="p-6 border-b border-slate-800 flex justify-between items-center">
                <h3 className="text-white font-bold text-lg flex items-center gap-2"><FileCode size={18} className="text-primary"/> EmailJS HTML Template</h3>
                <button onClick={() => setShowEmailTemplate(false)} className="text-slate-500 hover:text-white"><X size={24}/></button>

@@ -1,25 +1,15 @@
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as LucideIcons from 'lucide-react';
-import { Target, Users, Award, ArrowLeft, Star, Heart, Quote, ImageIcon, ArrowRight, ShoppingBag } from 'lucide-react';
+import { Target, Users, Award, ArrowLeft, Star, Heart, Quote, ImageIcon } from 'lucide-react';
 import { useSettings } from '../App';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CustomIcons } from '../components/CustomIcons';
-import { INITIAL_PRODUCTS } from '../constants';
-import { Product } from '../types';
 
 const About: React.FC = () => {
   const { settings } = useSettings();
   const navigate = useNavigate();
   const [loaded, setLoaded] = useState(false);
-
-  // Fetch products for "Shop the Story" section
-  const products = useMemo(() => {
-    const saved = localStorage.getItem('admin_products');
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
-  }, []);
-
-  const curatorPicks = products.slice(0, 3);
 
   useEffect(() => {
     setLoaded(true);
@@ -133,46 +123,6 @@ const About: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* Shop The Story - Bridge Page Feature */}
-        {curatorPicks.length > 0 && (
-          <div className="mb-24 pt-12 border-t border-slate-100">
-             <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-                <div className="text-left">
-                   <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary block mb-2">Curated for You</span>
-                   <h3 className="text-3xl md:text-4xl font-serif text-slate-900">Shop The Story</h3>
-                </div>
-                <Link to="/products" className="group flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-900 hover:text-primary transition-colors">
-                   View Full Collection <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
-                </Link>
-             </div>
-             
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {curatorPicks.map(product => (
-                   <Link to={`/product/${product.id}`} key={product.id} className="group block">
-                      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-4 bg-slate-100">
-                         <img 
-                           src={product.media?.[0]?.url} 
-                           alt={product.name} 
-                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                         />
-                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <div className="bg-white text-slate-900 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-xl">
-                               <ShoppingBag size={14}/> View Piece
-                            </div>
-                         </div>
-                      </div>
-                      <h4 className="text-lg font-serif text-slate-900 group-hover:text-primary transition-colors truncate">{product.name}</h4>
-                      <div className="flex items-center gap-2 text-slate-500 text-xs mt-1">
-                         <span className="font-bold">R {product.price}</span>
-                         <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                         <span className="uppercase tracking-widest text-[9px]">The Edit</span>
-                      </div>
-                   </Link>
-                ))}
-             </div>
           </div>
         )}
 
