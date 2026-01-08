@@ -368,7 +368,7 @@ const IconPicker: React.FC<{ selected: string; onSelect: (icon: string) => void 
 const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ enquiry, onClose }) => {
   const { settings } = useSettings();
   const [subject, setSubject] = useState(`Re: ${enquiry.subject}`);
-  const [message, setMessage] = useState(`Dear ${enquiry.name},\n\nThank you for contacting Kasi Couture.\n\n[Your response here]\n\nBest regards,\n${settings.companyName}\n${settings.address}\n${settings.contactEmail}`);
+  const [message, setMessage] = useState(`Dear ${enquiry.name},\n\nThank you for contacting ${settings.companyName}.\n\n[Your response here]\n\nBest regards,\n${settings.companyName}\n${settings.address}\n${settings.contactEmail}`);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -400,6 +400,68 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
       let finalMessage = message.replace(/\n/g, '<br>');
       if (fileLinks.length > 0) finalMessage += `<br><br><strong>Attachments:</strong><br>${fileLinks.map(l => `<a href="${l.split(': ')[1]}">${l.split(': ')[0]}</a>`).join('<br>')}`;
       
+      // --- Generate Products Grid HTML ---
+      let productsHtml = '';
+      const allProducts = JSON.parse(localStorage.getItem('admin_products') || '[]');
+      if (allProducts.length > 0) {
+        // Pick 4 random products
+        const shuffled = [...allProducts].sort(() => 0.5 - Math.random()).slice(0, 4);
+        
+        let gridContent = '';
+        for (let i = 0; i < shuffled.length; i++) {
+          const p = shuffled[i];
+          // Use internal link: origin + /#/product/ + id
+          const internalLink = `${window.location.origin}/#/product/${p.id}`;
+          const imgUrl = p.media?.[0]?.url || 'https://via.placeholder.com/300?text=No+Image';
+          
+          gridContent += `
+            <td class="product-cell" style="width:50%; padding:10px; vertical-align:top;">
+              <div class="product-card" style="border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; background:#fff; text-align:left;">
+                <a href="${internalLink}" style="text-decoration:none; display:block;">
+                  <img src="${imgUrl}" alt="${p.name}" class="product-img" style="width:100%; height:180px; object-fit:cover; background-color:#f1f5f9; display:block;" />
+                </a>
+                <div class="product-info" style="padding:15px;">
+                  <h4 class="product-name" style="font-size:14px; font-weight:bold; color:#1e293b; margin:0 0 5px; height:38px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${p.name}</h4>
+                  <span class="product-price" style="font-size:14px; color:#D4AF37; font-weight:bold; margin-bottom:10px; display:block;">R ${p.price.toLocaleString()}</span>
+                  <a href="${internalLink}" class="product-link" style="font-size:12px; color:#64748b; text-decoration:none; text-transform:uppercase; font-weight:bold; letter-spacing:0.5px;">View Details →</a>
+                </div>
+              </div>
+            </td>
+          `;
+          
+          // Close row every 2 items
+          if ((i + 1) % 2 === 0 && i !== shuffled.length - 1) {
+             gridContent += '</tr><tr>';
+          }
+        }
+
+        productsHtml = `
+          <div class="products-title" style="text-align:center; margin:40px 0 20px; font-family:serif; font-size:22px; color:#1e293b; position:relative;">
+            <span style="background:#fff; padding:0 15px; position:relative; z-index:1;">Curated For You</span>
+            <div style="position:absolute; top:50%; left:0; right:0; border-top:1px solid #e2e8f0; z-index:0;"></div>
+          </div>
+          <table class="product-grid" style="width:100%; border-collapse:collapse;">
+            <tr>${gridContent}</tr>
+          </table>
+        `;
+      }
+
+      // --- Generate Socials HTML ---
+      let socialsHtml = '';
+      if (settings.socialLinks && settings.socialLinks.length > 0) {
+         socialsHtml += '<div class="social-icons" style="margin-bottom:20px;">';
+         settings.socialLinks.forEach(link => {
+            // Using a generic icon if no specific icon url, or standard platform images
+            const iconSrc = link.iconUrl || 'https://cdn-icons-png.flaticon.com/512/733/733579.png'; // Fallback
+            socialsHtml += `
+              <a href="${link.url}" target="_blank" style="display:inline-block; margin:0 5px;">
+                 <img src="${iconSrc}" alt="${link.name}" class="social-icon" style="width:32px; height:32px; display:block;" />
+              </a>
+            `;
+         });
+         socialsHtml += '</div>';
+      }
+
       await emailjs.send(serviceId, templateId, {
           to_name: enquiry.name, 
           to_email: enquiry.email, 
@@ -408,7 +470,11 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
           reply_to: enquiry.email,
           company_name: settings.companyName,
           company_address: settings.address,
-          company_website: window.location.origin
+          company_website: window.location.origin,
+          company_logo_url: settings.companyLogoUrl || '', // Pass logo
+          products_html: productsHtml, // Pass generated grid
+          socials_html: socialsHtml, // Pass generated socials
+          year: new Date().getFullYear()
       }, publicKey);
       
       setSuccess(true);
@@ -785,40 +851,74 @@ const EMAIL_TEMPLATE_HTML = `
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 0; color: #334155; }
-  .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-  .header { background-color: #1e293b; padding: 40px; text-align: center; }
-  .logo { font-size: 24px; color: #D4AF37; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; font-family: serif; }
-  .content { padding: 40px; line-height: 1.6; }
-  .message-box { background-color: #f8fafc; border-left: 4px solid #D4AF37; padding: 20px; margin: 20px 0; border-radius: 4px; }
-  .footer { background-color: #f1f5f9; padding: 30px; text-align: center; font-size: 12px; color: #94a3b8; }
-  .button { display: inline-block; padding: 12px 24px; background-color: #1e293b; color: #ffffff !important; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 0; }
+  .wrapper { width: 100%; table-layout: fixed; background-color: #f4f4f5; padding-bottom: 60px; }
+  .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 16px; color: #334155; line-height: 1.6; }
+  .header { background-color: #1e293b; padding: 40px 20px; text-align: center; }
+  .logo-img { max-height: 60px; width: auto; display: block; margin: 0 auto; }
+  .logo-text { font-size: 24px; font-weight: bold; color: #D4AF37; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; font-family: serif; }
+  .body-content { padding: 40px 30px; }
+  .message-box { background-color: #f8fafc; border-left: 4px solid #D4AF37; padding: 20px; margin: 25px 0; border-radius: 4px; font-size: 15px; color: #475569; }
+  .btn { display: inline-block; padding: 12px 30px; background-color: #D4AF37; color: #1e293b; text-decoration: none; font-weight: bold; border-radius: 4px; margin-top: 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  .products-title { text-align: center; margin: 40px 0 20px; font-family: serif; font-size: 22px; color: #1e293b; position: relative; }
+  .products-title span { background: #fff; padding: 0 15px; position: relative; z-index: 1; }
+  .products-title:after { content: ""; position: absolute; top: 50%; left: 0; right: 0; border-top: 1px solid #e2e8f0; z-index: 0; }
+  .product-grid { width: 100%; border-collapse: collapse; }
+  .product-cell { width: 50%; padding: 10px; vertical-align: top; }
+  .product-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; text-align: left; }
+  .product-img { width: 100%; height: 180px; object-fit: cover; background-color: #f1f5f9; display: block; }
+  .product-info { padding: 15px; }
+  .product-name { font-size: 14px; font-weight: bold; color: #1e293b; margin: 0 0 5px; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .product-price { font-size: 14px; color: #D4AF37; font-weight: bold; margin-bottom: 10px; display: block; }
+  .product-link { font-size: 12px; color: #64748b; text-decoration: none; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
+  .footer { background-color: #1e293b; padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 12px; }
+  .social-icons { margin-bottom: 20px; }
+  .social-icon { display: inline-block; width: 32px; height: 32px; margin: 0 5px; }
+  .footer p { margin: 5px 0; }
+  .footer a { color: #D4AF37; text-decoration: none; }
+  
+  @media only screen and (max-width: 480px) {
+    .product-cell { display: block; width: 100%; padding: 10px 0; }
+    .product-img { height: 220px; }
+  }
 </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">{{company_name}}</div>
-    </div>
-    <div class="content">
-      <p>Dear {{to_name}},</p>
-      
-      <p>Thank you for reaching out to us regarding <strong>{{subject}}</strong>.</p>
-      
-      <div class="message-box">
-        {{{message}}}
+  <div class="wrapper">
+    <div class="main">
+      <div class="header">
+        {{#if company_logo_url}}
+          <img src="{{company_logo_url}}" alt="{{company_name}}" class="logo-img" />
+        {{else}}
+          <h1 class="logo-text">{{company_name}}</h1>
+        {{/if}}
       </div>
       
-      <p>If you have any further questions, simply reply to this email.</p>
-      
-      <a href="{{company_website}}" class="button">Visit Our Collection</a>
-    </div>
-    <div class="footer">
-      <p>&copy; {{company_name}}. All rights reserved.</p>
-      <p>{{company_address}}</p>
+      <div class="body-content">
+        <p>Dear {{to_name}},</p>
+        <p>Thank you for connecting with <strong>{{company_name}}</strong> regarding <strong>{{subject}}</strong>.</p>
+        
+        <div class="message-box">
+          {{{message}}}
+        </div>
+        
+        <p>If you require further assistance, please reply directly to this email.</p>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="{{company_website}}" class="btn">Access Portal</a>
+        </div>
+
+        {{{products_html}}}
+      </div>
+
+      <div class="footer">
+        {{{socials_html}}}
+        <p>&copy; {{year}} {{company_name}}. All rights reserved.</p>
+        <p>{{company_address}}</p>
+        <p><a href="{{company_website}}">Visit Website</a></p>
+      </div>
     </div>
   </div>
 </body>
