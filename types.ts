@@ -226,3 +226,38 @@ export interface AdminUser {
   phone?: string;
   address?: string;
 }
+
+// Extended Context Interface for Global State Management
+export interface SettingsContextType {
+  // Settings & Auth
+  settings: SiteSettings;
+  updateSettings: (newSettings: Partial<SiteSettings>) => Promise<void>;
+  user: any;
+  loadingAuth: boolean;
+  isLocalMode: boolean;
+
+  // Data
+  products: Product[];
+  categories: Category[];
+  subCategories: SubCategory[];
+  heroSlides: CarouselSlide[];
+  enquiries: Enquiry[];
+  stats: ProductStats[];
+  admins: AdminUser[];
+
+  // Actions
+  saveProduct: (product: Product) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  saveCategory: (category: Category) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
+  saveHeroSlide: (slide: CarouselSlide) => Promise<void>;
+  deleteHeroSlide: (id: string) => Promise<void>;
+  saveEnquiry: (enquiry: Enquiry) => Promise<void>; // For public form
+  updateEnquiryStatus: (id: string, status: 'read'|'unread'|'archived') => Promise<void>;
+  deleteEnquiry: (id: string) => Promise<void>;
+  incrementStat: (productId: string, type: 'view' | 'click') => Promise<void>;
+  
+  // System
+  refreshData: () => Promise<void>;
+  loadingData: boolean;
+}

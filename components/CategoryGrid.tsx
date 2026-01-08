@@ -1,18 +1,13 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { INITIAL_CATEGORIES } from '../constants';
-import { Category } from '../types';
+import { useSettings } from '../App';
 import { CustomIcons } from './CustomIcons';
 
 const CategoryGrid: React.FC = () => {
   const navigate = useNavigate();
-
-  const categories = useMemo<Category[]>(() => {
-    const saved = localStorage.getItem('admin_categories');
-    return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
-  }, []);
+  const { categories } = useSettings();
 
   const handleCategoryClick = (id: string) => {
     navigate(`/products?category=${id}`);
@@ -26,7 +21,6 @@ const CategoryGrid: React.FC = () => {
             <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.6em] text-primary mb-2 md:mb-6 block">
               Curated Departments
             </span>
-            {/* Fluid Text Sizing */}
             <h2 className="font-serif text-slate-900 leading-none tracking-tighter text-balance" style={{ fontSize: 'clamp(2.5rem, 6vw, 6rem)' }}>
               Shop by <br className="hidden md:block"/> <span className="italic font-light text-primary drop-shadow-sm">Department</span>
             </h2>
