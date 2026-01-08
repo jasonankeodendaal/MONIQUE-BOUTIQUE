@@ -1,8 +1,7 @@
 {
-  "name": "Kasi Couture Pro",
-  "description": "Enterprise-grade affiliate bridge page powered by Supabase Cloud Storage and Real-time Analytics.",
+  "name": "Kasi Couture",
+  "description": "A modern, high-conversion bridge page for affiliate marketers featuring a hero carousel, category-based product browsing, and a robust admin dashboard.",
   "requestFramePermissions": [
-    "camera",
-    "microphone"
+    "camera"
   ]
 }

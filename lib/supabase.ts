@@ -15,87 +15,72 @@ export const supabase = createClient(
 );
 
 /**
- * Generic Fetcher
+ * Generic Database Helpers
  */
-export async function fetchTable(table: string) {
-  if (!isSupabaseConfigured) return null;
-  try {
+export const db = {
+  async getAll<T>(table: string): Promise<T[]> {
+    if (!isSupabaseConfigured) return [];
     const { data, error } = await supabase.from(table).select('*');
+    if (error) {
+      console.warn(`Supabase fetch error [${table}]:`, error.message);
+      return [];
+    }
+    return data as T[];
+  },
+  
+  async upsert(table: string, data: any) {
+    if (!isSupabaseConfigured) return;
+    const { error } = await supabase.from(table).upsert(data);
     if (error) throw error;
-    return data;
-  } catch (err) {
-    console.warn(`Supabase: Table ${table} fetch failed. Ensure table exists.`);
-    return null;
-  }
-}
+  },
 
-/**
- * Generic Upserter
- */
-export async function upsertItem(table: string, item: any) {
-  if (!isSupabaseConfigured) return null;
-  try {
-    const { data, error } = await supabase.from(table).upsert(item).select();
-    if (error) throw error;
-    return data;
-  } catch (err) {
-    console.error(`Supabase: Upsert to ${table} failed`, err);
-    throw err;
-  }
-}
-
-/**
- * Generic Deleter
- */
-export async function deleteItem(table: string, id: string) {
-  if (!isSupabaseConfigured) return;
-  try {
+  async delete(table: string, id: string) {
+    if (!isSupabaseConfigured) return;
     const { error } = await supabase.from(table).delete().eq('id', id);
     if (error) throw error;
-  } catch (err) {
-    console.error(`Supabase: Delete from ${table} failed`, err);
-    throw err;
   }
+};
+
+/**
+ * Helper to upload a file to Supabase storage
+ */
+export async function uploadMedia(file: File, bucket = 'media') {
+  if (!isSupabaseConfigured) {
+    return URL.createObjectURL(file);
+  }
+
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+  const filePath = `${fileName}`;
+
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(filePath, file);
+
+  if (error) throw error;
+
+  const { data: publicUrl } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(filePath);
+
+  return publicUrl.publicUrl;
 }
 
 /**
- * Upload Media to Bucket
+ * Diagnostics helper
  */
-export async function uploadMedia(file: File | Blob, bucket = 'media') {
-  if (!isSupabaseConfigured) return URL.createObjectURL(file as File);
-
-  try {
-    const fileExt = file instanceof File ? file.name.split('.').pop() : 'jpg';
-    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file);
-
-    if (error) throw error;
-
-    const { data: publicUrl } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath);
-
-    return publicUrl.publicUrl;
-  } catch (err) {
-    console.error('Storage Upload Error:', err);
-    return null;
-  }
-}
-
 export async function measureConnection(): Promise<{ status: 'online' | 'offline', latency: number, message: string }> {
-  if (!isSupabaseConfigured) return { status: 'offline', latency: 0, message: 'Missing Keys' };
+  if (!isSupabaseConfigured) {
+    return { status: 'offline', latency: 0, message: 'Missing Environment Variables' };
+  }
   
   const start = performance.now();
   try {
-    const { error } = await supabase.from('settings').select('id').limit(1);
+    const { error } = await supabase.from('site_settings').select('id').limit(1);
     const end = performance.now();
-    return { status: 'online', latency: Math.round(end - start), message: 'Synchronized' };
+    return { status: 'online', latency: Math.round(end - start), message: 'Connected' };
   } catch (err) {
-    return { status: 'offline', latency: 0, message: 'No Connection' };
+    return { status: 'offline', latency: 0, message: 'Connection Failed' };
   }
 }
 
