@@ -10,10 +10,18 @@ import ProductDetail from './pages/ProductDetail';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Legal from './pages/Legal';
-import { SiteSettings, Product, Category, SubCategory, CarouselSlide, Enquiry, ProductStats, AdminUser, SettingsContextType } from './types';
-import { INITIAL_SETTINGS, INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_SUBCATEGORIES, INITIAL_CAROUSEL, INITIAL_ENQUIRIES, INITIAL_ADMINS } from './constants';
+import { SiteSettings } from './types';
+import { INITIAL_SETTINGS } from './constants';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
+
+interface SettingsContextType {
+  settings: SiteSettings;
+  updateSettings: (newSettings: Partial<SiteSettings>) => void;
+  user: User | null;
+  loadingAuth: boolean;
+  isLocalMode: boolean;
+}
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
@@ -32,7 +40,7 @@ const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
     </div>
   );
 
-  // In local mode, allow access (simulating admin)
+  // If Supabase isn't configured, allow access to Admin for setup purposes
   if (isLocalMode) return <>{children}</>;
   
   if (!user) return <Navigate to="/login" replace />;
@@ -118,255 +126,41 @@ const ScrollToTop = () => {
 };
 
 const App: React.FC = () => {
-  // Auth State
+  const [settings, setSettings] = useState<SiteSettings>(() => {
+    const saved = localStorage.getItem('site_settings');
+    return saved ? JSON.parse(saved) : INITIAL_SETTINGS;
+  });
   const [user, setUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
-  // Data State
-  const [loadingData, setLoadingData] = useState(true);
-  const [settings, setSettingsState] = useState<SiteSettings>(INITIAL_SETTINGS);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
-  const [heroSlides, setHeroSlides] = useState<CarouselSlide[]>([]);
-  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
-  const [stats, setStats] = useState<ProductStats[]>([]);
-  const [admins, setAdmins] = useState<AdminUser[]>([]);
-
-  // 1. Initial Auth Check
   useEffect(() => {
     if (!isSupabaseConfigured) {
       setLoadingAuth(false);
       return;
     }
+
+    // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoadingAuth(false);
     });
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
+
     return () => subscription.unsubscribe();
   }, []);
 
-  // 2. Data Fetching (Supabase vs Local)
-  const refreshData = async () => {
-    setLoadingData(true);
-    if (isSupabaseConfigured) {
-      try {
-        // Fetch all tables in parallel
-        const [
-          settingsRes, productsRes, catsRes, subCatsRes, slidesRes, enqRes, statsRes, adminsRes
-        ] = await Promise.all([
-          supabase.from('site_settings').select('*').single(),
-          supabase.from('products').select('*'),
-          supabase.from('categories').select('*'),
-          supabase.from('subcategories').select('*'),
-          supabase.from('hero_slides').select('*'),
-          supabase.from('enquiries').select('*'),
-          supabase.from('product_stats').select('*'),
-          supabase.from('admin_users').select('*'),
-        ]);
-
-        // If data exists in Supabase, use it. If table is empty/missing, we might get error or empty array.
-        // We gracefully handle missing tables by falling back to empty arrays, NOT local storage.
-        if (settingsRes.data) setSettingsState(settingsRes.data);
-        else setSettingsState(INITIAL_SETTINGS); // Fallback only for settings to prevent crash
-
-        setProducts(productsRes.data || []);
-        setCategories(catsRes.data || []);
-        setSubCategories(subCatsRes.data || []);
-        setHeroSlides(slidesRes.data || []);
-        setEnquiries(enqRes.data || []);
-        setStats(statsRes.data || []);
-        setAdmins(adminsRes.data || []);
-
-      } catch (err) {
-        console.error("Supabase Data Load Error:", err);
-        // On error (e.g. tables don't exist yet), we shouldn't overwrite with LocalStorage if we are in 'Connected' mode.
-        // However, for first run experience without DB setup, we might leave state empty.
-      }
-    } else {
-      // Local Mode: Load from LocalStorage or Constants
-      setSettingsState(JSON.parse(localStorage.getItem('site_settings') || JSON.stringify(INITIAL_SETTINGS)));
-      setProducts(JSON.parse(localStorage.getItem('admin_products') || JSON.stringify(INITIAL_PRODUCTS)));
-      setCategories(JSON.parse(localStorage.getItem('admin_categories') || JSON.stringify(INITIAL_CATEGORIES)));
-      setSubCategories(JSON.parse(localStorage.getItem('admin_subcategories') || JSON.stringify(INITIAL_SUBCATEGORIES)));
-      setHeroSlides(JSON.parse(localStorage.getItem('admin_hero') || JSON.stringify(INITIAL_CAROUSEL)));
-      setEnquiries(JSON.parse(localStorage.getItem('admin_enquiries') || JSON.stringify(INITIAL_ENQUIRIES)));
-      setStats(JSON.parse(localStorage.getItem('admin_product_stats') || '[]'));
-      setAdmins(JSON.parse(localStorage.getItem('admin_users') || JSON.stringify(INITIAL_ADMINS)));
-    }
-    setLoadingData(false);
-  };
-
-  useEffect(() => {
-    refreshData();
-  }, []);
-
-  // 3. Actions (CRUD)
-  const updateSettings = async (newSettings: Partial<SiteSettings>) => {
-    const updated = { ...settings, ...newSettings };
-    setSettingsState(updated);
-    
-    if (isSupabaseConfigured) {
-      // Upsert to Supabase (assuming single row with ID 1 or similar logic)
-      // Since we don't have a specific ID in INITIAL_SETTINGS, we might need a dedicated table strategy.
-      // For simplicity in this demo, we assume a 'site_settings' table where we update the first row.
-      const { error } = await supabase.from('site_settings').upsert({ id: 1, ...updated });
-      if (error) console.error("Failed to save settings to DB", error);
-    } else {
+  const updateSettings = (newSettings: Partial<SiteSettings>) => {
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
       localStorage.setItem('site_settings', JSON.stringify(updated));
-    }
+      return updated;
+    });
   };
 
-  const saveProduct = async (product: Product) => {
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('products').upsert(product);
-      if (!error) refreshData();
-    } else {
-      const newProds = products.some(p => p.id === product.id) 
-        ? products.map(p => p.id === product.id ? product : p)
-        : [product, ...products];
-      setProducts(newProds);
-      localStorage.setItem('admin_products', JSON.stringify(newProds));
-    }
-  };
-
-  const deleteProduct = async (id: string) => {
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('products').delete().eq('id', id);
-      if (!error) refreshData();
-    } else {
-      const newProds = products.filter(p => p.id !== id);
-      setProducts(newProds);
-      localStorage.setItem('admin_products', JSON.stringify(newProds));
-    }
-  };
-
-  const saveCategory = async (cat: Category) => {
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('categories').upsert(cat);
-      if (!error) refreshData();
-    } else {
-      const newCats = categories.some(c => c.id === cat.id) ? categories.map(c => c.id === cat.id ? cat : c) : [...categories, cat];
-      setCategories(newCats);
-      localStorage.setItem('admin_categories', JSON.stringify(newCats));
-    }
-  };
-
-  const deleteCategory = async (id: string) => {
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('categories').delete().eq('id', id);
-      if (!error) refreshData();
-    } else {
-      const newCats = categories.filter(c => c.id !== id);
-      setCategories(newCats);
-      localStorage.setItem('admin_categories', JSON.stringify(newCats));
-    }
-  };
-
-  const saveHeroSlide = async (slide: CarouselSlide) => {
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('hero_slides').upsert(slide);
-      if (!error) refreshData();
-    } else {
-      const newSlides = heroSlides.some(s => s.id === slide.id) ? heroSlides.map(s => s.id === slide.id ? slide : s) : [...heroSlides, slide];
-      setHeroSlides(newSlides);
-      localStorage.setItem('admin_hero', JSON.stringify(newSlides));
-    }
-  };
-
-  const deleteHeroSlide = async (id: string) => {
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('hero_slides').delete().eq('id', id);
-      if (!error) refreshData();
-    } else {
-      const newSlides = heroSlides.filter(s => s.id !== id);
-      setHeroSlides(newSlides);
-      localStorage.setItem('admin_hero', JSON.stringify(newSlides));
-    }
-  };
-
-  const saveEnquiry = async (enquiry: Enquiry) => {
-    // This is public facing, so we append
-    if (isSupabaseConfigured) {
-      await supabase.from('enquiries').insert(enquiry);
-      // Note: We don't necessarily refreshData() here to avoid lag on public client, 
-      // but Admin would see it on next refresh/poll.
-    } else {
-      const newEnqs = [enquiry, ...enquiries];
-      setEnquiries(newEnqs);
-      localStorage.setItem('admin_enquiries', JSON.stringify(newEnqs));
-    }
-  };
-
-  const updateEnquiryStatus = async (id: string, status: 'read' | 'unread' | 'archived') => {
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('enquiries').update({ status }).eq('id', id);
-      if (!error) refreshData();
-    } else {
-      const newEnqs = enquiries.map(e => e.id === id ? { ...e, status } : e);
-      setEnquiries(newEnqs);
-      localStorage.setItem('admin_enquiries', JSON.stringify(newEnqs));
-    }
-  };
-
-  const deleteEnquiry = async (id: string) => {
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('enquiries').delete().eq('id', id);
-      if (!error) refreshData();
-    } else {
-      const newEnqs = enquiries.filter(e => e.id !== id);
-      setEnquiries(newEnqs);
-      localStorage.setItem('admin_enquiries', JSON.stringify(newEnqs));
-    }
-  };
-
-  const incrementStat = async (productId: string, type: 'view' | 'click') => {
-    if (isSupabaseConfigured) {
-      // Optimistic update locally
-      setStats(prev => {
-        const idx = prev.findIndex(s => s.productId === productId);
-        if (idx > -1) {
-          const newStats = [...prev];
-          if (type === 'view') newStats[idx].views++;
-          if (type === 'click') newStats[idx].clicks++;
-          return newStats;
-        }
-        return prev; // Wait for refresh if new
-      });
-
-      // DB Update
-      const existing = stats.find(s => s.productId === productId);
-      if (existing) {
-        const update = type === 'view' ? { views: existing.views + 1 } : { clicks: existing.clicks + 1 };
-        await supabase.from('product_stats').update(update).eq('productId', productId);
-      } else {
-        await supabase.from('product_stats').insert({ 
-          productId, 
-          views: type === 'view' ? 1 : 0, 
-          clicks: type === 'click' ? 1 : 0, 
-          totalViewTime: 0,
-          lastUpdated: Date.now() 
-        });
-      }
-    } else {
-      const newStats = [...stats];
-      const index = newStats.findIndex(s => s.productId === productId);
-      if (index > -1) {
-        if (type === 'view') newStats[index].views++;
-        else newStats[index].clicks++;
-        newStats[index].lastUpdated = Date.now();
-      } else {
-        newStats.push({ productId, views: type === 'view' ? 1 : 0, clicks: type === 'click' ? 1 : 0, totalViewTime: 0, lastUpdated: Date.now() });
-      }
-      setStats(newStats);
-      localStorage.setItem('admin_product_stats', JSON.stringify(newStats));
-    }
-  };
-
-  // Styles for dynamic colors
   useEffect(() => {
     const hexToRgb = (hex: string) => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -385,10 +179,11 @@ const App: React.FC = () => {
 
   return (
     <SettingsContext.Provider value={{ 
-      settings, updateSettings, user, loadingAuth, isLocalMode: !isSupabaseConfigured,
-      products, categories, subCategories, heroSlides, enquiries, stats, admins,
-      saveProduct, deleteProduct, saveCategory, deleteCategory, saveHeroSlide, deleteHeroSlide,
-      saveEnquiry, updateEnquiryStatus, deleteEnquiry, incrementStat, refreshData, loadingData
+      settings, 
+      updateSettings, 
+      user, 
+      loadingAuth, 
+      isLocalMode: !isSupabaseConfigured 
     }}>
       <Router>
         <ScrollToTop />
