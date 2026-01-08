@@ -269,9 +269,34 @@ export const INITIAL_PRODUCTS: Product[] = [
     affiliateLink: 'https://example.com/midnight-silk',
     categoryId: 'cat1',
     subCategoryId: 'sub1',
-    description: 'A luxurious 100% silk wrap dress that transitions perfectly from brunch to ballroom.',
+    description: 'A luxurious 100% silk wrap dress that transitions perfectly from brunch to ballroom. The Midnight Silk Wrap features a flattering crossover neckline, adjustable waist tie, and a flowing skirt that moves with you.',
+    features: [
+      '100% Premium Mulberry Silk (22 Momme)',
+      'Hand-finished french seams',
+      'Adjustable wrap closure for custom fit',
+      'Hypoallergenic and temperature regulating',
+      'Hidden side pockets'
+    ],
+    specifications: {
+      'Material': '100% Mulberry Silk',
+      'Lining': 'Partially Lined',
+      'Origin': 'Made in Italy',
+      'Care': 'Dry Clean Only',
+      'Length': 'Midi (120cm from shoulder)',
+      'Fit': 'True to Size, Relaxed Fit'
+    },
     media: [{ id: 'm1', url: 'https://images.unsplash.com/photo-1539109136881-3be06109477e?auto=format&fit=crop&q=80&w=800', name: 'Silk Dress', type: 'image/jpeg', size: 0 }],
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    discountRules: [{ id: 'd1', type: 'percentage', value: 15, description: 'Season Launch' }],
+    reviews: [
+      {
+        id: 'r1',
+        userName: 'Amahle Z.',
+        rating: 5,
+        comment: 'Absolutely stunning quality. The silk feels divine against the skin and the fit is perfection.',
+        createdAt: Date.now() - 10000000
+      }
+    ]
   }
 ];
 

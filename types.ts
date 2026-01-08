@@ -28,6 +28,14 @@ export interface DiscountRule {
   description: string;
 }
 
+export interface Review {
+  id: string;
+  userName: string;
+  rating: number; // 1-5
+  comment: string;
+  createdAt: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -37,8 +45,11 @@ export interface Product {
   categoryId: string;
   subCategoryId: string;
   description: string;
+  features?: string[]; // Bullet points for "Why we love it"
+  specifications?: Record<string, string>; // Key-value pairs like Material, Fit, etc.
   media: MediaFile[]; 
   discountRules?: DiscountRule[];
+  reviews?: Review[];
   createdAt: number;
 }
 

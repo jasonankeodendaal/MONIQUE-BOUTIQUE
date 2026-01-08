@@ -257,8 +257,14 @@ const Products: React.FC = () => {
               <Link 
                 to={`/product/${product.id}`}
                 key={product.id} 
-                className="bg-white rounded-[1.5rem] md:rounded-[3rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 group hover:-translate-y-4 flex flex-col"
+                className="bg-white rounded-[1.5rem] md:rounded-[3rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 group hover:-translate-y-4 flex flex-col relative"
               >
+                {product.discountRules && product.discountRules.length > 0 && (
+                  <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl z-20 animate-pulse">
+                     {product.discountRules[0].type === 'percentage' ? `-${product.discountRules[0].value}%` : `-R${product.discountRules[0].value}`} OFF
+                  </div>
+                )}
+                
                 <div className="relative aspect-[3/4] md:aspect-[4/5] overflow-hidden">
                   {renderProductMedia(product)}
                   <div className="absolute top-3 left-3 md:top-8 md:left-8 bg-white/90 backdrop-blur-xl px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-2xl text-xs md:text-lg font-black text-slate-900 shadow-2xl border border-white/40 z-10">

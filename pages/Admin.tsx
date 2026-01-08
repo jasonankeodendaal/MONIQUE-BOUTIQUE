@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Plus, Edit2, Trash2, 
@@ -683,6 +684,10 @@ const Admin: React.FC = () => {
   // Discount Rule Management Local State
   const [tempDiscountRule, setTempDiscountRule] = useState<Partial<DiscountRule>>({ type: 'percentage', value: 0, description: '' });
 
+  // Feature & Spec Management Local State
+  const [tempFeature, setTempFeature] = useState('');
+  const [tempSpec, setTempSpec] = useState({ key: '', value: '' });
+
   // Simulated Live Traffic State
   const [trafficEvents, setTrafficEvents] = useState<{id: string, text: string, time: string, type: 'view' | 'click' | 'system'}[]>([]);
 
@@ -798,6 +803,41 @@ const Admin: React.FC = () => {
   };
   const handleRemoveDiscountRule = (id: string) => {
     setProductData({ ...productData, discountRules: (productData.discountRules || []).filter(r => r.id !== id) });
+  };
+
+  // Helper for Features (Highlights)
+  const handleAddFeature = () => {
+    if (!tempFeature.trim()) return;
+    setProductData(prev => ({
+      ...prev,
+      features: [...(prev.features || []), tempFeature]
+    }));
+    setTempFeature('');
+  };
+  
+  const handleRemoveFeature = (index: number) => {
+    setProductData(prev => ({
+      ...prev,
+      features: (prev.features || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  // Helper for Specifications
+  const handleAddSpec = () => {
+    if (!tempSpec.key.trim() || !tempSpec.value.trim()) return;
+    setProductData(prev => ({
+      ...prev,
+      specifications: { ...(prev.specifications || {}), [tempSpec.key]: tempSpec.value }
+    }));
+    setTempSpec({ key: '', value: '' });
+  };
+  
+  const handleRemoveSpec = (key: string) => {
+    setProductData(prev => {
+      const newSpecs = { ...(prev.specifications || {}) };
+      delete newSpecs[key];
+      return { ...prev, specifications: newSpecs };
+    });
   };
 
   // --- Render Functions for Tabs ---
@@ -1006,6 +1046,76 @@ const Admin: React.FC = () => {
                 </div>
                 <SettingField label="Description" value={productData.description || ''} onChange={v => setProductData({...productData, description: v})} type="textarea" />
              </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 pt-8 border-t border-slate-800">
+              {/* Highlights / Features */}
+              <div className="space-y-6">
+                  <h4 className="text-white font-bold flex items-center gap-2">
+                      <Sparkles size={18} className="text-primary"/> Highlights
+                  </h4>
+                  <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-800 space-y-4">
+                      <div className="flex gap-2">
+                          <input 
+                              type="text" 
+                              placeholder="Add highlight (e.g. '100% Silk')" 
+                              value={tempFeature}
+                              onChange={e => setTempFeature(e.target.value)}
+                              className="flex-grow px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-primary"
+                              onKeyDown={e => e.key === 'Enter' && handleAddFeature()}
+                          />
+                          <button onClick={handleAddFeature} className="p-3 bg-primary text-slate-900 rounded-xl hover:bg-white transition-colors"><Plus size={20}/></button>
+                      </div>
+                      <div className="space-y-2">
+                          {(productData.features || []).map((feat, idx) => (
+                              <div key={idx} className="flex items-center justify-between p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                  <span className="text-sm text-slate-300 flex items-center gap-2"><Check size={14} className="text-primary"/> {feat}</span>
+                                  <button onClick={() => handleRemoveFeature(idx)} className="text-slate-500 hover:text-red-500"><X size={14}/></button>
+                              </div>
+                          ))}
+                          {(productData.features || []).length === 0 && <span className="text-slate-500 text-xs italic">No highlights added.</span>}
+                      </div>
+                  </div>
+              </div>
+
+              {/* Specifications */}
+              <div className="space-y-6">
+                  <h4 className="text-white font-bold flex items-center gap-2">
+                      <Tag size={18} className="text-primary"/> Specifications
+                  </h4>
+                  <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-800 space-y-4">
+                      <div className="flex gap-2">
+                          <input 
+                              type="text" 
+                              placeholder="Key (e.g. Material)" 
+                              value={tempSpec.key}
+                              onChange={e => setTempSpec({...tempSpec, key: e.target.value})}
+                              className="w-1/3 px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-primary"
+                          />
+                          <input 
+                              type="text" 
+                              placeholder="Value (e.g. Silk)" 
+                              value={tempSpec.value}
+                              onChange={e => setTempSpec({...tempSpec, value: e.target.value})}
+                              className="flex-grow px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-primary"
+                              onKeyDown={e => e.key === 'Enter' && handleAddSpec()}
+                          />
+                          <button onClick={handleAddSpec} className="p-3 bg-primary text-slate-900 rounded-xl hover:bg-white transition-colors"><Plus size={20}/></button>
+                      </div>
+                      <div className="space-y-2">
+                          {Object.entries(productData.specifications || {}).map(([key, value]) => (
+                              <div key={key} className="flex items-center justify-between p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                  <div className="flex flex-col">
+                                      <span className="text-[10px] font-black uppercase text-slate-500">{key}</span>
+                                      <span className="text-sm text-slate-300">{value}</span>
+                                  </div>
+                                  <button onClick={() => handleRemoveSpec(key)} className="text-slate-500 hover:text-red-500"><X size={14}/></button>
+                              </div>
+                          ))}
+                          {Object.keys(productData.specifications || {}).length === 0 && <span className="text-slate-500 text-xs italic">No specifications added.</span>}
+                      </div>
+                  </div>
+              </div>
           </div>
 
           <div className="pt-8 border-t border-slate-800">
