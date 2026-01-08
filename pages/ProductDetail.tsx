@@ -415,30 +415,8 @@ const ProductDetail: React.FC = () => {
                   </h3>
                </div>
                
-               {/* Review List */}
-               <div className="space-y-6 mb-12">
-                  {product.reviews && product.reviews.length > 0 ? (
-                     product.reviews.map((review) => (
-                        <div key={review.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 relative">
-                           <div className="flex items-center gap-2 mb-2">
-                              <span className="font-bold text-slate-900 text-sm">{review.userName}</span>
-                              <div className="flex text-yellow-400">
-                                  {[...Array(5)].map((_, i) => (
-                                     <Star key={i} size={10} fill={i < review.rating ? "currentColor" : "none"} className={i < review.rating ? "" : "text-slate-200"} />
-                                  ))}
-                              </div>
-                           </div>
-                           <p className="text-slate-500 text-sm font-light leading-relaxed">{review.comment}</p>
-                           <span className="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-2 block">{new Date(review.createdAt).toLocaleDateString()}</span>
-                        </div>
-                     ))
-                  ) : (
-                     <p className="text-slate-400 text-sm italic">Be the first to share your thoughts.</p>
-                  )}
-               </div>
-
-               {/* Add Review Form */}
-               <form onSubmit={handleSubmitReview} className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+               {/* MOVED FORM UP: Add Review Form First */}
+               <form onSubmit={handleSubmitReview} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 mb-12">
                   <h4 className="text-slate-900 font-bold text-xs uppercase tracking-widest mb-4">Leave a Review</h4>
                   <div className="space-y-3">
                      <input 
@@ -478,6 +456,28 @@ const ProductDetail: React.FC = () => {
                      </button>
                   </div>
                </form>
+
+               {/* Review List Second */}
+               <div className="space-y-6 mb-12">
+                  {product.reviews && product.reviews.length > 0 ? (
+                     product.reviews.map((review) => (
+                        <div key={review.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 relative">
+                           <div className="flex items-center gap-2 mb-2">
+                              <span className="font-bold text-slate-900 text-sm">{review.userName}</span>
+                              <div className="flex text-yellow-400">
+                                  {[...Array(5)].map((_, i) => (
+                                     <Star key={i} size={10} fill={i < review.rating ? "currentColor" : "none"} className={i < review.rating ? "" : "text-slate-200"} />
+                                  ))}
+                              </div>
+                           </div>
+                           <p className="text-slate-500 text-sm font-light leading-relaxed">{review.comment}</p>
+                           <span className="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-2 block">{new Date(review.createdAt).toLocaleDateString()}</span>
+                        </div>
+                     ))
+                  ) : (
+                     <p className="text-slate-400 text-sm italic">Be the first to share your thoughts.</p>
+                  )}
+               </div>
             </div>
           </div>
         </div>

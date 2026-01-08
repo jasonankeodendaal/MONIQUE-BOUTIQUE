@@ -415,8 +415,8 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
       let productsHtml = '';
       const allProducts = JSON.parse(localStorage.getItem('admin_products') || '[]');
       if (allProducts.length > 0) {
-        // Pick 4 random products
-        const shuffled = [...allProducts].sort(() => 0.5 - Math.random()).slice(0, 4);
+        // Pick 2 random products instead of 4 to save space and avoid the 50Kb limit
+        const shuffled = [...allProducts].sort(() => 0.5 - Math.random()).slice(0, 2);
         
         let gridContent = '';
         for (let i = 0; i < shuffled.length; i++) {
@@ -430,33 +430,21 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
              imgUrl = 'https://placehold.co/300x300/e2e8f0/1e293b.png?text=View+Item';
           }
           
-          gridContent += `
-            <td class="product-cell" style="width:50%; padding:10px; vertical-align:top;">
-              <div class="product-card" style="border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; background:#fff; text-align:left;">
-                <a href="${internalLink}" style="text-decoration:none; display:block;">
-                  <img src="${imgUrl}" alt="${p.name}" class="product-img" style="width:100%; height:180px; object-fit:cover; background-color:#f1f5f9; display:block;" />
-                </a>
-                <div class="product-info" style="padding:15px;">
-                  <h4 class="product-name" style="font-size:14px; font-weight:bold; color:#1e293b; margin:0 0 5px; height:38px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${p.name}</h4>
-                  <span class="product-price" style="font-size:14px; color:#D4AF37; font-weight:bold; margin-bottom:10px; display:block;">R ${p.price.toLocaleString()}</span>
-                  <a href="${internalLink}" class="product-link" style="font-size:12px; color:#64748b; text-decoration:none; text-transform:uppercase; font-weight:bold; letter-spacing:0.5px;">View Details →</a>
-                </div>
-              </div>
-            </td>
-          `;
+          // Compact HTML generation to reduce payload
+          gridContent += `<td class="product-cell" style="width:50%;padding:10px;vertical-align:top;"><div class="product-card" style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff;text-align:left;"><a href="${internalLink}" style="text-decoration:none;display:block;"><img src="${imgUrl}" alt="${p.name}" class="product-img" style="width:100%;height:150px;object-fit:cover;background-color:#f1f5f9;display:block;"/></a><div class="product-info" style="padding:10px;"><h4 class="product-name" style="font-size:13px;font-weight:bold;color:#1e293b;margin:0 0 5px;height:34px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${p.name}</h4><span class="product-price" style="font-size:13px;color:#D4AF37;font-weight:bold;margin-bottom:8px;display:block;">R ${p.price.toLocaleString()}</span><a href="${internalLink}" class="product-link" style="font-size:11px;color:#64748b;text-decoration:none;text-transform:uppercase;font-weight:bold;letter-spacing:0.5px;">View Details →</a></div></div></td>`;
           
-          // Close row every 2 items
+          // Close row every 2 items (though with slice 2, this is just one row)
           if ((i + 1) % 2 === 0 && i !== shuffled.length - 1) {
              gridContent += '</tr><tr>';
           }
         }
 
         productsHtml = `
-          <div class="products-title" style="text-align:center; margin:40px 0 20px; font-family:serif; font-size:22px; color:#1e293b; position:relative;">
-            <span style="background:#fff; padding:0 15px; position:relative; z-index:1;">Curated For You</span>
-            <div style="position:absolute; top:50%; left:0; right:0; border-top:1px solid #e2e8f0; z-index:0;"></div>
+          <div class="products-title" style="text-align:center;margin:30px 0 15px;font-family:serif;font-size:20px;color:#1e293b;position:relative;">
+            <span style="background:#fff;padding:0 15px;position:relative;z-index:1;">Curated For You</span>
+            <div style="position:absolute;top:50%;left:0;right:0;border-top:1px solid #e2e8f0;z-index:0;"></div>
           </div>
-          <table class="product-grid" style="width:100%; border-collapse:collapse;">
+          <table class="product-grid" style="width:100%;border-collapse:collapse;">
             <tr>${gridContent}</tr>
           </table>
         `;
@@ -474,11 +462,7 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
                 iconSrc = 'https://cdn-icons-png.flaticon.com/512/733/733579.png';
             }
 
-            socialsHtml += `
-              <a href="${link.url}" target="_blank" style="display:inline-block; margin:0 5px;">
-                 <img src="${iconSrc}" alt="${link.name}" class="social-icon" style="width:32px; height:32px; display:block;" />
-              </a>
-            `;
+            socialsHtml += `<a href="${link.url}" target="_blank" style="display:inline-block;margin:0 5px;"><img src="${iconSrc}" alt="${link.name}" class="social-icon" style="width:28px;height:28px;display:block;"/></a>`;
          });
          socialsHtml += '</div>';
       }
@@ -506,7 +490,7 @@ const EmailReplyModal: React.FC<{ enquiry: Enquiry; onClose: () => void }> = ({ 
       if (err.text?.includes("template ID not found")) {
          setError("Error: Template ID not found. Please check Settings > Integrations and ensure no whitespace.");
       } else if (err.text?.includes("variable")) {
-         setError("Error: One or more dynamic variables are too large or corrupted. Ensure you are not sending Base64 images.");
+         setError("Error: One or more dynamic variables are too large (Over 50Kb). Ensure you are not sending Base64 images.");
       } else {
          setError(err.text || err.message || "Failed to send email. Check console.");
       }
