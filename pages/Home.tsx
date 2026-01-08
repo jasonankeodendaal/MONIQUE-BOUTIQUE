@@ -4,11 +4,9 @@ import Hero from '../components/Hero';
 import AboutSection from '../components/AboutSection';
 import CategoryGrid from '../components/CategoryGrid';
 import { useNavigate, Link } from 'react-router-dom';
-import * as LucideIcons from 'lucide-react';
-import { INITIAL_CATEGORIES, INITIAL_PRODUCTS } from '../constants';
-import { LayoutGrid, Sparkles, ShieldCheck, Globe, Star, ArrowRight, Quote, CheckCircle, Shield } from 'lucide-react';
+import { ShieldCheck, Star, ArrowRight, Quote, CheckCircle, Sparkles } from 'lucide-react';
 import { useSettings } from '../App';
-import { CustomIcons } from '../components/CustomIcons';
+import { INITIAL_PRODUCTS } from '../constants';
 
 const SectionDivider: React.FC = () => (
   <div className="max-w-xs mx-auto py-12 md:py-20 flex items-center justify-center gap-4 opacity-30">
@@ -46,7 +44,7 @@ const Home: React.FC = () => {
             {settings.aboutSignatureImage ? (
               <img src={settings.aboutSignatureImage} alt="Signature" className="h-16 object-contain opacity-60 mb-2" />
             ) : (
-              <span className="font-serif italic text-2xl text-slate-400 mb-2">{settings.aboutFounderName}</span>
+              <span className="font-serif italic text-2xl text-slate-400 mb-2">{settings.aboutFounderName || 'Your Name'}</span>
             )}
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Founder & Chief Curator</span>
           </div>

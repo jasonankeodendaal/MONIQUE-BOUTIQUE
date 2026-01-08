@@ -1,5 +1,5 @@
 
-import { createClient } from '@supabase/sh/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 const rawUrl = (import.meta as any).env?.VITE_SUPABASE_URL || '';
 const rawKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || '';

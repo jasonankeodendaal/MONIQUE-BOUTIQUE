@@ -1,14 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
-import * as LucideIcons from 'lucide-react';
-import { Target, Users, Award, ArrowLeft, Star, Heart, Quote, ImageIcon, Calendar, MapPin, Sparkles } from 'lucide-react';
+import { Target, Users, Award, Quote, Calendar, MapPin, Sparkles } from 'lucide-react';
 import { useSettings } from '../App';
-import { useNavigate } from 'react-router-dom';
+import * as LucideIcons from 'lucide-react';
 import { CustomIcons } from '../components/CustomIcons';
 
 const About: React.FC = () => {
   const { settings } = useSettings();
-  const navigate = useNavigate();
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -23,9 +21,9 @@ const About: React.FC = () => {
   };
 
   const timeline = [
-    { year: '2019', title: 'The Vision', desc: 'Starting as a style diary documenting the streets of Soweto.' },
-    { year: '2021', title: 'The Expansion', desc: 'Curating for private clients across the continent.' },
-    { year: '2024', title: 'Kasi Couture Pro', desc: 'Launching a global platform to bridge local taste with international luxury.' }
+    { year: '2020', title: 'The Vision', desc: 'Started as a personal curation journal for local South African designers.' },
+    { year: '2022', title: 'The Network', desc: 'Built a global affiliate partnership with top-tier luxury boutiques.' },
+    { year: '2024', title: 'Kasi Couture Pro', desc: 'Launched the professional bridge platform for the modern closet.' }
   ];
 
   return (
@@ -44,7 +42,7 @@ const About: React.FC = () => {
         
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-20 flex flex-col items-center text-center pb-32">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-white font-black uppercase text-[10px] tracking-[0.4em] mb-6 shadow-lg">
-                <Sparkles size={12} className="text-primary"/> The Origin Story
+                <Sparkles size={12} className="text-primary"/> My Personal Story
             </span>
             <h1 className="font-serif text-slate-900 leading-[0.9] tracking-tighter mb-8 drop-shadow-sm text-balance" style={{ fontSize: 'clamp(3rem, 10vw, 7rem)' }}>
                 {settings.aboutHeroTitle.split(' ').map((word, i) => (
@@ -104,7 +102,7 @@ const About: React.FC = () => {
                     <div className="flex gap-4">
                       <Users className="text-primary flex-shrink-0" size={20} />
                       <div>
-                        <span className="block text-[8px] font-black uppercase text-slate-500 tracking-widest mb-1">Role</span>
+                        <span className="block text-[8px] font-black uppercase text-slate-500 tracking-widest mb-1">Founder</span>
                         <span className="text-lg font-serif">{settings.aboutFounderName}</span>
                       </div>
                     </div>
@@ -125,7 +123,7 @@ const About: React.FC = () => {
             </div>
         </div>
 
-        {/* Values and Integrity remain similarly structured but refined */}
+        {/* Values and Integrity */}
         <div className="grid md:grid-cols-2 gap-8 mb-32">
             {[
               { icon: settings.aboutMissionIcon, def: <Target size={28}/>, title: settings.aboutMissionTitle, body: settings.aboutMissionBody },
@@ -157,7 +155,6 @@ const About: React.FC = () => {
                 </div>
             </div>
         </div>
-
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation, Link, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -13,8 +13,7 @@ import Legal from './pages/Legal';
 import { SiteSettings, Product, Category, SubCategory, CarouselSlide, Enquiry, AdminUser, ProductStats } from './types';
 import { INITIAL_SETTINGS, INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_SUBCATEGORIES, INITIAL_CAROUSEL, INITIAL_ENQUIRIES, INITIAL_ADMINS } from './constants';
 import { supabase, isSupabaseConfigured, fetchTable, upsertItem } from './lib/supabase';
-import { User } from '@supabase/sh/supabase-js';
-import { Check, Loader2, AlertTriangle, Globe } from 'lucide-react';
+import { User } from '@supabase/supabase-js';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -89,13 +88,13 @@ const App: React.FC = () => {
       if (dbSettings && dbSettings.length > 0) setSettings(dbSettings[0].data);
       else await upsertItem('settings', { id: 'main', data: INITIAL_SETTINGS });
 
-      if (dbProducts && dbProducts.length > 0) setProducts(dbProducts.map(i => i.data));
-      if (dbCategories && dbCategories.length > 0) setCategories(dbCategories.map(i => i.data));
-      if (dbSubs && dbSubs.length > 0) setSubCategories(dbSubs.map(i => i.data));
-      if (dbHero && dbHero.length > 0) setHeroSlides(dbHero.map(i => i.data));
-      if (dbEnquiries && dbEnquiries.length > 0) setEnquiries(dbEnquiries.map(i => i.data));
-      if (dbAdmins && dbAdmins.length > 0) setAdmins(dbAdmins.map(i => i.data));
-      if (dbStats && dbStats.length > 0) setStats(dbStats.map(i => i.data));
+      if (dbProducts && dbProducts.length > 0) setProducts(dbProducts.map((i: any) => i.data));
+      if (dbCategories && dbCategories.length > 0) setCategories(dbCategories.map((i: any) => i.data));
+      if (dbSubs && dbSubs.length > 0) setSubCategories(dbSubs.map((i: any) => i.data));
+      if (dbHero && dbHero.length > 0) setHeroSlides(dbHero.map((i: any) => i.data));
+      if (dbEnquiries && dbEnquiries.length > 0) setEnquiries(dbEnquiries.map((i: any) => i.data));
+      if (dbAdmins && dbAdmins.length > 0) setAdmins(dbAdmins.map((i: any) => i.data));
+      if (dbStats && dbStats.length > 0) setStats(dbStats.map((i: any) => i.data));
     } catch (e) {
       console.warn("App: Supabase sync partial failure. Using local state fallback for missing entities.");
     }
@@ -110,11 +109,11 @@ const App: React.FC = () => {
       setLoadingAuth(false);
       return;
     }
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: any) => {
       setUser(session?.user ?? null);
       setLoadingAuth(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
@@ -176,7 +175,6 @@ const App: React.FC = () => {
               <Route path="/terms" element={<Legal />} />
             </Routes>
           </div>
-          {/* Footer content removed for brevity */}
         </div>
       </Router>
     </SettingsContext.Provider>
