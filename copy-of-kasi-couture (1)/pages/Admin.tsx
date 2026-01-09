@@ -53,7 +53,7 @@ const SettingField: React.FC<{ label: string; value: string; onChange: (v: strin
  * Traffic Area Chart component
  */
 const TrafficAreaChart: React.FC<{ stats?: ProductStats[] }> = ({ stats }) => {
-  const [regions, setRegions] = useState<{ name: string; traffic: number; status: string }[]>([]);
+  const [regions, setRegions] = useState<{ name: string; traffic: number; status: string; count: number }[]>([]);
   const [totalTraffic, setTotalTraffic] = useState(0);
 
   const aggregatedProductViews = useMemo(() => stats?.reduce((acc, s) => acc + s.views, 0) || 0, [stats]);
@@ -201,7 +201,48 @@ const GuideIllustration: React.FC<{ id?: string }> = ({ id }) => {
            </div>
         </div>
       );
-    // ... [Other Guide Illustrations remain same - keeping concise for update] ...
+    case 'vault':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center overflow-hidden">
+          <div className="w-32 h-32 border-4 border-slate-700 rounded-full flex items-center justify-center relative">
+            <Lock size={48} className="text-slate-400" />
+            <div className="absolute top-0 right-0 w-8 h-8 bg-primary rounded-full animate-ping" />
+          </div>
+        </div>
+      );
+    case 'satellite':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center overflow-hidden">
+          <Globe size={80} className="text-blue-500 animate-pulse" />
+          <div className="absolute w-full h-1 bg-slate-800 top-1/2 -translate-y-1/2 rotate-45" />
+        </div>
+      );
+    case 'database':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center overflow-hidden">
+          <Database size={80} className="text-green-500" />
+          <div className="absolute bottom-4 left-4 bg-slate-800 px-4 py-2 rounded-lg border border-slate-700">
+             <div className="flex gap-2">
+               <div className="w-2 h-2 rounded-full bg-red-500" />
+               <div className="w-2 h-2 rounded-full bg-yellow-500" />
+               <div className="w-2 h-2 rounded-full bg-green-500" />
+             </div>
+          </div>
+        </div>
+      );
+    case 'shield':
+      return (
+        <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center overflow-hidden">
+          <ShieldCheck size={80} className="text-primary" />
+        </div>
+      );
+    case 'identity':
+       return (
+         <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center overflow-hidden">
+            <User size={64} className="text-purple-500" />
+            <div className="absolute top-4 right-4"><Key size={24} className="text-yellow-500" /></div>
+         </div>
+       );
     default:
       return (
         <div className="relative w-full aspect-square bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-center">
@@ -1196,7 +1237,7 @@ const Admin: React.FC = () => {
       await performSave(
           () => {
              if (editingId) setAdmins(prev => prev.map(a => a.id === editingId ? newItem : a));
-             else setAdmins(prev => [...prev, newItem]);
+             else setAdmins(prev => [...prev, newItem]); 
           },
           'admin_users',
           newItem
