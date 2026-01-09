@@ -43,6 +43,11 @@ const AboutSection: React.FC = () => {
               {settings.homeAboutDescription}
             </p>
 
+            <div className="flex items-center gap-4 mb-10">
+               <div className="h-px w-12 bg-primary"></div>
+               <span className="font-serif italic text-slate-500 text-lg">{settings.aboutFounderName || settings.companyName}</span>
+            </div>
+
             <Link 
               to="/about" 
               className="inline-flex items-center gap-2 md:gap-4 group"
