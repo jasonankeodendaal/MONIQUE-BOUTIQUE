@@ -2,16 +2,23 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ExternalLink, ArrowLeft, Package, Share2, Star, MessageCircle, ChevronDown, Minus, Plus, X, Facebook, Twitter, Mail, Copy, CheckCircle, Check } from 'lucide-react';
+import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../constants';
 import { useSettings } from '../App';
-import { Product, Review } from '../types';
+import { Product, ProductStats, Review } from '../types';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { settings, products, categories, updateProduct, stats, updateStats } = useSettings();
+  const { settings } = useSettings();
   
-  const product = products.find((p: Product) => p.id === id);
-  const category = categories.find(c => c.id === product?.categoryId);
+  // Use state for products to allow local updates (for reviews)
+  const [allProducts, setAllProducts] = useState<Product[]>(() => {
+    const saved = localStorage.getItem('admin_products');
+    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+  });
+
+  const product = allProducts.find((p: Product) => p.id === id);
+  const category = INITIAL_CATEGORIES.find(c => c.id === product?.categoryId);
   
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -32,21 +39,28 @@ const ProductDetail: React.FC = () => {
     const timeout = setTimeout(() => setIsLoaded(true), 100);
     
     // Track View and Start Session Timer
-    if (id && product) {
-      const currentStat = stats.find(s => s.productId === id) || { productId: id, views: 0, clicks: 0, totalViewTime: 0, lastUpdated: Date.now() };
-      const updatedStat = { ...currentStat, views: currentStat.views + 1, lastUpdated: Date.now() };
-      
-      // We don't want to trigger a cloud save every second for view time, so we track locally in a ref or effect
-      // But for simplicity in this context, we'll update the initial view count once.
-      updateStats(updatedStat);
+    if (id) {
+      const savedStats = JSON.parse(localStorage.getItem('admin_product_stats') || '[]');
+      const index = savedStats.findIndex((s: ProductStats) => s.productId === id);
+      if (index > -1) {
+        savedStats[index].views += 1;
+        savedStats[index].lastUpdated = Date.now();
+      } else {
+        savedStats.push({ productId: id, views: 1, clicks: 0, totalViewTime: 0, lastUpdated: Date.now() });
+      }
+      localStorage.setItem('admin_product_stats', JSON.stringify(savedStats));
 
+      // Start View Time Tracker
+      const startTime = Date.now();
       const interval = setInterval(() => {
-         // This is a naive implementation. In production, batch updates are better.
-         // Here we just increment local view time.
-         // To strictly follow "Single Source of Truth", we'd need to push.
-         // But pushing every second is bad. Let's skip live timer updates to DB for this demo
-         // and just rely on the view count increment above.
-      }, 5000);
+        const currentStats = JSON.parse(localStorage.getItem('admin_product_stats') || '[]');
+        const idx = currentStats.findIndex((s: ProductStats) => s.productId === id);
+        if (idx > -1) {
+          currentStats[idx].totalViewTime = (currentStats[idx].totalViewTime || 0) + 1;
+          currentStats[idx].lastUpdated = Date.now();
+          localStorage.setItem('admin_product_stats', JSON.stringify(currentStats));
+        }
+      }, 1000);
 
       return () => {
         clearInterval(interval);
@@ -55,33 +69,44 @@ const ProductDetail: React.FC = () => {
     }
 
     return () => clearTimeout(timeout);
-  }, [id, product?.id]); // Depend on product ID
+  }, [id]);
 
   const handleTrackClick = () => {
     if (id) {
-      const currentStat = stats.find(s => s.productId === id) || { productId: id, views: 0, clicks: 0, totalViewTime: 0, lastUpdated: Date.now() };
-      updateStats({ ...currentStat, clicks: currentStat.clicks + 1 });
+      const savedStats = JSON.parse(localStorage.getItem('admin_product_stats') || '[]');
+      const index = savedStats.findIndex((s: ProductStats) => s.productId === id);
+      if (index > -1) {
+        savedStats[index].clicks += 1;
+        savedStats[index].lastUpdated = Date.now();
+        localStorage.setItem('admin_product_stats', JSON.stringify(savedStats));
+      }
     }
   };
 
-  const handleSubmitReview = async (e: React.FormEvent) => {
+  const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!product) return;
     setIsSubmittingReview(true);
     
-    const review: Review = {
+    setTimeout(() => {
+      const review: Review = {
         id: Date.now().toString(),
         userName: newReview.userName || 'Guest',
         rating: newReview.rating,
         comment: newReview.comment,
         createdAt: Date.now()
-    };
+      };
 
-    const updatedProduct = { ...product, reviews: [review, ...(product.reviews || [])] };
-    await updateProduct(updatedProduct);
+      const updatedProducts = allProducts.map(p => 
+        p.id === id ? { ...p, reviews: [review, ...(p.reviews || [])] } : p
+      );
       
-    setNewReview({ userName: '', comment: '', rating: 5 });
-    setIsSubmittingReview(false);
+      setAllProducts(updatedProducts);
+      localStorage.setItem('admin_products', JSON.stringify(updatedProducts));
+      
+      setNewReview({ userName: '', comment: '', rating: 5 });
+      setIsSubmittingReview(false);
+    }, 800);
   };
 
   const handleShare = async () => {

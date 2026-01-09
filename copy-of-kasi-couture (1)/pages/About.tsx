@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import * as LucideIcons from 'lucide-react';
-import { Target, Users, Award, Quote } from 'lucide-react';
+import { Target, Users, Award, ArrowLeft, Star, Heart, Quote, ImageIcon } from 'lucide-react';
 import { useSettings } from '../App';
 import { useNavigate } from 'react-router-dom';
 import { CustomIcons } from '../components/CustomIcons';
@@ -141,6 +141,9 @@ const About: React.FC = () => {
                 <p className="text-lg md:text-xl text-slate-300 font-light max-w-2xl mx-auto leading-relaxed mb-10">
                     {settings.aboutIntegrityBody}
                 </p>
+                <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-primary border border-primary/30 px-6 py-3 rounded-full">
+                    <Star size={12} fill="currentColor" /> Verified Excellence
+                </div>
             </div>
         </div>
 

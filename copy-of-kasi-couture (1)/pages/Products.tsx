@@ -1,12 +1,14 @@
 
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Search, ExternalLink, ShoppingBag, CheckCircle, FileText, Video as VideoIcon, ChevronDown, ArrowUpDown, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Search, ExternalLink, ShoppingBag, CheckCircle, FileText, Video as VideoIcon, ChevronDown, Filter, ArrowUpDown, ArrowRight, ArrowLeft } from 'lucide-react';
+import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_SUBCATEGORIES } from '../constants';
 import { useSettings } from '../App';
 import { Product } from '../types';
 
 const Products: React.FC = () => {
-  const { settings, products, categories, subCategories } = useSettings();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const query = new URLSearchParams(useLocation().search);
   const initialCat = query.get('category');
@@ -43,10 +45,17 @@ const Products: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const currentSubCategories = useMemo(() => {
+  const products = useMemo<Product[]>(() => {
+    const saved = localStorage.getItem('admin_products');
+    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+  }, []);
+
+  const subCategories = useMemo(() => {
+    const savedSubs = localStorage.getItem('admin_subcategories');
+    const subs = savedSubs ? JSON.parse(savedSubs) : INITIAL_SUBCATEGORIES;
     if (selectedCat === 'all') return [];
-    return subCategories.filter((s) => s.categoryId === selectedCat);
-  }, [selectedCat, subCategories]);
+    return subs.filter((s: any) => s.categoryId === selectedCat);
+  }, [selectedCat]);
 
   const filteredProducts = useMemo(() => {
     let result = products.filter((p: Product) => {
@@ -165,7 +174,7 @@ const Products: React.FC = () => {
             >
               All
             </button>
-            {categories.map(cat => (
+            {INITIAL_CATEGORIES.map(cat => (
               <button
                 key={cat.id}
                 onClick={() => { setSelectedCat(cat.id); setSelectedSub('all'); }}
@@ -192,7 +201,7 @@ const Products: React.FC = () => {
               >
                 Show All
               </button>
-              {currentSubCategories.map((sub: any) => (
+              {subCategories.map((sub: any) => (
                 <button
                   key={sub.id}
                   onClick={() => setSelectedSub(sub.id)}
@@ -252,7 +261,6 @@ const Products: React.FC = () => {
                 key={product.id} 
                 className="bg-white rounded-[1.5rem] md:rounded-[3rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 group hover:-translate-y-4 flex flex-col relative"
               >
-                {/* ... Product Card Content same as before ... */}
                 {product.discountRules && product.discountRules.length > 0 && (
                   <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl z-20 animate-pulse">
                      {product.discountRules[0].type === 'percentage' ? `-${product.discountRules[0].value}%` : `-R${product.discountRules[0].value}`} OFF
@@ -264,18 +272,33 @@ const Products: React.FC = () => {
                   <div className="absolute top-3 left-3 md:top-8 md:left-8 bg-white/90 backdrop-blur-xl px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-2xl text-xs md:text-lg font-black text-slate-900 shadow-2xl border border-white/40 z-10">
                     R {product.price}
                   </div>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hidden md:flex z-10">
+                    <div className="bg-white text-slate-900 px-8 py-4 rounded-full font-black uppercase text-[10px] tracking-widest flex items-center gap-3 translate-y-4 group-hover:translate-y-0 transition-transform duration-500 shadow-2xl">
+                       View Selection <ArrowRight size={14} />
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="p-4 md:p-12 flex-grow flex flex-col text-left">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-6">
+                    <CheckCircle size={10} className="text-primary md:w-4 md:h-4" />
+                    <span className="text-[7px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] md:tracking-[0.3em]">Verified</span>
+                  </div>
                   <h3 className="text-sm md:text-3xl font-serif text-slate-900 mb-2 md:mb-6 group-hover:text-primary transition-colors duration-500 leading-tight line-clamp-2">
                     {product.name}
                   </h3>
+                  <p className="hidden md:block text-slate-500 text-sm md:text-base mb-6 md:mb-10 line-clamp-3 leading-relaxed font-light">
+                    {product.description}
+                  </p>
+                  
                   <div className="mt-auto pt-3 md:pt-10 border-t border-slate-50 flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-[7px] md:text-[10px] font-black text-slate-300 uppercase tracking-widest mb-0.5 md:mb-1">ID</span>
                       <span className="text-[9px] md:text-sm font-bold text-slate-500 font-mono tracking-tighter truncate max-w-[60px] md:max-w-none">{product.sku}</span>
                     </div>
-                    <div className="p-2 md:px-10 md:py-5 bg-primary hover:brightness-110 text-slate-900 font-black uppercase tracking-[0.2em] text-[9px] md:text-[10px] rounded-full md:rounded-[2rem] flex items-center gap-0 md:gap-4 transition-all shadow-md">
+                    <div 
+                      className="p-2 md:px-10 md:py-5 bg-primary hover:brightness-110 text-slate-900 font-black uppercase tracking-[0.2em] text-[9px] md:text-[10px] rounded-full md:rounded-[2rem] flex items-center gap-0 md:gap-4 transition-all shadow-md"
+                    >
                       <span className="hidden md:inline">Acquire</span>
                       <ExternalLink size={12} className="md:w-4 md:h-4" />
                     </div>

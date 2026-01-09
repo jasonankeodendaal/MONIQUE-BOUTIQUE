@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, Link, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
@@ -10,47 +10,20 @@ import ProductDetail from './pages/ProductDetail';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Legal from './pages/Legal';
-import { SiteSettings, Product, Category, SubCategory, CarouselSlide, Enquiry, AdminUser, ProductStats } from './types';
-import { INITIAL_SETTINGS } from './constants';
-import { supabase, isSupabaseConfigured, fetchTableData, seedInitialData, syncToCloud, deleteFromCloud } from './lib/supabase';
+import { SiteSettings, Product, Category } from './types';
+import { INITIAL_SETTINGS, INITIAL_PRODUCTS, INITIAL_CATEGORIES } from './constants';
+import { supabase, isSupabaseConfigured, fetchTableData, syncLocalToCloud, upsertData } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
-import { Check, Loader2, AlertTriangle, CloudOff } from 'lucide-react';
+import { Check, Loader2, AlertTriangle, Database } from 'lucide-react';
 
-export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'migrating';
 
 interface SettingsContextType {
   settings: SiteSettings;
   updateSettings: (newSettings: Partial<SiteSettings>) => void;
-  
-  products: Product[];
-  updateProduct: (p: Product) => Promise<void>;
-  deleteProduct: (id: string) => Promise<void>;
-
-  categories: Category[];
-  updateCategory: (c: Category) => Promise<void>;
-  deleteCategory: (id: string) => Promise<void>;
-
-  subCategories: SubCategory[];
-  updateSubCategory: (s: SubCategory) => Promise<void>;
-  deleteSubCategory: (id: string) => Promise<void>;
-
-  heroSlides: CarouselSlide[];
-  updateHeroSlide: (s: CarouselSlide) => Promise<void>;
-  deleteHeroSlide: (id: string) => Promise<void>;
-
-  enquiries: Enquiry[];
-  updateEnquiry: (e: Enquiry) => Promise<void>;
-  deleteEnquiry: (id: string) => Promise<void>;
-
-  admins: AdminUser[];
-  updateAdmin: (a: AdminUser) => Promise<void>;
-  deleteAdmin: (id: string) => Promise<void>;
-
-  stats: ProductStats[];
-  updateStats: (s: ProductStats) => void; // Usually background updates
-
   user: User | null;
   loadingAuth: boolean;
+  isLocalMode: boolean;
   saveStatus: SaveStatus;
   setSaveStatus: (status: SaveStatus) => void;
   logEvent: (type: 'view' | 'click' | 'system', label: string) => void;
@@ -66,14 +39,14 @@ export const useSettings = () => {
 };
 
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
-  const { user, loadingAuth } = useSettings();
+  const { user, loadingAuth, isLocalMode } = useSettings();
   if (loadingAuth) return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center">
       <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
     </div>
   );
-  if (!user && isSupabaseConfigured) return <Navigate to="/login" replace />;
-  // If supabase is not configured, we allow access but functionality is limited (Admin will show errors)
+  if (isLocalMode) return <>{children}</>;
+  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
 
@@ -141,10 +114,12 @@ const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
       status === 'error' ? 'bg-red-500 text-white' : 'bg-slate-900 text-white border border-slate-800'
     } animate-in slide-in-from-bottom-4`}>
       {status === 'saving' && <Loader2 size={16} className="animate-spin text-primary" />}
+      {status === 'migrating' && <Database size={16} className="animate-pulse text-blue-400" />}
       {status === 'saved' && <Check size={16} className="text-green-500" />}
       {status === 'error' && <AlertTriangle size={16} className="text-white" />}
       <span className="text-[10px] font-black uppercase tracking-widest">
         {status === 'saving' && 'Syncing Supabase...'}
+        {status === 'migrating' && 'Migrating Data...'}
         {status === 'saved' && 'Cloud Sync Complete'}
         {status === 'error' && 'Sync Failed'}
       </span>
@@ -152,61 +127,76 @@ const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
   );
 };
 
+const TrafficTracker = ({ logEvent }: { logEvent: (t: any, l: string) => void }) => {
+  const location = useLocation();
+  useEffect(() => {
+    if (!location.pathname.startsWith('/admin')) {
+      logEvent('view', location.pathname === '/' ? 'Bridge Home' : location.pathname);
+    }
+  }, [location.pathname, logEvent]);
+  return null;
+};
+
 const App: React.FC = () => {
+  const [settings, setSettings] = useState<SiteSettings>(INITIAL_SETTINGS);
   const [user, setUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 
-  // Global State Entities
-  const [settings, setSettings] = useState<SiteSettings>(INITIAL_SETTINGS);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
-  const [heroSlides, setHeroSlides] = useState<CarouselSlide[]>([]);
-  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
-  const [admins, setAdmins] = useState<AdminUser[]>([]);
-  const [stats, setStats] = useState<ProductStats[]>([]);
-
-  // Initial Data Fetch
-  const refreshAllData = useCallback(async () => {
-    if (!isSupabaseConfigured) return;
+  const refreshAllData = async () => {
     setSaveStatus('saving');
     try {
-      await seedInitialData(); // Auto-provision on load
-
-      const [
-        remoteSettings, remoteProducts, remoteCategories, 
-        remoteSubs, remoteSlides, remoteEnquiries, remoteAdmins, remoteStats
-      ] = await Promise.all([
-        fetchTableData('settings'),
-        fetchTableData('products'),
-        fetchTableData('categories'),
-        fetchTableData('subcategories'),
-        fetchTableData('hero_slides'),
-        fetchTableData('enquiries'),
-        fetchTableData('admins'),
-        fetchTableData('product_stats')
-      ]);
-
-      if (remoteSettings && remoteSettings.length > 0) setSettings(remoteSettings[0]);
-      if (remoteProducts) setProducts(remoteProducts);
-      if (remoteCategories) setCategories(remoteCategories);
-      if (remoteSubs) setSubCategories(remoteSubs);
-      if (remoteSlides) setHeroSlides(remoteSlides);
-      if (remoteEnquiries) setEnquiries(remoteEnquiries);
-      if (remoteAdmins) setAdmins(remoteAdmins);
-      if (remoteStats) setStats(remoteStats);
-      
+      if (isSupabaseConfigured) {
+        // Attempt to fetch settings first
+        const remoteSettings = await fetchTableData('settings');
+        
+        // --- MIGRATION LOGIC ---
+        // If settings table is empty, we assume it's a fresh DB and migrate local data
+        if (!remoteSettings || remoteSettings.length === 0) {
+          console.log("Supabase seems empty. Checking for local data to migrate...");
+          
+          const localSettings = localStorage.getItem('site_settings');
+          
+          if (localSettings) {
+             setSaveStatus('migrating');
+             // Perform migration for all entities
+             await syncLocalToCloud('settings', 'site_settings');
+             await syncLocalToCloud('products', 'admin_products');
+             await syncLocalToCloud('categories', 'admin_categories');
+             await syncLocalToCloud('subcategories', 'admin_subcategories');
+             await syncLocalToCloud('carousel_slides', 'admin_hero');
+             await syncLocalToCloud('enquiries', 'admin_enquiries');
+             await syncLocalToCloud('admin_users', 'admin_users');
+             await syncLocalToCloud('product_stats', 'admin_product_stats');
+             
+             // After migration, load the migrated settings
+             setSettings(JSON.parse(localSettings));
+          } else {
+             // If no local data either, ensure initial settings are saved
+             await upsertData('settings', INITIAL_SETTINGS);
+             setSettings(INITIAL_SETTINGS);
+          }
+        } else {
+          // Normal Load
+          setSettings(remoteSettings[0] as SiteSettings);
+          // Pre-fetch other entities to populate cache if needed, 
+          // though pages usually fetch their own data.
+        }
+      } else {
+        // Local Only Fallback
+        const local = localStorage.getItem('site_settings');
+        if (local) setSettings(JSON.parse(local));
+      }
       setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (e) {
-      console.error("Data sync failed", e);
+      console.error("Data sync/init failed", e);
       setSaveStatus('error');
     }
-  }, []);
+  };
 
   useEffect(() => {
     refreshAllData();
-
     if (isSupabaseConfigured) {
       supabase.auth.getSession().then(({ data: { session } }) => {
         setUser(session?.user ?? null);
@@ -219,81 +209,50 @@ const App: React.FC = () => {
     } else {
       setLoadingAuth(false);
     }
-  }, [refreshAllData]);
+  }, []);
 
-  // Generic Update Helpers
-  const performUpdate = async (
-    setter: React.Dispatch<React.SetStateAction<any[]>>,
-    table: string, 
-    item: any
-  ) => {
-    setSaveStatus('saving');
-    setter(prev => {
-      const idx = prev.findIndex(i => i.id === item.id);
-      if (idx > -1) return prev.map(i => i.id === item.id ? item : i);
-      return [item, ...prev];
-    });
-    await syncToCloud(table, item);
-    setSaveStatus('saved');
-  };
-
-  const performDelete = async (
-    setter: React.Dispatch<React.SetStateAction<any[]>>,
-    table: string,
-    id: string
-  ) => {
-    setSaveStatus('saving');
-    setter(prev => prev.filter(i => i.id !== id));
-    await deleteFromCloud(table, id);
-    setSaveStatus('saved');
-  };
-
-  // Specific Actions
   const updateSettings = async (newSettings: Partial<SiteSettings>) => {
     setSaveStatus('saving');
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
-    await syncToCloud('settings', updated);
-    setSaveStatus('saved');
-  };
-
-  const updateProduct = (p: Product) => performUpdate(setProducts, 'products', p);
-  const deleteProduct = (id: string) => performDelete(setProducts, 'products', id);
-
-  const updateCategory = (c: Category) => performUpdate(setCategories, 'categories', c);
-  const deleteCategory = (id: string) => performDelete(setCategories, 'categories', id);
-
-  const updateSubCategory = (s: SubCategory) => performUpdate(setSubCategories, 'subcategories', s);
-  const deleteSubCategory = (id: string) => performDelete(setSubCategories, 'subcategories', id);
-
-  const updateHeroSlide = (s: CarouselSlide) => performUpdate(setHeroSlides, 'hero_slides', s);
-  const deleteHeroSlide = (id: string) => performDelete(setHeroSlides, 'hero_slides', id);
-
-  const updateEnquiry = (e: Enquiry) => performUpdate(setEnquiries, 'enquiries', e);
-  const deleteEnquiry = (id: string) => performDelete(setEnquiries, 'enquiries', id);
-
-  const updateAdmin = (a: AdminUser) => performUpdate(setAdmins, 'admins', a);
-  const deleteAdmin = (id: string) => performDelete(setAdmins, 'admins', id);
-
-  const updateStats = async (s: ProductStats) => {
-    // Stats updates are often frequent, we can optimize by not setting 'saving' status for every hit
-    setStats(prev => {
-       const idx = prev.findIndex(st => st.productId === s.productId);
-       if (idx > -1) return prev.map(st => st.productId === s.productId ? s : st);
-       return [...prev, s];
-    });
-    await syncToCloud('product_stats', s);
+    
+    if (isSupabaseConfigured) {
+      // Ensure the ID matches what is in the DB (usually just one row with a static ID or we assume single row)
+      // Since we migrated 'site_settings' which might not have an ID, we ensure one here or rely on migration structure.
+      // For simplicity, we assume there's one settings row.
+      const payload = { ...updated, id: 'global_settings' }; 
+      const { error } = await supabase.from('settings').upsert([payload]);
+      
+      if (error) {
+          console.error("Settings save error", error);
+          setSaveStatus('error');
+      } else {
+          setSaveStatus('saved');
+      }
+    } else {
+      localStorage.setItem('site_settings', JSON.stringify(updated));
+      setTimeout(() => setSaveStatus('saved'), 500);
+    }
+    setTimeout(() => setSaveStatus('idle'), 2000);
   };
 
   const logEvent = (type: 'view' | 'click' | 'system', label: string) => {
-    if (!isSupabaseConfigured) return;
     const newEvent = {
+      id: Date.now().toString(),
       type,
       text: type === 'view' ? `Page View: ${label}` : label,
       time: new Date().toLocaleTimeString(),
       timestamp: Date.now()
     };
-    supabase.from('traffic_logs').insert([newEvent]).then();
+    if (isSupabaseConfigured) {
+      // Async fire and forget
+      supabase.from('traffic_logs').insert([newEvent]).then(({error}) => {
+          if(error) console.error("Log error", error);
+      });
+    } else {
+      const existing = JSON.parse(localStorage.getItem('site_traffic_logs') || '[]');
+      localStorage.setItem('site_traffic_logs', JSON.stringify([newEvent, ...existing].slice(0, 50)));
+    }
   };
 
   useEffect(() => {
@@ -305,35 +264,14 @@ const App: React.FC = () => {
     document.documentElement.style.setProperty('--primary-rgb', hexToRgb(settings.primaryColor));
   }, [settings.primaryColor]);
 
-  if (!isSupabaseConfigured) {
-     return (
-        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8 text-center text-white">
-           <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 mb-6 border border-red-500/30"><CloudOff size={40}/></div>
-           <h1 className="text-4xl font-serif mb-4">Cloud Bridge Disconnected</h1>
-           <p className="text-slate-400 max-w-md mb-8">This application strictly requires a Supabase connection for storage and data persistence. Local storage is disabled.</p>
-           <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 text-left font-mono text-xs text-slate-500">
-              <p className="mb-2">Please configure your environment variables:</p>
-              <p>VITE_SUPABASE_URL</p>
-              <p>VITE_SUPABASE_ANON_KEY</p>
-           </div>
-        </div>
-     )
-  }
-
   return (
     <SettingsContext.Provider value={{ 
-      settings, updateSettings, 
-      products, updateProduct, deleteProduct,
-      categories, updateCategory, deleteCategory,
-      subCategories, updateSubCategory, deleteSubCategory,
-      heroSlides, updateHeroSlide, deleteHeroSlide,
-      enquiries, updateEnquiry, deleteEnquiry,
-      admins, updateAdmin, deleteAdmin,
-      stats, updateStats,
-      user, loadingAuth, saveStatus, setSaveStatus, logEvent, refreshAllData
+      settings, updateSettings, user, loadingAuth, 
+      isLocalMode: !isSupabaseConfigured, saveStatus, setSaveStatus, logEvent, refreshAllData
     }}>
       <Router>
         <ScrollToTop />
+        <TrafficTracker logEvent={logEvent} />
         <SaveStatusIndicator status={saveStatus} />
         <style>{`
           .text-primary { color: var(--primary-color); }

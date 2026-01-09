@@ -6,36 +6,37 @@ import { Enquiry } from '../types';
 import { useNavigate } from 'react-router-dom';
 
 const Contact: React.FC = () => {
-  const { settings, updateEnquiry } = useSettings();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [formState, setFormState] = useState({ name: '', email: '', whatsapp: '', subject: 'Product Curation Inquiry', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    try {
+    // Simulate API delay
+    setTimeout(() => {
       const newEnquiry: Enquiry = {
-        id: Date.now().toString(),
+        id: Math.random().toString(36).substr(2, 9),
         ...formState,
         createdAt: Date.now(),
         status: 'unread'
       };
 
-      await updateEnquiry(newEnquiry);
+      // Save to localStorage for Admin consumption
+      const existing = JSON.parse(localStorage.getItem('admin_enquiries') || '[]');
+      localStorage.setItem('admin_enquiries', JSON.stringify([newEnquiry, ...existing]));
 
       setIsSubmitting(false);
       setSubmitted(true);
       setFormState({ name: '', email: '', whatsapp: '', subject: 'Product Curation Inquiry', message: '' });
       
+      // Reset success message after 5 seconds
       setTimeout(() => setSubmitted(false), 5000);
-    } catch (err) {
-      alert("Error sending message. Please try again.");
-      setIsSubmitting(false);
-    }
+    }, 1500);
   };
 
   const faqs = [
