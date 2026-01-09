@@ -7,13 +7,12 @@ import {
   LayoutGrid, Globe, Mail, Phone, Palette, Hash, MessageCircle, MapPin, 
   BookOpen, FileText, Share2, Tag, ArrowRight, Video, ImageIcon, ShoppingBag,
   LayoutPanelTop, Inbox, Calendar, MoreHorizontal, CheckCircle, Percent, LogOut,
-  Rocket, Terminal, Copy, Check, Database, Github, Server, AlertTriangle, ExternalLink, RefreshCcw, Flame, Trash,
+  Rocket, Terminal, Copy, Check, Database, Server, AlertTriangle, ExternalLink, RefreshCcw, Flame, Trash,
   Megaphone, Sparkles, Wand2, CopyCheck, Loader2, Users, Key, Lock, Briefcase, Download, UploadCloud, FileJson, Link as LinkIcon, Reply, Paperclip, Send, AlertOctagon,
   ArrowLeft, Eye, MessageSquare, CreditCard, Shield, Award, PenTool, Image, Globe2, HelpCircle, PenLine, Images, Instagram, Twitter, ChevronRight, Layers, FileCode, Search, Grid,
   Maximize2, Minimize2, CheckSquare, Square, Target, Clock, Filter, FileSpreadsheet, BarChart3, TrendingUp, MousePointer2, Star, Activity, Zap, Timer, ServerCrash,
   BarChart, ZapOff, Activity as ActivityIcon, Code, Map, Wifi, WifiOff, Facebook, Linkedin
 } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
 import { PERMISSION_TREE, GUIDE_STEPS, EMAIL_TEMPLATE_HTML } from '../constants';
 import { Product, Category, CarouselSlide, MediaFile, SubCategory, SiteSettings, Enquiry, DiscountRule, SocialLink, AdminUser, PermissionNode, ProductStats } from '../types';
 import { useSettings } from '../App';
@@ -49,8 +48,6 @@ const SettingField: React.FC<{ label: string; value: string; onChange: (v: strin
   </div>
 );
 
-// --- Updated File Uploaders with Direct Supabase Support ---
-
 const FileUploader: React.FC<{ files: MediaFile[]; onFilesChange: (files: MediaFile[]) => void; multiple?: boolean; label?: string; accept?: string; }> = ({ files, onFilesChange, multiple = true, label = "media", accept = "image/*,video/*" }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -63,7 +60,7 @@ const FileUploader: React.FC<{ files: MediaFile[]; onFilesChange: (files: MediaF
       const newFiles: MediaFile[] = [];
       for (let i = 0; i < incomingFiles.length; i++) {
         const file = incomingFiles[i];
-        const url = await uploadMedia(file, 'media'); // Direct upload to Supabase
+        const url = await uploadMedia(file, 'media'); 
         
         newFiles.push({
           id: Math.random().toString(36).substr(2, 9),
@@ -180,13 +177,7 @@ const SingleImageUploader: React.FC<{ value: string; onChange: (v: string) => vo
   );
 };
 
-// ... [CodeBlock, IconPicker, etc. kept same, removed only TrafficAreaChart for brevity as it needs context data] ...
-// Re-implementing TrafficAreaChart to use stats from Context
-
 const TrafficAreaChart: React.FC<{ stats?: ProductStats[] }> = ({ stats }) => {
-  // Mock data for visual, as geolocation requires backend logs
-  const [totalTraffic, setTotalTraffic] = useState(0);
-
   const aggregatedProductViews = useMemo(() => stats?.reduce((acc, s) => acc + s.views, 0) || 0, [stats]);
 
   return (
@@ -255,11 +246,7 @@ const Admin: React.FC = () => {
   const [showHeroForm, setShowHeroForm] = useState(false);
   
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [selectedAdProduct, setSelectedAdProduct] = useState<Product | null>(null);
   
-  // Template Modal
-  const [showEmailTemplate, setShowEmailTemplate] = useState(false);
-
   const [productData, setProductData] = useState<Partial<Product>>({});
   const [catData, setCatData] = useState<Partial<Category>>({});
   const [heroData, setHeroData] = useState<Partial<CarouselSlide>>({});
@@ -272,10 +259,7 @@ const Admin: React.FC = () => {
 
   // Local State helpers
   const [tempSubCatName, setTempSubCatName] = useState('');
-  const [tempDiscountRule, setTempDiscountRule] = useState<Partial<DiscountRule>>({ type: 'percentage', value: 0, description: '' });
-  const [tempFeature, setTempFeature] = useState('');
-  const [tempSpec, setTempSpec] = useState({ key: '', value: '' });
-
+  
   // Measure Connection
   useEffect(() => {
     if (activeTab === 'system') {
@@ -291,14 +275,9 @@ const Admin: React.FC = () => {
 
   const handleLogout = async () => { if (isSupabaseConfigured) await supabase.auth.signOut(); navigate('/login'); };
   
-  // Helper for Local Editor Settings
   const updateTempSettings = (newSettings: Partial<SiteSettings>) => {
     setTempSettings(prev => ({ ...prev, ...newSettings }));
   };
-
-  const addTempSocialLink = () => updateTempSettings({ socialLinks: [...(tempSettings.socialLinks || []), { id: Date.now().toString(), name: 'New Link', url: 'https://', iconUrl: '' }] });
-  const updateTempSocialLink = (id: string, field: keyof SocialLink, value: string) => updateTempSettings({ socialLinks: (tempSettings.socialLinks || []).map(link => link.id === id ? { ...link, [field]: value } : link) });
-  const removeTempSocialLink = (id: string) => updateTempSettings({ socialLinks: (tempSettings.socialLinks || []).filter(link => link.id !== id) });
 
   const handleOpenEditor = (section: any) => {
       setTempSettings({...settings}); 
@@ -336,37 +315,7 @@ const Admin: React.FC = () => {
      await updateHeroSlide(h);
      setShowHeroForm(false); setEditingId(null); 
   };
-  
-  const handleSaveAdmin = async () => {
-    if (!adminData.email || !adminData.password) return;
-    setCreatingAdmin(true);
-    setSaveStatus('saving');
-    try {
-      if (!editingId && isSupabaseConfigured) {
-        // Create in Supabase Auth
-        const { error } = await supabase.auth.signUp({
-          email: adminData.email,
-          password: adminData.password,
-          options: { data: { name: adminData.name, role: adminData.role } }
-        });
-        if (error) throw error;
-      }
-      
-      const a = editingId ? { ...admins.find(x => x.id === editingId), ...adminData } as AdminUser : { ...adminData, id: Date.now().toString(), createdAt: Date.now() } as AdminUser;
-      await updateAdmin(a);
-      
-      setShowAdminForm(false);
-      setEditingId(null);
-      setSaveStatus('saved');
-    } catch (err: any) {
-      alert(`Error saving member: ${err.message}`);
-      setSaveStatus('error');
-    } finally {
-      setCreatingAdmin(false);
-    }
-  };
 
-  // Helper for Subcategories
   const handleAddSubCategory = async (categoryId: string) => {
     if (!tempSubCatName.trim()) return;
     const newSub: SubCategory = { id: Date.now().toString(), categoryId, name: tempSubCatName };
@@ -374,53 +323,7 @@ const Admin: React.FC = () => {
     setTempSubCatName('');
   };
 
-  // Helper for Discount Rules
-  const handleAddDiscountRule = () => {
-    if (!tempDiscountRule.value || !tempDiscountRule.description) return;
-    const newRule: DiscountRule = { id: Date.now().toString(), type: tempDiscountRule.type || 'percentage', value: Number(tempDiscountRule.value), description: tempDiscountRule.description };
-    setProductData({ ...productData, discountRules: [...(productData.discountRules || []), newRule] });
-    setTempDiscountRule({ type: 'percentage', value: 0, description: '' });
-  };
-  const handleRemoveDiscountRule = (id: string) => {
-    setProductData({ ...productData, discountRules: (productData.discountRules || []).filter(r => r.id !== id) });
-  };
-
-  // Helper for Features (Highlights)
-  const handleAddFeature = () => {
-    if (!tempFeature.trim()) return;
-    setProductData(prev => ({
-      ...prev,
-      features: [...(prev.features || []), tempFeature]
-    }));
-    setTempFeature('');
-  };
-  
-  const handleRemoveFeature = (index: number) => {
-    setProductData(prev => ({
-      ...prev,
-      features: (prev.features || []).filter((_, i) => i !== index)
-    }));
-  };
-
-  // Helper for Specifications
-  const handleAddSpec = () => {
-    if (!tempSpec.key.trim() || !tempSpec.value.trim()) return;
-    setProductData(prev => ({
-      ...prev,
-      specifications: { ...(prev.specifications || {}), [tempSpec.key]: tempSpec.value }
-    }));
-    setTempSpec({ key: '', value: '' });
-  };
-  
-  const handleRemoveSpec = (key: string) => {
-    setProductData(prev => {
-      const newSpecs = { ...(prev.specifications || {}) };
-      delete newSpecs[key];
-      return { ...prev, specifications: newSpecs };
-    });
-  };
-
-  // --- Render Functions (Mostly unchanged structure, just updated handlers) ---
+  // --- Render Functions ---
 
   const renderEnquiries = () => (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -430,7 +333,6 @@ const Admin: React.FC = () => {
             <p className="text-slate-400 text-sm">Manage incoming client communications.</p>
          </div>
       </div>
-      {/* ... Filter Logic same as before ... */}
       {filteredEnquiries.length === 0 ? <div className="text-center py-20 bg-slate-900/50 rounded-[3rem] border border-dashed border-slate-800 text-slate-500">No enquiries found.</div> : 
         filteredEnquiries.map(e => (
           <div key={e.id} className={`bg-slate-900 border transition-all rounded-[2.5rem] p-6 flex flex-col md:flex-row gap-6 text-left ${e.status === 'unread' ? 'border-primary/30 shadow-[0_10px_30px_-10px_rgba(var(--primary-rgb),0.1)]' : 'border-slate-800'}`}>
@@ -450,10 +352,7 @@ const Admin: React.FC = () => {
   );
 
   const renderAnalytics = () => {
-    // Analytics calculation logic same as before, using `stats` from context
     const totalViews = stats.reduce((acc, s) => acc + s.views, 0);
-    const totalClicks = stats.reduce((acc, s) => acc + s.clicks, 0);
-    
     return (
       <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
         <div className="flex justify-between items-end">
@@ -481,7 +380,6 @@ const Admin: React.FC = () => {
              <h3 className="text-2xl font-serif text-white">{editingId ? 'Edit Masterpiece' : 'New Collection Item'}</h3>
              <button onClick={() => setShowProductForm(false)} className="text-slate-500 hover:text-white transition-colors"><X size={24}/></button>
           </div>
-          {/* ... Product Form Inputs (unchanged structure, inputs bound to productData) ... */}
           <div className="grid md:grid-cols-2 gap-8">
              <div className="space-y-6">
                 <SettingField label="Product Name" value={productData.name || ''} onChange={v => setProductData({...productData, name: v})} />
@@ -499,12 +397,10 @@ const Admin: React.FC = () => {
                 <SettingField label="Description" value={productData.description || ''} onChange={v => setProductData({...productData, description: v})} type="textarea" />
              </div>
           </div>
-          
           <div className="pt-8 border-t border-slate-800">
              <h4 className="text-white font-bold mb-4 flex items-center gap-2"><ImageIcon size={18} className="text-primary"/> Media Gallery</h4>
              <FileUploader files={productData.media || []} onFilesChange={f => setProductData({...productData, media: f})} />
           </div>
-
           <div className="flex gap-4 pt-8">
              <button onClick={handleSaveProduct} className="flex-1 py-5 bg-primary text-slate-900 font-black uppercase text-xs rounded-xl hover:brightness-110 transition-all shadow-xl shadow-primary/20">Save Product</button>
              <button onClick={() => setShowProductForm(false)} className="flex-1 py-5 bg-slate-800 text-slate-400 font-black uppercase text-xs rounded-xl hover:text-white transition-all">Cancel</button>
@@ -519,7 +415,6 @@ const Admin: React.FC = () => {
              </div>
              <button onClick={() => { setProductData({}); setShowProductForm(true); setEditingId(null); }} className="px-8 py-4 bg-primary text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-colors flex items-center gap-3"><Plus size={18} /> Add Product</button>
           </div>
-          {/* ... Product List Grid ... */}
           <div className="grid gap-4">
             {products.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()) && (productCatFilter === 'all' || p.categoryId === productCatFilter)).map(p => (
               <div key={p.id} className="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 flex items-center justify-between hover:border-primary/30 transition-colors group">
@@ -545,14 +440,160 @@ const Admin: React.FC = () => {
     </div>
   );
 
-  // ... [Other render functions (Hero, Categories, Team, System, Guide, SiteEditor) are similar but use Context data] ...
+  const renderHero = () => (
+    <div className="space-y-6 text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {showHeroForm ? (
+        <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 space-y-6">
+           <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-6">
+             <h3 className="text-2xl font-serif text-white">Edit Visual</h3>
+             <button onClick={() => setShowHeroForm(false)} className="text-slate-500 hover:text-white"><X size={24}/></button>
+           </div>
+           <SettingField label="Title" value={heroData.title || ''} onChange={v => setHeroData({...heroData, title: v})} />
+           <SettingField label="Subtitle" value={heroData.subtitle || ''} onChange={v => setHeroData({...heroData, subtitle: v})} />
+           <SettingField label="CTA Text" value={heroData.cta || ''} onChange={v => setHeroData({...heroData, cta: v})} />
+           <div className="pt-4">
+              <SingleImageUploader label="Slide Image" value={heroData.image || ''} onChange={v => setHeroData({...heroData, image: v})} />
+           </div>
+           <div className="flex gap-4 pt-6">
+             <button onClick={handleSaveHero} className="flex-1 py-4 bg-primary text-slate-900 font-bold uppercase text-xs rounded-xl">Save Slide</button>
+           </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex justify-between items-end mb-8">
+             <h2 className="text-3xl font-serif text-white">Visuals</h2>
+             <button onClick={() => { setHeroData({}); setShowHeroForm(true); setEditingId(null); }} className="px-6 py-3 bg-primary text-slate-900 rounded-xl font-bold text-xs uppercase">Add Slide</button>
+          </div>
+          <div className="grid gap-4">
+            {heroSlides.map(s => (
+              <div key={s.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+                 <div className="flex items-center gap-4">
+                    <img src={s.image} className="w-20 h-12 object-cover rounded-lg" />
+                    <div><h4 className="text-white font-bold text-sm">{s.title}</h4></div>
+                 </div>
+                 <div className="flex gap-2">
+                    <button onClick={() => { setHeroData(s); setEditingId(s.id); setShowHeroForm(true); }} className="p-2 bg-slate-800 text-slate-400 rounded-lg hover:text-white"><Edit2 size={16}/></button>
+                    <button onClick={() => deleteHeroSlide(s.id)} className="p-2 bg-slate-800 text-slate-400 rounded-lg hover:text-red-500"><Trash2 size={16}/></button>
+                 </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderCategories = () => (
+    <div className="space-y-6 text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {showCategoryForm ? (
+         <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 space-y-6">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-6">
+               <h3 className="text-2xl font-serif text-white">Edit Department</h3>
+               <button onClick={() => setShowCategoryForm(false)} className="text-slate-500 hover:text-white"><X size={24}/></button>
+            </div>
+            <SettingField label="Name" value={catData.name || ''} onChange={v => setCatData({...catData, name: v})} />
+            <SettingField label="Description" value={catData.description || ''} onChange={v => setCatData({...catData, description: v})} />
+            <div className="pt-4">
+               <SingleImageUploader label="Cover Image" value={catData.image || ''} onChange={v => setCatData({...catData, image: v})} />
+            </div>
+            <button onClick={handleSaveCategory} className="w-full py-4 bg-primary text-slate-900 font-bold uppercase text-xs rounded-xl mt-6">Save Department</button>
+         </div>
+      ) : (
+         <>
+          <div className="flex justify-between items-end mb-8">
+             <h2 className="text-3xl font-serif text-white">Departments</h2>
+             <button onClick={() => { setCatData({}); setShowCategoryForm(true); setEditingId(null); }} className="px-6 py-3 bg-primary text-slate-900 rounded-xl font-bold text-xs uppercase">Add Dept</button>
+          </div>
+          <div className="grid gap-4">
+             {categories.map(c => (
+                <div key={c.id} className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                   <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-4">
+                         <img src={c.image} className="w-16 h-16 rounded-xl object-cover" />
+                         <div><h4 className="text-white font-bold">{c.name}</h4><p className="text-slate-500 text-xs">{c.description}</p></div>
+                      </div>
+                      <div className="flex gap-2">
+                         <button onClick={() => { setCatData(c); setEditingId(c.id); setShowCategoryForm(true); }} className="p-2 bg-slate-800 text-slate-400 rounded-lg hover:text-white"><Edit2 size={16}/></button>
+                         <button onClick={() => deleteCategory(c.id)} className="p-2 bg-slate-800 text-slate-400 rounded-lg hover:text-red-500"><Trash2 size={16}/></button>
+                      </div>
+                   </div>
+                   <div className="pt-4 border-t border-slate-800">
+                      <div className="flex gap-2 mb-2">
+                         <input value={tempSubCatName} onChange={e => setTempSubCatName(e.target.value)} placeholder="New Subcategory" className="bg-slate-800 px-4 py-2 rounded-lg text-white text-xs w-full outline-none" />
+                         <button onClick={() => handleAddSubCategory(c.id)} className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs hover:bg-slate-700"><Plus size={14}/></button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                         {subCategories.filter(s => s.categoryId === c.id).map(s => (
+                            <span key={s.id} className="px-3 py-1 bg-slate-800 rounded-full text-[10px] text-slate-400 flex items-center gap-2">
+                               {s.name} <button onClick={() => deleteSubCategory(s.id)} className="hover:text-red-500"><X size={10}/></button>
+                            </span>
+                         ))}
+                      </div>
+                   </div>
+                </div>
+             ))}
+          </div>
+         </>
+      )}
+    </div>
+  );
+
+  const renderTeam = () => (
+    <div className="space-y-6 text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
+       <div className="flex justify-between items-end mb-8">
+          <div className="space-y-2"><h2 className="text-3xl font-serif text-white">Maison Team</h2><p className="text-slate-400 text-sm">Manage access.</p></div>
+       </div>
+       <div className="grid gap-4">
+          {admins.map(a => (
+             <div key={a.id} className="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex justify-between items-center">
+                <div><h4 className="text-white font-bold">{a.name}</h4><p className="text-slate-500 text-xs">{a.email}</p></div>
+                <div className="px-3 py-1 bg-primary/10 text-primary text-[10px] uppercase font-bold rounded-full">{a.role}</div>
+             </div>
+          ))}
+       </div>
+    </div>
+  );
+
+  const renderSystem = () => (
+    <div className="space-y-6 text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
+       <div className="space-y-2 mb-8"><h2 className="text-3xl font-serif text-white">System Status</h2></div>
+       <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+             <h4 className="text-white font-bold mb-4 flex items-center gap-2"><Server size={18} className="text-primary"/> Cloud Connection</h4>
+             <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${connectionHealth?.status === 'online' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-slate-400 text-sm">{connectionHealth?.message || 'Checking...'}</span>
+             </div>
+             {connectionHealth?.latency && <p className="text-slate-500 text-xs mt-2">Latency: {connectionHealth.latency}ms</p>}
+          </div>
+       </div>
+    </div>
+  );
+
+  const renderGuide = () => (
+     <div className="space-y-6 text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <h2 className="text-3xl font-serif text-white mb-8">Pilot Guide</h2>
+        <div className="space-y-4">
+           {GUIDE_STEPS.map(step => (
+              <div key={step.id} className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                 <h4 className="text-white font-bold mb-2">{step.title}</h4>
+                 <p className="text-slate-400 text-sm">{step.description}</p>
+                 {step.code && <pre className="mt-4 p-4 bg-black rounded-xl text-xs text-green-400 overflow-x-auto font-mono">{step.code}</pre>}
+              </div>
+           ))}
+        </div>
+     </div>
+  );
   
-  // Minimal renderSiteEditor with FileUploader integration
   const renderSiteEditor = () => (
      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {[
           {id: 'brand', label: 'Identity', icon: Globe, desc: 'Logo, Colors, Slogan'}, 
-          // ... other sections
+          {id: 'home', label: 'Home Page', icon: LayoutGrid, desc: 'Hero, Trust, Features'},
+          {id: 'about', label: 'My Story', icon: BookOpen, desc: 'History, Mission, Values'},
+          {id: 'contact', label: 'Concierge', icon: Phone, desc: 'Contact Info, Socials'},
+          {id: 'legal', label: 'Legal', icon: ShieldCheck, desc: 'Policies, Terms'},
+          {id: 'integrations', label: 'Integrations', icon: Zap, desc: 'Analytics, EmailJS'}
         ].map(s => ( 
           <button key={s.id} onClick={() => handleOpenEditor(s.id)} className="bg-slate-900 p-8 rounded-[2.5rem] text-left border border-slate-800 hover:border-primary/50 hover:bg-slate-800 transition-all group h-full flex flex-col justify-between">
              <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-slate-900 transition-colors shadow-lg"><s.icon size={24}/></div>
@@ -564,7 +605,6 @@ const Admin: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 pt-24 md:pt-32 pb-20">
-      {/* ... Header & Navigation ... */}
       <header className="max-w-[1400px] mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 text-left">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-4">
@@ -596,15 +636,17 @@ const Admin: React.FC = () => {
         {activeTab === 'enquiries' && renderEnquiries()}
         {activeTab === 'analytics' && renderAnalytics()}
         {activeTab === 'catalog' && renderCatalog()}
+        {activeTab === 'hero' && renderHero()}
+        {activeTab === 'categories' && renderCategories()}
         {activeTab === 'site_editor' && renderSiteEditor()}
-        {/* ... other tabs ... */}
+        {activeTab === 'team' && renderTeam()}
+        {activeTab === 'system' && renderSystem()}
+        {activeTab === 'guide' && renderGuide()}
       </main>
 
-      {/* Full Screen Editor Drawer */}
       {editorDrawerOpen && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-2xl bg-slate-950 h-full overflow-y-auto border-l border-slate-800 p-8 md:p-12 text-left shadow-2xl slide-in-from-right duration-300">
-             {/* ... Editor Content using tempSettings and updateTempSettings ... */}
              <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-800">
                <div><h3 className="text-3xl font-serif text-white uppercase">{activeEditorSection}</h3><p className="text-slate-500 text-xs mt-1">Global Site Configuration</p></div>
                <button onClick={() => setEditorDrawerOpen(false)} className="p-3 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><X size={24}/></button>
@@ -618,7 +660,14 @@ const Admin: React.FC = () => {
                      <SingleImageUploader label="Logo Image (PNG)" value={tempSettings.companyLogoUrl || ''} onChange={v => updateTempSettings({companyLogoUrl: v})} className="h-32 w-full object-contain bg-slate-800/50" />
                   </div>
                )}
-               {/* ... Other sections mapped similarly using SingleImageUploader for images ... */}
+               {activeEditorSection === 'home' && (
+                  <div className="space-y-6">
+                     <h4 className="text-white font-bold flex items-center gap-2"><LayoutGrid size={18} className="text-primary"/> Home Page</h4>
+                     <SettingField label="About Title" value={tempSettings.homeAboutTitle} onChange={v => updateTempSettings({homeAboutTitle: v})} />
+                     <SettingField label="About Description" value={tempSettings.homeAboutDescription} onChange={v => updateTempSettings({homeAboutDescription: v})} type="textarea" />
+                     <SingleImageUploader label="About Section Image" value={tempSettings.homeAboutImage} onChange={v => updateTempSettings({homeAboutImage: v})} />
+                  </div>
+               )}
             </div>
 
             <div className="fixed bottom-0 right-0 w-full max-w-2xl p-6 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 flex justify-end gap-4">
